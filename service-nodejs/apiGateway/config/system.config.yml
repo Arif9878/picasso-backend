@@ -1,0 +1,33 @@
+# Core
+db:
+  redis:
+    host: ${REDIS_HOST:-redis}
+    port: ${REDIS_PORT:-6379}
+    emulate: true
+    name: mymaster
+    namespace: EG
+
+# plugins:
+  # express-gateway-plugin-example:
+  #   param1: 'param from system.config'
+
+crypto:
+  cipherKey: sensitiveKey
+  algorithm: aes256
+  saltRounds: 10
+
+# OAuth2 Settings
+session:
+  # storeProvider: connect-redis
+  storeOptions:
+    host: ${REDIS_HOST:-redis}
+    port: ${REDIS_PORT:-6379}
+  secret: keyboard cat
+  resave: false
+  saveUninitialized: false
+accessTokens:
+  timeToExpiry: 7200000
+refreshTokens:
+  timeToExpiry: 7200000
+authorizationCodes:
+  timeToExpiry: 300000

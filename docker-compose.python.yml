@@ -1,0 +1,45 @@
+version: '3.3'
+
+services:
+  authserver:
+    build:
+      context: ./service-python/authserver
+    command: /usr/local/bin/gunicorn authServer.wsgi:application -w 2 -b :80
+    restart: always
+    networks:
+      - authserver
+    env_file: 
+      - .env-python
+
+  monthlyreport:
+    build:
+      context: ./service-python/monthlyreport
+    command: /usr/local/bin/gunicorn wsgi:app -w 2 -b :80
+    restart: always
+    networks:
+      - monthlyreport
+    env_file: 
+      - .env-python
+
+  exportexcel:
+    build:
+      context: ./service-python/exportExcel
+    command: /usr/local/bin/gunicorn wsgi:app -w 2 -b :80
+    restart: always
+    networks:
+      - exportexcel
+    env_file: 
+      - .env-python
+
+networks:
+  authserver:
+    external:
+      name: gateway
+
+  monthlyreport:
+    external:
+      name: gateway
+
+  exportexcel:
+    external:
+      name: gateway

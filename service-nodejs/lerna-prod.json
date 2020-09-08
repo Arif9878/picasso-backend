@@ -1,0 +1,7 @@
+{
+  "packages": [
+    "service-nodejs/*"
+  ],
+  "npmClient": "yarn",
+  "version": "0.0.0"
+}

@@ -1,0 +1,33 @@
+{
+  "name": "micro-service",
+  "description": "Express Gateway",
+  "repository": {},
+  "license": "MIT",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "babel-dev": "babel-node index.js",
+    "dev": "nodemon --exec yarn babel-dev",
+    "build": "rm -rf build && babel ./index.js --out-dir ./build --source-maps",
+    "start": "node index.js"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "nodemon": "^1.19.2",
+    "nyc": "^14.1.1"
+  },
+  "dependencies": {
+    "connect-redis": "^4.0.3",
+    "dotenv": "^8.2.0",
+    "express-gateway": "^1.16.9",
+    "express-gateway-plugin-example": "^1.0.1",
+    "express-session": "^1.17.0",
+    "fsevents": "^2.1.2",
+    "raven": "^2.6.4",
+    "redis": "^2.8.0"
+  }
+}

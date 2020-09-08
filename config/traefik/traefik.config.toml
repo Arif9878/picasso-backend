@@ -1,0 +1,43 @@
+[http]
+  [http.routers]
+  #########################################################################
+    # http #
+    [http.routers.http-to-app]
+      # You can change the rules here and make it more complex. Check traefik
+      # docs!
+      rule = "Host(`groupware-api.digitalservice.id`)"
+      service = "app"
+      entrypoints = ["http"]
+      # enable if u want redirect to https
+      #middlewares = ["redirect"]
+
+  ## https #
+    [http.routers.https-to-app]
+      rule = "Host(`groupware-api.digitalservice.id`)"
+      service = "app"
+      entrypoints = ["https"]
+      middlewares = ["app-compress"]
+      [http.routers.https-to-app.tls]
+
+    [http.services]
+    # service
+      [http.services.app]
+        [http.services.app.loadBalancer]
+        passHostHeader = true
+          [[http.services.app.loadBalancer.servers]]
+            # This is where your dev app lives.
+            url = "http://apigateway/"
+
+  ########################################################################
+  [http.middlewares]
+    [http.middlewares.redirect.redirectScheme]
+      scheme = "https"
+      average = 100
+      burst = 50
+    [http.middlewares.app-compress.compress]
+
+
+[tls]
+  [[tls.certificates]]
+    certFile = "/data/fullchain1.pem"
+    keyFile = "/data/privkey1.pem"

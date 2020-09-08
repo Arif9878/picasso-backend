@@ -1,0 +1,59 @@
+version: '3.3'
+
+services:
+
+  mongo:
+    image : mongo:4.2.3
+    restart: always
+    networks:
+      - mongo
+    volumes:
+      - ./data/mongodb_data:/data/db
+    ports:
+      - 27017:27017
+
+  postgres:
+    build:
+      context: ./database/postgre
+    restart: always
+    networks:
+      - postgres
+    volumes:
+      - ./data/pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    env_file: 
+      - .env-database
+
+  redis:
+    image : redis:latest
+    restart: always
+    networks:
+      - redis
+    ports:
+      - 6379:6379
+
+  nats:
+    image : nats
+    restart: always
+    networks:
+      - nats
+    ports:
+      - 4222:4222
+
+networks:
+  mongo:
+    external:
+      name: gateway
+
+  postgres:
+    external:
+      name: gateway
+
+  redis:
+    external:
+      name: gateway
+
+  nats:
+    external:
+      name: gateway

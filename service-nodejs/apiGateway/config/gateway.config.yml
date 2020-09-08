@@ -1,0 +1,367 @@
+http:
+  port: ${API_GATEWAY_PORT}
+
+apiEndpoints:
+  authentication:
+    host: '*'
+    paths: /auth/*
+    methods: ["POST","OPTIONS"]
+
+  user:
+    host: '*'
+    paths: /user/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+  oauth2_login:
+    host: '*'
+    paths: /social/google-oauth2/*
+    methods: ["POST","OPTIONS"]
+
+  fileupload:
+    host: '*'
+    paths: /file/*
+    methods: ["GET","POST","PUT","OPTIONS"]
+
+  satuankerja:
+    host: '*'
+    paths: /satuan-kerja/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+  jabatan:
+    host: '*'
+    paths: /jabatan/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+  logbook:
+    host: '*'
+    paths: /logbook/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+  monthlyreport:
+    host: '*'
+    paths: /monthly-report/*
+    methods: ["GET","OPTIONS"]
+
+  exportexcel:
+    host: '*'
+    paths: /export-excel/*
+    methods: ["GET","OPTIONS"]
+
+  project:
+    host: '*'
+    paths: /project/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+  attendance:
+    host: '*'
+    paths: /attendance/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+  devicetoken:
+    host: '*'
+    paths: /device-token/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+  notificationservice:
+    host: '*'
+    paths: /notification/*
+    methods: ["POST","OPTIONS"]
+
+  notificationmessage:
+    host: '*'
+    paths: /notification-message/*
+    methods: ["GET","DELETE","OPTIONS"]
+
+  mockserver:
+    host: '*'
+    paths: /mock/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+
+serviceEndpoints:
+  authentication:
+    url: '${AUTHENTICATION_PY_SERVICE_URI}/api/'
+
+  user:
+    url: '${AUTHENTICATION_PY_SERVICE_URI}/api/'
+
+  satuankerja:
+    url: '${SATUANKERJA_GO_SERVICE_URI}/api/'
+
+  jabatan:
+    url: '${JABATAN_GO_SERVICE_URI}/api/'
+
+  fileupload:
+    url: '${FILEUPLOAD_NODEJS_SERVICE_URI}/api/'
+
+  logbook:
+    url: '${LOGBOOK_NODEJS_SERVICE_URI}/api/'
+
+  monthlyreport:
+    url: '${MONTHLY_REPORT_PY_SERVICE_URI}/api/'
+
+  exportexcel:
+    url: '${EXPORT_EXCEL_PY_SERVICE_URI}/api/'
+
+  project:
+    url: '${PROJECT_NODEJS_SERVICE_URI}/api/'
+
+  attendance:
+    url: '${ATTENDANCE_NODEJS_SERVICE_URI}/api/'
+
+  devicetoken:
+      url: '${DEVICE_TOKEN_GO_SERVICE_URI}/api/'
+      
+  notificationservice:
+      url: '${NOTIFICATION_SERVICE_GO_SERVICE_URI}/api/'
+
+  notificationmessage:
+      url: '${NOTIFICATION_MESSAGE_GO_SERVICE_URI}/api/'
+
+  mockserver:
+    url: '${MOCKSERVER_NODEJS_SERVICE_URI}/api/'
+
+policies:
+  - cors
+  - basic-auth
+  - expression
+  - key-auth
+  - log
+  - oauth2
+  - proxy
+  - rate-limit
+  - jwt
+
+pipelines:
+  authentication:
+    apiEndpoints:
+      - authentication
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: authentication
+              changeOrigin: true
+
+  oauth2_login:
+    apiEndpoints:
+      - oauth2_login
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: user
+              changeOrigin: true
+
+  user:
+    apiEndpoints:
+      - user
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: user
+              changeOrigin: true
+
+  satuankerja:
+    apiEndpoints:
+      - satuankerja
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: satuankerja
+              changeOrigin: true
+
+  jabatan:
+    apiEndpoints:
+      - jabatan
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: jabatan
+              changeOrigin: true
+
+  fileupload:
+    apiEndpoints:
+      - fileupload
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: fileupload
+              changeOrigin: true
+
+  mockserver:
+    apiEndpoints:
+      - mockserver
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+        - action:
+            secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+            checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: mockserver
+              changeOrigin: true
+
+  logbook:
+    apiEndpoints:
+      - logbook
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+        - action:
+            secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+            checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: logbook
+              changeOrigin: true
+
+  monthlyreport:
+    apiEndpoints:
+      - monthlyreport
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: monthlyreport
+              changeOrigin: true
+
+  exportexcel:
+    apiEndpoints:
+      - exportexcel
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: exportexcel
+              changeOrigin: true
+
+  project:
+    apiEndpoints:
+      - project
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: project
+              changeOrigin: true
+
+  attendance:
+    apiEndpoints:
+      - attendance
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: attendance
+              changeOrigin: true
+
+  devicetoken:
+    apiEndpoints:
+      - devicetoken
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: devicetoken
+              changeOrigin: true
+
+  notificationservice:
+    apiEndpoints:
+      - notificationservice
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: notificationservice
+              changeOrigin: true
+
+  notificationmessage:
+    apiEndpoints:
+      - notificationmessage
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: notificationmessage
+              changeOrigin: true
+              

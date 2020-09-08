@@ -1,0 +1,115 @@
+version: '3.3'
+
+services:
+  satuankerja:
+    build:
+      context: ./service-golang
+    command: "satuankerja"
+    restart: always
+    networks:
+      - satuankerja
+    env_file: 
+      - .env-golang
+
+  jabatan:
+    build:
+      context: ./service-golang
+    command: "jabatan"
+    restart: always
+    networks:
+      - jabatan
+    env_file: 
+      - .env-golang
+
+  eventuser:
+    build:
+      context: ./service-golang
+    command: "eventuser"
+    restart: always
+    networks:
+      - eventuser
+    env_file: 
+      - .env-golang
+
+  jobattendance:
+    build:
+      context: ./service-golang
+    command: "jobAttendance"
+    restart: always
+    networks:
+      - jobattendance
+    env_file: 
+      - .env-golang
+
+  devicetoken:
+    build:
+      context: ./service-golang
+    command: "deviceToken"
+    restart: always
+    networks:
+      - devicetoken
+    env_file: 
+      - .env-golang
+
+  notificationworker:
+    build:
+      context: ./service-golang
+    command: "notificationWorker"
+    restart: always
+    networks:
+      - notificationworker
+    env_file: 
+      - .env-golang
+
+  notificationservice:
+    build:
+      context: ./service-golang
+    command: "notificationService"
+    restart: always
+    networks:
+      - notificationservice
+    env_file: 
+      - .env-golang
+
+  notificationmessage:
+    build:
+      context: ./service-golang
+    command: "notificationMessage"
+    restart: always
+    networks:
+      - notificationmessage
+    env_file: 
+      - .env-golang
+
+networks:
+  satuankerja:
+    external:
+      name: gateway
+
+  jabatan:
+    external:
+      name: gateway
+
+  eventuser:
+    external:
+      name: gateway
+  
+  jobattendance:
+    external:
+      name: gateway
+
+  devicetoken:
+    external:
+      name: gateway
+
+  notificationworker:
+      external:
+        name: gateway
+
+  notificationservice:
+      external:
+        name: gateway
+  
+  notificationmessage:
+      external:
+        name: gateway

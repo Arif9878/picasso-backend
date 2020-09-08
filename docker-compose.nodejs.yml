@@ -1,0 +1,103 @@
+version: '3.3'
+
+services:
+  apigateway:
+    build:
+      context: ./service-nodejs
+    command: npm start
+    restart: always
+    volumes:
+      - ./service-nodejs/apiGateway:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - apigateway
+    env_file: 
+      - .env-nodejs
+
+  mockserver:
+    build:
+      context: ./service-nodejs
+    command: npm start
+    restart: always
+    volumes:
+      - ./service-nodejs/mockserver:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - mockserver
+
+  uploadfile:
+    build:
+      context: ./service-nodejs
+    command: npm start
+    restart: always
+    volumes:
+      - ./service-nodejs/UploadFile:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - uploadfile
+    env_file: 
+      - .env-nodejs
+
+  logbook:
+    build:
+      context: ./service-nodejs
+    command: npm start
+    restart: always
+    volumes:
+      - ./service-nodejs/apiLogbook:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - logbook
+    env_file: 
+      - .env-nodejs
+
+  project:
+    build:
+      context: ./service-nodejs
+    command: npm start
+    restart: always
+    volumes:
+      - ./service-nodejs/apiProject:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - project
+    env_file: 
+      - .env-nodejs
+
+  attendance:
+    build:
+      context: ./service-nodejs
+    command: npm start
+    restart: always
+    volumes:
+      - ./service-nodejs/apiAttendance:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - attendance
+    env_file: 
+      - .env-nodejs
+
+networks:
+  apigateway:
+    external:
+      name: gateway
+
+  mockserver:
+    external:
+      name: gateway
+
+  uploadfile:
+    external:
+      name: gateway
+
+  logbook:
+    external:
+      name: gateway
+
+  project:
+    external:
+      name: gateway
+
+  attendance:
+    external:
+      name: gateway
