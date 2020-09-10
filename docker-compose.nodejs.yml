@@ -17,36 +17,6 @@ services:
     env_file: 
       - .env-nodejs
 
-  mockserver:
-    build:
-      context: ./service-nodejs
-    command: npm start
-    cpus: 0.5
-    mem_limit: 150m
-    memswap_limit: 50m
-    restart: always
-    volumes:
-      - ./service-nodejs/mockserver:/usr/src/app
-      - /usr/src/app/node_modules
-    networks:
-      - mockserver
-
-  uploadfile:
-    build:
-      context: ./service-nodejs
-    command: npm start
-    cpus: 0.5
-    mem_limit: 150m
-    memswap_limit: 50m
-    restart: always
-    volumes:
-      - ./service-nodejs/UploadFile:/usr/src/app
-      - /usr/src/app/node_modules
-    networks:
-      - uploadfile
-    env_file: 
-      - .env-nodejs
-
   logbook:
     build:
       context: ./service-nodejs
@@ -67,9 +37,8 @@ services:
     build:
       context: ./service-nodejs
     command: npm start
-    deploy:
     cpus: 0.5
-    mem_limit: 250m
+    mem_limit: 150m
     memswap_limit: 50m
     restart: always
     volumes:
@@ -85,7 +54,7 @@ services:
       context: ./service-nodejs
     command: npm start
     cpus: 0.5
-    mem_limit: 250m
+    mem_limit: 200m
     memswap_limit: 150m
     restart: always
     volumes:
@@ -98,14 +67,6 @@ services:
 
 networks:
   apigateway:
-    external:
-      name: gateway
-
-  mockserver:
-    external:
-      name: gateway
-
-  uploadfile:
     external:
       name: gateway
 
