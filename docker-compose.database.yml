@@ -1,4 +1,4 @@
-version: '3.3'
+version: '2.4'
 
 services:
 
@@ -28,14 +28,9 @@ services:
   redis:
     image : redis:latest
     restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 50M
-        reservations:
-          cpus: '0.25'
-          memory: 20M
+    cpus: 0.5
+    mem_limit: 150m
+    memswap_limit: 50m
     networks:
       - redis
     ports:
@@ -44,14 +39,8 @@ services:
   nats:
     image : nats
     restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '0.75'
-          memory: 250M
-        reservations:
-          cpus: '0.25'
-          memory: 120M
+    mem_limit: 250M
+    mem_reservation: 50M
     networks:
       - nats
     ports:
