@@ -1,18 +1,13 @@
-version: '3.3'
+version: '2.4'
 
 services:
   authserver:
     build:
       context: ./service-python/authserver
     command: /usr/local/bin/gunicorn authServer.wsgi:application -w 2 -b :80
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 150M
-        reservations:
-          cpus: '0.25'
-          memory: 50M
+    cpus: 0.5
+    mem_limit: 250m
+    memswap_limit: 50m
     restart: always
     networks:
       - authserver
@@ -23,14 +18,9 @@ services:
     build:
       context: ./service-python/monthlyreport
     command: /usr/local/bin/gunicorn wsgi:app -w 2 -b :80
-    deploy:
-      resources:
-        limits:
-          cpus: '0.75'
-          memory: 250M
-        reservations:
-          cpus: '0.25'
-          memory: 150M
+    cpus: 0.5
+    mem_limit: 350m
+    memswap_limit: 150m
     restart: always
     networks:
       - monthlyreport
@@ -41,14 +31,9 @@ services:
     build:
       context: ./service-python/exportExcel
     command: /usr/local/bin/gunicorn wsgi:app -w 2 -b :80
-    deploy:
-      resources:
-        limits:
-          cpus: '0.75'
-          memory: 250M
-        reservations:
-          cpus: '0.25'
-          memory: 150M
+    cpus: 0.5
+    mem_limit: 350m
+    memswap_limit: 150m
     restart: always
     networks:
       - exportexcel
