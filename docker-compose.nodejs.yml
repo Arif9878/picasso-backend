@@ -5,6 +5,14 @@ services:
     build:
       context: ./service-nodejs
     command: npm start
+    deploy:
+      resources:
+        limits:
+          cpus: '0.80'
+          memory: 250M
+        reservations:
+          cpus: '0.20'
+          memory: 150M
     restart: always
     volumes:
       - ./service-nodejs/apiGateway:/usr/src/app
@@ -18,6 +26,14 @@ services:
     build:
       context: ./service-nodejs
     command: npm start
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     volumes:
       - ./service-nodejs/mockserver:/usr/src/app
@@ -29,6 +45,14 @@ services:
     build:
       context: ./service-nodejs
     command: npm start
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     volumes:
       - ./service-nodejs/UploadFile:/usr/src/app
@@ -42,6 +66,14 @@ services:
     build:
       context: ./service-nodejs
     command: npm start
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     volumes:
       - ./service-nodejs/apiLogbook:/usr/src/app
@@ -55,6 +87,14 @@ services:
     build:
       context: ./service-nodejs
     command: npm start
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     volumes:
       - ./service-nodejs/apiProject:/usr/src/app
@@ -68,6 +108,14 @@ services:
     build:
       context: ./service-nodejs
     command: npm start
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     volumes:
       - ./service-nodejs/apiAttendance:/usr/src/app

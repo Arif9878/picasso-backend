@@ -5,6 +5,14 @@ services:
     build:
       context: ./service-golang
     command: "satuankerja"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     networks:
       - satuankerja
@@ -15,6 +23,14 @@ services:
     build:
       context: ./service-golang
     command: "jabatan"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     networks:
       - jabatan
@@ -25,6 +41,14 @@ services:
     build:
       context: ./service-golang
     command: "eventuser"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     networks:
       - eventuser
@@ -35,6 +59,14 @@ services:
     build:
       context: ./service-golang
     command: "jobAttendance"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     networks:
       - jobattendance
@@ -45,6 +77,14 @@ services:
     build:
       context: ./service-golang
     command: "deviceToken"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     networks:
       - devicetoken
@@ -55,6 +95,14 @@ services:
     build:
       context: ./service-golang
     command: "notificationWorker"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 50M
     restart: always
     networks:
       - notificationworker
@@ -65,6 +113,14 @@ services:
     build:
       context: ./service-golang
     command: "notificationService"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     networks:
       - notificationservice
@@ -75,6 +131,14 @@ services:
     build:
       context: ./service-golang
     command: "notificationMessage"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     restart: always
     networks:
       - notificationmessage
