@@ -28,6 +28,14 @@ services:
   redis:
     image : redis:latest
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+        reservations:
+          cpus: '0.25'
+          memory: 20M
     networks:
       - redis
     ports:
@@ -36,6 +44,14 @@ services:
   nats:
     image : nats
     restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 250M
+        reservations:
+          cpus: '0.25'
+          memory: 120M
     networks:
       - nats
     ports:
