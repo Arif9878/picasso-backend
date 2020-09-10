@@ -1,10 +1,13 @@
-version: '3.3'
+version: '2.4'
 
 services:
   satuankerja:
     build:
       context: ./service-golang
     command: "satuankerja"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 50m
     restart: always
     networks:
       - satuankerja
@@ -15,6 +18,9 @@ services:
     build:
       context: ./service-golang
     command: "jabatan"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 50m
     restart: always
     networks:
       - jabatan
@@ -25,6 +31,9 @@ services:
     build:
       context: ./service-golang
     command: "eventuser"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 50m
     restart: always
     networks:
       - eventuser
@@ -35,6 +44,9 @@ services:
     build:
       context: ./service-golang
     command: "jobAttendance"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 50m
     restart: always
     networks:
       - jobattendance
@@ -45,6 +57,9 @@ services:
     build:
       context: ./service-golang
     command: "deviceToken"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 50m
     restart: always
     networks:
       - devicetoken
@@ -55,6 +70,9 @@ services:
     build:
       context: ./service-golang
     command: "notificationWorker"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 50m
     restart: always
     networks:
       - notificationworker
@@ -65,6 +83,9 @@ services:
     build:
       context: ./service-golang
     command: "notificationService"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 50m
     restart: always
     networks:
       - notificationservice
@@ -75,6 +96,9 @@ services:
     build:
       context: ./service-golang
     command: "notificationMessage"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 50m
     restart: always
     networks:
       - notificationmessage
