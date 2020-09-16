@@ -42,7 +42,7 @@ module.exports = async (req, res, next) => {
           'isMainTask': 1,
           'workPlace': 1,
           'organizerTask': 1,
-          'otherInformation': { '$ifNull': ['$documentTask.fileURL', ''] },
+          'otherInformation': { '$ifNull': ['$otherInformation', ''] },
         }
       }
     ]
