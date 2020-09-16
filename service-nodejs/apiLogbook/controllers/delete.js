@@ -31,7 +31,7 @@ module.exports = async (req, res, next) => {
 
     await s3.deleteObjects(deleteParamEvidence, function (err, data) {
       if (err) {
-        throw new APIError(errors.serverError)
+        console.error(err)
       }
     })
 
@@ -47,7 +47,7 @@ module.exports = async (req, res, next) => {
 
       await s3.deleteObjects(deleteParamDocument, function (err, data) {
         if (err) {
-          throw new APIError(errors.serverError)
+          console.error(err)
         }
       })
     }
@@ -61,6 +61,20 @@ module.exports = async (req, res, next) => {
       message: 'Data has been successfully deleted',
     })
   } catch (error) {
-    next(error)
+    const {
+      code,
+      message,
+      data
+    } = error
+
+    if (code && message) {
+      res.status(code).send({
+        code,
+        message,
+        data,
+      })
+    } else {
+      res.status(404).send(errors.notFound)
+    }
   }
 }

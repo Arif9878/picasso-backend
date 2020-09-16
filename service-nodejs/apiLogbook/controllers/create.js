@@ -55,9 +55,13 @@ module.exports = async (req, res) => { // eslint-disable-line
         const isLink = String(isDocumentLink) === 'true'
         if (isLink) {
             if (req.body.documentTask.length < 0) throw new APIError(errors.validationError)
+            let pathURL = req.body.documentTask
+            if (req.body.documentTask === 'null') {
+                pathURL = null
+            }
             documentResponse = {
                 filePath: '',
-                fileURL: req.body.documentTask
+                fileURL: pathURL
             }
         } else {
             documentResponse = await postFile('document', req.files.documentTask)
