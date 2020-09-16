@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from flask import Flask, send_file, request
 from flask_sqlalchemy import SQLAlchemy
 from pymongo import MongoClient
-from utils import monthlist_short, isWeekDay
+from utils import monthlist_short, isWeekDay, getHours, getInformation, queryAccount
 
 app = Flask(__name__)
 
@@ -39,60 +39,6 @@ app.config.update(
 )
 
 db = SQLAlchemy(app)
-
-def getHours(idUser, date):
-    dbMongo = mongoClient.attendance
-    agr = [
-        {
-            '$match': {
-                "createdBy._id": str(idUser),
-                'startDate': {
-                    '$gte': datetime.strptime(date+'-00:00:00', '%d/%m/%Y-%H:%M:%S'),
-                    '$lt': datetime.strptime(date+'-23:59:59', '%d/%m/%Y-%H:%M:%S')
-                }
-            }
-        }, {
-            '$project': {
-                '_id': 0,
-                'officeHours': 1
-            }
-        }
-    ]
-
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if not itm:
-        count = 0
-    else:
-        count = math.ceil(itm[0]['officeHours'])
-    return count
-
-
-def getInformation(idUser, date):
-    dbMongo = mongoClient.attendance
-    agr = [
-        {
-            '$match': {
-                "createdBy._id": str(idUser),
-                'startDate': {
-                    '$gte': datetime.strptime(date+'-00:00:00', '%d/%m/%Y-%H:%M:%S'),
-                    '$lt': datetime.strptime(date+'-23:59:59', '%d/%m/%Y-%H:%M:%S')
-                }
-            }
-        }, {
-            '$project': {
-                '_id': 0,
-                'location': 1,
-                'message': 1
-            }
-        }
-    ]
-
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if not itm:
-        information = '-'
-    else:
-        information = itm[0]['message']+' ('+itm[0]['location']+')'
-    return information
 
 @app.route('/api/export-excel/')
 def exportExcel():
@@ -145,7 +91,8 @@ def exportExcel():
                           (totalListDate * 2) + 1, "TOTAL", merge_format)
     worksheet.merge_range(1, (totalListDate * 2) + 2, 2,
                           (totalListDate * 2) + 2, "TTD", merge_format)
-    result = db.session.execute("SELECT accounts_account.id, accounts_account.first_name, accounts_account.last_name, accounts_account.divisi FROM accounts_account WHERE accounts_account.id_divisi = :divisi", {'divisi': divisi})
+    query = queryAccount(divisi=divisi)
+    result = db.session.execute(query)
     divisiName = ''
     indexNamePegawai = 2
     for i in result:
@@ -160,8 +107,8 @@ def exportExcel():
                 indexDate += 1
                 cell_range = xl_range(indexNamePegawai, 1, indexNamePegawai, b)
                 formula = '=SUM(%s)' % cell_range
-                hour = getHours(i[0], listDate[indexDate - 1])
-                information = getInformation(i[0], listDate[indexDate - 1])
+                hour = getHours(mongoClient, i[0], listDate[indexDate - 1])
+                information = getInformation(mongoClient, i[0], listDate[indexDate - 1])
                 if isWeekDay(listDate[indexDate - 1]) is False and hour == 0:
                     worksheet.merge_range(indexNamePegawai, b,
                                           indexNamePegawai, b + 1, 'Libur',

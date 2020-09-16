@@ -80,7 +80,7 @@ module.exports = async (req, res, next) => {
         const logBook = await LogBook
             .aggregate(rules)
             .sort(sort)
-        
+
         // Get logbook per Day
         rules.push({
             $group: {
