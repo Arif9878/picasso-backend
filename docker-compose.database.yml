@@ -1,4 +1,4 @@
-version: '3.3'
+version: '2.4'
 
 services:
 
@@ -28,6 +28,9 @@ services:
   redis:
     image : redis:latest
     restart: always
+    cpus: 0.5
+    mem_limit: 250m
+    mem_reservation: 50m
     networks:
       - redis
     ports:
@@ -36,6 +39,8 @@ services:
   nats:
     image : nats
     restart: always
+    mem_limit: 250m
+    mem_reservation: 50m
     networks:
       - nats
     ports:

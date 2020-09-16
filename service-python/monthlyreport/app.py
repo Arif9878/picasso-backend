@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from pymongo import MongoClient
-
+from utils import getCountHours, getCountLogbook, convertFunc, queryAccount
 app = Flask(__name__)
 
 dotenv_path = ''
@@ -37,109 +37,21 @@ app.config.update(
 
 db = SQLAlchemy(app)
 
-def getCountHours(idUser, start_date, end_date):
-    dbMongo = mongoClient.attendance
-    agr = [
-        {
-            '$match': {
-                "createdBy._id": str(idUser)
-            }
-        }, {
-            '$group': {
-                '_id': 0, 
-                'count': {
-                    '$sum': '$officeHours'
-                }
-            }
-        }, {
-            '$project': {
-                '_id': 0
-            }
-        }
-    ]
-
-    if start_date:
-        agr.insert(0, {
-            '$match': {
-                'startDate': {
-                    '$gte': datetime.datetime.strptime(start_date+'-0:0:0', '%Y-%m-%d-%H:%M:%S'),
-                    '$lt': datetime.datetime.strptime(end_date+'-23:59:59', '%Y-%m-%d-%H:%M:%S')
-                }
-            }
-        })
-
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if not itm:
-      count = 0
-    else:
-      count = math.ceil(itm[0]['count'])
-    return count
-
-def getCountLogbook(idUser, start_date, end_date):
-    dbMongo = mongoClient.logbook
-    agr = [
-        {
-            '$match': {
-                "createdBy._id": str(idUser)
-            }
-        }, {
-            '$group': {
-                '_id': 0, 
-                'count': { '$sum': { '$cond': [ { '$eq': [ "$_id", "none" ] }, 0, 1 ] } }
-            }
-        }, {
-            '$project': {
-                '_id': 0
-            }
-        }
-    ]
-
-    if start_date:
-        agr.insert(0, {
-            '$match': {
-                'dateTask': {
-                    '$gte': datetime.datetime.strptime(start_date+'-0:0:0', '%Y-%m-%d-%H:%M:%S'),
-                    '$lt': datetime.datetime.strptime(end_date+'-23:59:59', '%Y-%m-%d-%H:%M:%S')
-                }
-            }
-        })
-
-    itm = list(dbMongo.logbooks.aggregate(agr))
-    if not itm:
-      count = 0
-    else:
-      count = itm[0]['count']
-    return count
-
-def conv_func(list_data, totalReport, totalHours):
-    dic = { 
-            "id":str(list_data[0]),
-            "email":list_data[1],
-            "username":list_data[2],
-            "fullname":list_data[3]+' '+list_data[4],
-            "id_divisi":list_data[5],
-            "divisi":list_data[6],
-            "id_jabatan":list_data[7],
-            "jabatan":list_data[8],
-            "total_report": totalReport,
-            "total_hours": totalHours
-          }
-    return dic
-
 @app.route('/api/monthly-report/')
 def listUserByUnit():
     divisi = request.args.get('divisi')
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
-    result = db.session.execute("SELECT accounts_account.id, accounts_account.email, accounts_account.username, accounts_account.first_name, accounts_account.last_name, accounts_account.id_divisi, accounts_account.divisi, accounts_account.id_jabatan, accounts_account.jabatan FROM accounts_account WHERE accounts_account.id_divisi = :divisi", {'divisi': divisi})
+    query = queryAccount(divisi=divisi)
+    result = db.session.execute(query)
     response = []
     if result.returns_rows == False:
         return response
     else:
         for i in result:
-            totalReport = getCountLogbook(i.id, start_date, end_date)
-            totalHours = getCountHours(i.id, start_date, end_date)
-            response.append(conv_func(i, totalReport, totalHours))
+            totalReport = getCountLogbook(mongoClient, i.id, start_date, end_date)
+            totalHours = getCountHours(mongoClient, i.id, start_date, end_date)
+            response.append(convertFunc(i, totalReport, totalHours))
     return json.dumps(response)
 
 port = os.environ.get('MONTHLY_REPORT_PORT', 80)

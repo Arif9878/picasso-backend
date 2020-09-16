@@ -1,0 +1,1142 @@
+[{
+    "model": "contenttypes.contenttype",
+    "pk": 1,
+    "fields": {
+        "app_label": "admin",
+        "model": "logentry"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 2,
+    "fields": {
+        "app_label": "auth",
+        "model": "permission"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 3,
+    "fields": {
+        "app_label": "auth",
+        "model": "group"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 4,
+    "fields": {
+        "app_label": "contenttypes",
+        "model": "contenttype"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 5,
+    "fields": {
+        "app_label": "sessions",
+        "model": "session"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 6,
+    "fields": {
+        "app_label": "oauth2_provider",
+        "model": "application"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 7,
+    "fields": {
+        "app_label": "oauth2_provider",
+        "model": "accesstoken"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 8,
+    "fields": {
+        "app_label": "oauth2_provider",
+        "model": "grant"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 9,
+    "fields": {
+        "app_label": "oauth2_provider",
+        "model": "refreshtoken"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 10,
+    "fields": {
+        "app_label": "social_django",
+        "model": "association"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 11,
+    "fields": {
+        "app_label": "social_django",
+        "model": "code"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 12,
+    "fields": {
+        "app_label": "social_django",
+        "model": "nonce"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 13,
+    "fields": {
+        "app_label": "social_django",
+        "model": "usersocialauth"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 14,
+    "fields": {
+        "app_label": "social_django",
+        "model": "partial"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 15,
+    "fields": {
+        "app_label": "authtoken",
+        "model": "token"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 16,
+    "fields": {
+        "app_label": "master",
+        "model": "agama"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 17,
+    "fields": {
+        "app_label": "master",
+        "model": "berkas"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 18,
+    "fields": {
+        "app_label": "master",
+        "model": "jeniskelamin"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 19,
+    "fields": {
+        "app_label": "master",
+        "model": "jenisnomoridentitas"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 20,
+    "fields": {
+        "app_label": "master",
+        "model": "settings"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 21,
+    "fields": {
+        "app_label": "accounts",
+        "model": "account"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 22,
+    "fields": {
+        "app_label": "accounts",
+        "model": "accounthistoryaction"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 23,
+    "fields": {
+        "app_label": "accounts",
+        "model": "nomoridentitaspengguna"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 24,
+    "fields": {
+        "app_label": "master",
+        "model": "negara"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 25,
+    "fields": {
+        "app_label": "master",
+        "model": "kabupaten"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 26,
+    "fields": {
+        "app_label": "master",
+        "model": "provinsi"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 27,
+    "fields": {
+        "app_label": "master",
+        "model": "desa"
+    }
+}, {
+    "model": "contenttypes.contenttype",
+    "pk": 28,
+    "fields": {
+        "app_label": "master",
+        "model": "kecamatan"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 1,
+    "fields": {
+        "name": "Can add log entry",
+        "content_type": 1,
+        "codename": "add_logentry"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 2,
+    "fields": {
+        "name": "Can change log entry",
+        "content_type": 1,
+        "codename": "change_logentry"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 3,
+    "fields": {
+        "name": "Can delete log entry",
+        "content_type": 1,
+        "codename": "delete_logentry"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 4,
+    "fields": {
+        "name": "Can view log entry",
+        "content_type": 1,
+        "codename": "view_logentry"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 5,
+    "fields": {
+        "name": "Can add permission",
+        "content_type": 2,
+        "codename": "add_permission"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 6,
+    "fields": {
+        "name": "Can change permission",
+        "content_type": 2,
+        "codename": "change_permission"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 7,
+    "fields": {
+        "name": "Can delete permission",
+        "content_type": 2,
+        "codename": "delete_permission"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 8,
+    "fields": {
+        "name": "Can view permission",
+        "content_type": 2,
+        "codename": "view_permission"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 9,
+    "fields": {
+        "name": "Can add group",
+        "content_type": 3,
+        "codename": "add_group"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 10,
+    "fields": {
+        "name": "Can change group",
+        "content_type": 3,
+        "codename": "change_group"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 11,
+    "fields": {
+        "name": "Can delete group",
+        "content_type": 3,
+        "codename": "delete_group"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 12,
+    "fields": {
+        "name": "Can view group",
+        "content_type": 3,
+        "codename": "view_group"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 13,
+    "fields": {
+        "name": "Can add content type",
+        "content_type": 4,
+        "codename": "add_contenttype"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 14,
+    "fields": {
+        "name": "Can change content type",
+        "content_type": 4,
+        "codename": "change_contenttype"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 15,
+    "fields": {
+        "name": "Can delete content type",
+        "content_type": 4,
+        "codename": "delete_contenttype"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 16,
+    "fields": {
+        "name": "Can view content type",
+        "content_type": 4,
+        "codename": "view_contenttype"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 17,
+    "fields": {
+        "name": "Can add session",
+        "content_type": 5,
+        "codename": "add_session"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 18,
+    "fields": {
+        "name": "Can change session",
+        "content_type": 5,
+        "codename": "change_session"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 19,
+    "fields": {
+        "name": "Can delete session",
+        "content_type": 5,
+        "codename": "delete_session"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 20,
+    "fields": {
+        "name": "Can view session",
+        "content_type": 5,
+        "codename": "view_session"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 21,
+    "fields": {
+        "name": "Can add application",
+        "content_type": 6,
+        "codename": "add_application"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 22,
+    "fields": {
+        "name": "Can change application",
+        "content_type": 6,
+        "codename": "change_application"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 23,
+    "fields": {
+        "name": "Can delete application",
+        "content_type": 6,
+        "codename": "delete_application"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 24,
+    "fields": {
+        "name": "Can view application",
+        "content_type": 6,
+        "codename": "view_application"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 25,
+    "fields": {
+        "name": "Can add access token",
+        "content_type": 7,
+        "codename": "add_accesstoken"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 26,
+    "fields": {
+        "name": "Can change access token",
+        "content_type": 7,
+        "codename": "change_accesstoken"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 27,
+    "fields": {
+        "name": "Can delete access token",
+        "content_type": 7,
+        "codename": "delete_accesstoken"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 28,
+    "fields": {
+        "name": "Can view access token",
+        "content_type": 7,
+        "codename": "view_accesstoken"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 29,
+    "fields": {
+        "name": "Can add grant",
+        "content_type": 8,
+        "codename": "add_grant"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 30,
+    "fields": {
+        "name": "Can change grant",
+        "content_type": 8,
+        "codename": "change_grant"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 31,
+    "fields": {
+        "name": "Can delete grant",
+        "content_type": 8,
+        "codename": "delete_grant"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 32,
+    "fields": {
+        "name": "Can view grant",
+        "content_type": 8,
+        "codename": "view_grant"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 33,
+    "fields": {
+        "name": "Can add refresh token",
+        "content_type": 9,
+        "codename": "add_refreshtoken"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 34,
+    "fields": {
+        "name": "Can change refresh token",
+        "content_type": 9,
+        "codename": "change_refreshtoken"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 35,
+    "fields": {
+        "name": "Can delete refresh token",
+        "content_type": 9,
+        "codename": "delete_refreshtoken"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 36,
+    "fields": {
+        "name": "Can view refresh token",
+        "content_type": 9,
+        "codename": "view_refreshtoken"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 37,
+    "fields": {
+        "name": "Can add association",
+        "content_type": 10,
+        "codename": "add_association"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 38,
+    "fields": {
+        "name": "Can change association",
+        "content_type": 10,
+        "codename": "change_association"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 39,
+    "fields": {
+        "name": "Can delete association",
+        "content_type": 10,
+        "codename": "delete_association"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 40,
+    "fields": {
+        "name": "Can view association",
+        "content_type": 10,
+        "codename": "view_association"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 41,
+    "fields": {
+        "name": "Can add code",
+        "content_type": 11,
+        "codename": "add_code"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 42,
+    "fields": {
+        "name": "Can change code",
+        "content_type": 11,
+        "codename": "change_code"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 43,
+    "fields": {
+        "name": "Can delete code",
+        "content_type": 11,
+        "codename": "delete_code"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 44,
+    "fields": {
+        "name": "Can view code",
+        "content_type": 11,
+        "codename": "view_code"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 45,
+    "fields": {
+        "name": "Can add nonce",
+        "content_type": 12,
+        "codename": "add_nonce"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 46,
+    "fields": {
+        "name": "Can change nonce",
+        "content_type": 12,
+        "codename": "change_nonce"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 47,
+    "fields": {
+        "name": "Can delete nonce",
+        "content_type": 12,
+        "codename": "delete_nonce"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 48,
+    "fields": {
+        "name": "Can view nonce",
+        "content_type": 12,
+        "codename": "view_nonce"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 49,
+    "fields": {
+        "name": "Can add user social auth",
+        "content_type": 13,
+        "codename": "add_usersocialauth"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 50,
+    "fields": {
+        "name": "Can change user social auth",
+        "content_type": 13,
+        "codename": "change_usersocialauth"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 51,
+    "fields": {
+        "name": "Can delete user social auth",
+        "content_type": 13,
+        "codename": "delete_usersocialauth"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 52,
+    "fields": {
+        "name": "Can view user social auth",
+        "content_type": 13,
+        "codename": "view_usersocialauth"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 53,
+    "fields": {
+        "name": "Can add partial",
+        "content_type": 14,
+        "codename": "add_partial"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 54,
+    "fields": {
+        "name": "Can change partial",
+        "content_type": 14,
+        "codename": "change_partial"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 55,
+    "fields": {
+        "name": "Can delete partial",
+        "content_type": 14,
+        "codename": "delete_partial"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 56,
+    "fields": {
+        "name": "Can view partial",
+        "content_type": 14,
+        "codename": "view_partial"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 57,
+    "fields": {
+        "name": "Can add Token",
+        "content_type": 15,
+        "codename": "add_token"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 58,
+    "fields": {
+        "name": "Can change Token",
+        "content_type": 15,
+        "codename": "change_token"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 59,
+    "fields": {
+        "name": "Can delete Token",
+        "content_type": 15,
+        "codename": "delete_token"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 60,
+    "fields": {
+        "name": "Can view Token",
+        "content_type": 15,
+        "codename": "view_token"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 61,
+    "fields": {
+        "name": "Can add Agama",
+        "content_type": 16,
+        "codename": "add_agama"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 62,
+    "fields": {
+        "name": "Can change Agama",
+        "content_type": 16,
+        "codename": "change_agama"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 63,
+    "fields": {
+        "name": "Can delete Agama",
+        "content_type": 16,
+        "codename": "delete_agama"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 64,
+    "fields": {
+        "name": "Can view Agama",
+        "content_type": 16,
+        "codename": "view_agama"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 65,
+    "fields": {
+        "name": "Can add Berkas",
+        "content_type": 17,
+        "codename": "add_berkas"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 66,
+    "fields": {
+        "name": "Can change Berkas",
+        "content_type": 17,
+        "codename": "change_berkas"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 67,
+    "fields": {
+        "name": "Can delete Berkas",
+        "content_type": 17,
+        "codename": "delete_berkas"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 68,
+    "fields": {
+        "name": "Can view Berkas",
+        "content_type": 17,
+        "codename": "view_berkas"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 69,
+    "fields": {
+        "name": "Can add Jenis Kelamin",
+        "content_type": 18,
+        "codename": "add_jeniskelamin"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 70,
+    "fields": {
+        "name": "Can change Jenis Kelamin",
+        "content_type": 18,
+        "codename": "change_jeniskelamin"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 71,
+    "fields": {
+        "name": "Can delete Jenis Kelamin",
+        "content_type": 18,
+        "codename": "delete_jeniskelamin"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 72,
+    "fields": {
+        "name": "Can view Jenis Kelamin",
+        "content_type": 18,
+        "codename": "view_jeniskelamin"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 73,
+    "fields": {
+        "name": "Can add Jenis Nomor Identitas",
+        "content_type": 19,
+        "codename": "add_jenisnomoridentitas"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 74,
+    "fields": {
+        "name": "Can change Jenis Nomor Identitas",
+        "content_type": 19,
+        "codename": "change_jenisnomoridentitas"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 75,
+    "fields": {
+        "name": "Can delete Jenis Nomor Identitas",
+        "content_type": 19,
+        "codename": "delete_jenisnomoridentitas"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 76,
+    "fields": {
+        "name": "Can view Jenis Nomor Identitas",
+        "content_type": 19,
+        "codename": "view_jenisnomoridentitas"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 77,
+    "fields": {
+        "name": "Can add Setting",
+        "content_type": 20,
+        "codename": "add_settings"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 78,
+    "fields": {
+        "name": "Can change Setting",
+        "content_type": 20,
+        "codename": "change_settings"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 79,
+    "fields": {
+        "name": "Can delete Setting",
+        "content_type": 20,
+        "codename": "delete_settings"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 80,
+    "fields": {
+        "name": "Can view Setting",
+        "content_type": 20,
+        "codename": "view_settings"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 81,
+    "fields": {
+        "name": "Can add Akun",
+        "content_type": 21,
+        "codename": "add_account"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 82,
+    "fields": {
+        "name": "Can change Akun",
+        "content_type": 21,
+        "codename": "change_account"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 83,
+    "fields": {
+        "name": "Can delete Akun",
+        "content_type": 21,
+        "codename": "delete_account"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 84,
+    "fields": {
+        "name": "Can view Akun",
+        "content_type": 21,
+        "codename": "view_account"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 85,
+    "fields": {
+        "name": "Can add Riwayat Aksi Pengguna",
+        "content_type": 22,
+        "codename": "add_accounthistoryaction"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 86,
+    "fields": {
+        "name": "Can change Riwayat Aksi Pengguna",
+        "content_type": 22,
+        "codename": "change_accounthistoryaction"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 87,
+    "fields": {
+        "name": "Can delete Riwayat Aksi Pengguna",
+        "content_type": 22,
+        "codename": "delete_accounthistoryaction"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 88,
+    "fields": {
+        "name": "Can view Riwayat Aksi Pengguna",
+        "content_type": 22,
+        "codename": "view_accounthistoryaction"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 89,
+    "fields": {
+        "name": "Can add Nomor Identitas Pengguna",
+        "content_type": 23,
+        "codename": "add_nomoridentitaspengguna"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 90,
+    "fields": {
+        "name": "Can change Nomor Identitas Pengguna",
+        "content_type": 23,
+        "codename": "change_nomoridentitaspengguna"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 91,
+    "fields": {
+        "name": "Can delete Nomor Identitas Pengguna",
+        "content_type": 23,
+        "codename": "delete_nomoridentitaspengguna"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 92,
+    "fields": {
+        "name": "Can view Nomor Identitas Pengguna",
+        "content_type": 23,
+        "codename": "view_nomoridentitaspengguna"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 93,
+    "fields": {
+        "name": "Can add Kecamatan",
+        "content_type": 28,
+        "codename": "add_kecamatan"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 94,
+    "fields": {
+        "name": "Can change Kecamatan",
+        "content_type": 28,
+        "codename": "change_kecamatan"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 95,
+    "fields": {
+        "name": "Can delete Kecamatan",
+        "content_type": 28,
+        "codename": "delete_kecamatan"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 96,
+    "fields": {
+        "name": "Can view Kecamatan",
+        "content_type": 28,
+        "codename": "view_kecamatan"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 97,
+    "fields": {
+        "name": "Can add Negara",
+        "content_type": 24,
+        "codename": "add_negara"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 98,
+    "fields": {
+        "name": "Can change Negara",
+        "content_type": 24,
+        "codename": "change_negara"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 99,
+    "fields": {
+        "name": "Can delete Negara",
+        "content_type": 24,
+        "codename": "delete_negara"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 100,
+    "fields": {
+        "name": "Can view Negara",
+        "content_type": 24,
+        "codename": "view_negara"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 101,
+    "fields": {
+        "name": "Can add Kabupaten / Kota",
+        "content_type": 25,
+        "codename": "add_kabupaten"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 102,
+    "fields": {
+        "name": "Can change Kabupaten / Kota",
+        "content_type": 25,
+        "codename": "change_kabupaten"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 103,
+    "fields": {
+        "name": "Can delete Kabupaten / Kota",
+        "content_type": 25,
+        "codename": "delete_kabupaten"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 104,
+    "fields": {
+        "name": "Can view Kabupaten / Kota",
+        "content_type": 25,
+        "codename": "view_kabupaten"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 105,
+    "fields": {
+        "name": "Can add Desa / Kelurahan",
+        "content_type": 27,
+        "codename": "add_desa"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 106,
+    "fields": {
+        "name": "Can change Desa / Kelurahan",
+        "content_type": 27,
+        "codename": "change_desa"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 107,
+    "fields": {
+        "name": "Can delete Desa / Kelurahan",
+        "content_type": 27,
+        "codename": "delete_desa"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 108,
+    "fields": {
+        "name": "Can view Desa / Kelurahan",
+        "content_type": 27,
+        "codename": "view_desa"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 109,
+    "fields": {
+        "name": "Can add Provinsi",
+        "content_type": 26,
+        "codename": "add_provinsi"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 110,
+    "fields": {
+        "name": "Can change Provinsi",
+        "content_type": 26,
+        "codename": "change_provinsi"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 111,
+    "fields": {
+        "name": "Can delete Provinsi",
+        "content_type": 26,
+        "codename": "delete_provinsi"
+    }
+}, {
+    "model": "auth.permission",
+    "pk": 112,
+    "fields": {
+        "name": "Can view Provinsi",
+        "content_type": 26,
+        "codename": "view_provinsi"
+    }
+}, {
+    "model": "accounts.account",
+    "pk": "7cca9a77-b718-41ec-bd27-52acfd212ea2",
+    "fields": {
+        "password": "pbkdf2_sha256$150000$EH4DHbCcavHH$a95AcmPPpgS/RABUerBp0gHKxgtN1OaIf5GGH3+A1rM=",
+        "last_login": null,
+        "is_superuser": false,
+        "status": 6,
+        "created_by": null,
+        "created_at": null,
+        "verified_by": null,
+        "verified_at": null,
+        "rejected_by": null,
+        "rejected_at": null,
+        "updated_at": "2020-09-06T08:27:51.105Z",
+        "email": "admin@example.com",
+        "username": "admin",
+        "first_name": "Admin",
+        "last_name": "Example",
+        "birth_place": "Bandung",
+        "birth_date": "1999-09-09",
+        "telephone": "085288888888",
+        "id_divisi": "462a42d6-0aaa-4a19-8999-2c20c946f68d",
+        "divisi": "IT Dev",
+        "id_jabatan": "173f98ed-c084-4fa8-8eba-b371813aba07",
+        "jabatan": "Junior Software Programmer - Backend Engineer",
+        "marital_status": null,
+        "number_children": null,
+        "religion": null,
+        "blood_type": null,
+        "gender": null,
+        "id_province": null,
+        "province": null,
+        "id_districts": null,
+        "districts": null,
+        "id_sub_district": null,
+        "sub_district": null,
+        "id_village": null,
+        "village": null,
+        "address": "",
+        "lt": null,
+        "lg": null,
+        "photo": "",
+        "sv": null,
+        "is_active": true,
+        "is_admin": true,
+        "groups": [],
+        "user_permissions": []
+    }
+}]

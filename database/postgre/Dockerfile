@@ -1,2 +1,3 @@
 FROM postgres:12-alpine
-COPY init-user-db.sh /docker-entrypoint-initdb.d/
+COPY datamaster.sql .
+RUN chmod -R 777 datamaster.sql
