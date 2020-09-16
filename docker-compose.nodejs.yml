@@ -22,7 +22,7 @@ services:
       context: ./service-nodejs
     command: npm start
     cpus: 0.5
-    mem_limit: 350m
+    mem_limit: 550m
     memswap_limit: 150m
     restart: always
     volumes:
@@ -54,7 +54,7 @@ services:
       context: ./service-nodejs
     command: npm start
     cpus: 0.5
-    mem_limit: 200m
+    mem_limit: 250m
     memswap_limit: 150m
     restart: always
     volumes:

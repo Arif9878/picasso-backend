@@ -1,8 +1,4 @@
 const {
-    errors,
-    APIError
-} = require('./exceptions')
-const {
     s3
 } = require('../utils/aws')
 const {
@@ -28,7 +24,7 @@ async function postFile(fileType, file) {
     await s3.upload(params, async function (err, data) {
         //handle error
         if (err) {
-            throw new APIError(errors.serverError)
+            console.error(err)
         }
         //success
         if (data) {
@@ -52,7 +48,7 @@ async function updateFile(lastFilePath, fileType, file) {
     if (lastFilePath !== null) {
         await s3.deleteObjects(deleteParam, function (err, data) {
             if (err) {
-                throw new APIError(errors.serverError)
+                console.error(err)
             }
         })
     }
@@ -76,7 +72,7 @@ async function updateFile(lastFilePath, fileType, file) {
     await s3.upload(params, async function (err, data) {
         //handle error
         if (err) {
-            throw new APIError(errors.serverError)
+            console.error(err)
         }
         //success
         if (data) {
