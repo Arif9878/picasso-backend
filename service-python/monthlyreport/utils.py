@@ -1,3 +1,5 @@
+import datetime, math
+
 def getCountHours(mongoClient, idUser, start_date, end_date):
     dbMongo = mongoClient.attendance
     agr = [
