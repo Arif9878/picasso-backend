@@ -77,7 +77,7 @@ module.exports = async (req, res) => { // eslint-disable-line
             }
             documentResponse = {
                 filePath: null,
-                fileURL: req.body.documentTask
+                fileURL: pathURL
             }
         } else {
             try {
