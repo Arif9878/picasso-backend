@@ -29,8 +29,8 @@ services:
     image : redis:latest
     restart: always
     cpus: 0.5
-    mem_limit: 150m
-    memswap_limit: 50m
+    mem_limit: 250m
+    mem_reservation: 50m
     networks:
       - redis
     ports:
@@ -39,8 +39,8 @@ services:
   nats:
     image : nats
     restart: always
-    mem_limit: 250M
-    mem_reservation: 50M
+    mem_limit: 250m
+    mem_reservation: 50m
     networks:
       - nats
     ports:

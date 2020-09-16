@@ -37,7 +37,7 @@ module.exports = async (req, res, next) => {
           'evidenceTaskURL': '$evidenceTask.fileURL',
           'evidenceTaskPath': '$evidenceTask.filePath',
           'documentTaskURL': '$documentTask.fileURL',
-          'documentTaskPath': '$documentTask.filePath',
+          'documentTaskPath': { '$ifNull': [ '$documentTask.filePath', '' ] },
           'isDocumentLink': 1,
           'isMainTask': 1,
           'workPlace': 1,
