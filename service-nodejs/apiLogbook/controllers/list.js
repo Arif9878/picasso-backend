@@ -36,13 +36,13 @@ module.exports = async (req, res, next) => {
           'difficultyTask': 1,
           'evidenceTaskURL': '$evidenceTask.fileURL',
           'evidenceTaskPath': '$evidenceTask.filePath',
-          'documentTaskURL': '$documentTask.fileURL',
+          'documentTaskURL': { '$ifNull': ['$documentTask.fileURL', ''] },
           'documentTaskPath': { '$ifNull': [ '$documentTask.filePath', '' ] },
           'isDocumentLink': 1,
           'isMainTask': 1,
           'workPlace': 1,
           'organizerTask': 1,
-          'otherInformation': 1
+          'otherInformation': { '$ifNull': ['$documentTask.fileURL', ''] },
         }
       }
     ]
