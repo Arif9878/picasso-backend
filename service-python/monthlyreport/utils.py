@@ -9,7 +9,7 @@ def getCountHours(mongoClient, idUser, start_date, end_date):
             }
         },  {
             '$project': {
-                '$officeHours': { '$ceil': '$officeHours' }
+                'officeHours': { '$ceil': '$officeHours' }
             }
         },  {
             '$group': {
