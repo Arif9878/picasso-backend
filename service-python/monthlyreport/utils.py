@@ -7,14 +7,18 @@ def getCountHours(mongoClient, idUser, start_date, end_date):
             '$match': {
                 "createdBy._id": str(idUser)
             }
-        }, {
+        },  {
+            '$project': {
+                '$officeHours': { '$ceil': '$officeHours' }
+            }
+        },  {
             '$group': {
                 '_id': 0, 
                 'count': {
                     '$sum': '$officeHours'
                 }
             }
-        }, {
+        },  {
             '$project': {
                 '_id': 0
             }
