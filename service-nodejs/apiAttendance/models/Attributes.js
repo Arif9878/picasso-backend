@@ -38,7 +38,8 @@ module.exports = {
     },
     createdAt: {
         type: Date,
-        default: new Date(moment().format()),
+        required: false,
+        default: null,
     },
     updatedBy: {
         _id: {

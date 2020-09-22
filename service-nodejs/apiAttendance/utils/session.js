@@ -15,6 +15,7 @@ module.exports = {
         modifiedBy: session || null,
     }),
     onCreated : (session) => ({
+        createdAt: new Date(moment().format()),
         createdBy: {
             _id : session ? session.user_id : null,
             fullname: session ? session.fullname : null,
