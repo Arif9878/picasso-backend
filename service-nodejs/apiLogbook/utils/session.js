@@ -13,6 +13,7 @@ module.exports = {
         modifiedBy: session || null,
     }),
     onCreated : (session) => ({
+        createdAt: new Date(moment().format()),
         createdBy: {
             _id : session ? session.user_id : null,
             email: session ? session.email : null,
@@ -27,4 +28,5 @@ module.exports = {
         fileURL: file ? file.fileURL : null,
         fileBlob: file ? file.fileBlob : null,
     }),
+
 }
