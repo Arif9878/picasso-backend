@@ -38,10 +38,6 @@ scrape_configs:
         labels:
           application: 'apigateway'
 
-      - targets: ['uploadfile']
-        labels:
-          application: 'uploadfile'
-
       - targets: ['logbook']
         labels:
           application: 'logbook'
