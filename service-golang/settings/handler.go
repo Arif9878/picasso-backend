@@ -12,7 +12,7 @@ import (
 	"github.com/jabardigitalservice/picasso-backend/service-golang/utils"
 )
 
-func (config *ConfigDB) listSatuanKerja(w http.ResponseWriter, r *http.Request) {
+func (config *ConfigDB) listSettings(w http.ResponseWriter, r *http.Request) {
 	search := string(r.URL.Query().Get("search"))
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil {
@@ -26,14 +26,14 @@ func (config *ConfigDB) listSatuanKerja(w http.ResponseWriter, r *http.Request) 
 	}
 	var total int
 
-	var satker []models.SatuanKerja
+	var satker []models.Settings
 
-	if err := config.db.Model(&models.SatuanKerja{}).
-		Where("name_satuan_kerja ILIKE ?", "%"+search+"%").
+	if err := config.db.Model(&models.Settings{}).
+		Where("setting_name ILIKE ?", "%"+search+"%").
 		Order("created_at DESC").
 		Count(&total).
-		Offset(page).
 		Limit(limit).
+		Offset(page).
 		Find(&satker).Error; err != nil {
 		utils.ResponseError(w, http.StatusBadRequest, "Invalid body")
 		return
@@ -56,98 +56,63 @@ func (config *ConfigDB) listSatuanKerja(w http.ResponseWriter, r *http.Request) 
 	utils.ResponseOk(w, result)
 }
 
-func (config *ConfigDB) postSatuanKerja(w http.ResponseWriter, r *http.Request) {
+func (config *ConfigDB) postSettings(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context().Value("user")
 	sessionUser := ctx.(*jwt.Token).Claims.(jwt.MapClaims)
 	decoder := json.NewDecoder(r.Body)
-	payload := models.SatuanKerja{}
+	payload := models.Settings{}
 	if err := decoder.Decode(&payload); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	strSession := sessionUser["email"]
-	userSession := strSession.(string)
-	var parent models.SatuanKerja
-	if payload.ParentID != "" {
-		if err := config.db.Where("ID = ?", payload.ParentID).Find(&parent).Error; err != nil {
-			utils.ResponseError(w, http.StatusNotFound, "Parent ID Not Found")
-			return
-		}
-	}
-
-	create := models.SatuanKerja{
-		ParentID:        payload.ParentID,
-		NameParent:      parent.NameSatuanKerja,
-		NameSatuanKerja: payload.NameSatuanKerja,
-		Description:     payload.Description,
-		CreatedBy:       userSession,
+	create := models.Settings{
+		SettingName:  payload.SettingName,
+		SettingKey:   payload.SettingKey,
+		SettingValue: payload.SettingValue,
+		CreatedByID:  sessionUser["user_id"].(string),
+		CreatedBy:    sessionUser["email"].(string),
 	}
 
 	if err := config.db.Create(&create).Error; err != nil {
 		utils.ResponseError(w, http.StatusBadRequest, "Invalid body")
 		return
 	}
-	response := config.db.Model(&create).Related(&parent, "ID")
-	utils.ResponseOk(w, response.Value)
+
+	utils.ResponseOk(w, create)
 }
 
-func (config *ConfigDB) putSatuanKerja(w http.ResponseWriter, r *http.Request) {
+func (config *ConfigDB) putSettings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	ctx := r.Context().Value("user")
 	sessionUser := ctx.(*jwt.Token).Claims.(jwt.MapClaims)
 	decoder := json.NewDecoder(r.Body)
-	payload := models.SatuanKerja{}
+	payload := models.Settings{}
 	if err := decoder.Decode(&payload); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	strSession := sessionUser["email"]
-	userSession := strSession.(string)
 
-	var parent models.SatuanKerja
-	if payload.ParentID != "" {
-		if err := config.db.Where("ID = ?", payload.ParentID).Find(&parent).Error; err != nil {
-			utils.ResponseError(w, http.StatusNotFound, "Parent ID Not Found")
-			return
-		}
-	}
-	update := models.SatuanKerja{
-		ParentID:        payload.ParentID,
-		NameParent:      parent.NameSatuanKerja,
-		NameSatuanKerja: payload.NameSatuanKerja,
-		Description:     payload.Description,
-		CreatedBy:       userSession,
+	update := models.Settings{
+		SettingName:  payload.SettingName,
+		SettingKey:   payload.SettingKey,
+		SettingValue: payload.SettingValue,
+		UpdatedByID:  sessionUser["user_id"].(string),
+		UpdatedBy:    sessionUser["email"].(string),
 	}
 
 	if err := config.db.Model(&payload).Where("ID = ?", params["id"]).Update(&update).Error; err != nil {
 		utils.ResponseError(w, http.StatusBadRequest, "Invalid body")
 		return
 	}
-	response := config.db.Model(&update).Related(&parent, "Parent")
-	utils.ResponseOk(w, response.Value)
+
+	utils.ResponseOk(w, update)
 }
 
-func (config *ConfigDB) detailSatuanKerja(w http.ResponseWriter, r *http.Request) {
+func (config *ConfigDB) deleteSettings(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	var response models.SatuanKerja
-	if err := config.db.Where("ID = ?", params["id"]).Find(&response).Error; err != nil {
-		utils.ResponseError(w, http.StatusBadRequest, "Data Not Found")
-		return
-	}
-	result := models.ResultsData{
-		Status:  http.StatusOK,
-		Success: true,
-		Results: response,
-	}
-	utils.ResponseOk(w, result)
-}
-
-func (config *ConfigDB) deleteSatuanKerja(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	params := mux.Vars(r)
-	payload := models.SatuanKerja{}
+	payload := models.Settings{}
 	if err := config.db.First(&payload, "ID = ?", params["id"]).Error; err != nil {
 		utils.ResponseError(w, http.StatusBadRequest, "Data Not Found")
 		return

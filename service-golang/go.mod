@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/appleboy/go-fcm v0.1.5
 	github.com/auth0/go-jwt-middleware v0.0.0-20190805220309-36081240882b
+	github.com/aws/aws-sdk-go v1.29.15
 	github.com/bdwilliams/go-jsonify v0.0.0-20141020182238-48749139e742
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gorilla/mux v1.7.4
