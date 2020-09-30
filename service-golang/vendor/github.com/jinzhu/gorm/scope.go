@@ -913,25 +913,21 @@ func (scope *Scope) updatedAttrsWithValues(value interface{}) (results map[strin
 	results = map[string]interface{}{}
 
 	for key, value := range convertInterfaceToMap(value, true, scope.db) {
-		if field, ok := scope.FieldByName(key); ok {
-			if scope.changeableField(field) {
-				if _, ok := value.(*SqlExpr); ok {
+		if field, ok := scope.FieldByName(key); ok && scope.changeableField(field) {
+			if _, ok := value.(*SqlExpr); ok {
+				hasUpdate = true
+				results[field.DBName] = value
+			} else {
+				err := field.Set(value)
+				if field.IsNormal && !field.IsIgnored {
 					hasUpdate = true
-					results[field.DBName] = value
-				} else {
-					err := field.Set(value)
-					if field.IsNormal && !field.IsIgnored {
-						hasUpdate = true
-						if err == ErrUnaddressable {
-							results[field.DBName] = value
-						} else {
-							results[field.DBName] = field.Field.Interface()
-						}
+					if err == ErrUnaddressable {
+						results[field.DBName] = value
+					} else {
+						results[field.DBName] = field.Field.Interface()
 					}
 				}
 			}
-		} else {
-			results[key] = value
 		}
 	}
 	return
