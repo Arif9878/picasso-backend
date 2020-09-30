@@ -32,8 +32,8 @@ func (config *ConfigDB) listSatuanKerja(w http.ResponseWriter, r *http.Request) 
 		Where("name_satuan_kerja ILIKE ?", "%"+search+"%").
 		Order("created_at DESC").
 		Count(&total).
-		Limit(limit).
 		Offset(page).
+		Limit(limit).
 		Find(&satker).Error; err != nil {
 		utils.ResponseError(w, http.StatusBadRequest, "Invalid body")
 		return
@@ -148,6 +148,10 @@ func (config *ConfigDB) deleteSatuanKerja(w http.ResponseWriter, r *http.Request
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	payload := models.SatuanKerja{}
+	if err := config.db.First(&payload, "ID = ?", params["id"]).Error; err != nil {
+		utils.ResponseError(w, http.StatusBadRequest, "Data Not Found")
+		return
+	}
 	if err := config.db.Model(&payload).Where("ID = ?", params["id"]).Delete(&payload).Error; err != nil {
 		utils.ResponseError(w, http.StatusBadRequest, "Data Not Found")
 		return

@@ -75,8 +75,8 @@ func (config *ConfigDB) listJabatanBySatuanKerja(w http.ResponseWriter, r *http.
 		Where("satuan_kerja_id = ?", params["id"]).
 		Order("created_at DESC").
 		Count(&total).
-		Limit(limit).
 		Offset(page).
+		Limit(limit).
 		Find(&jabatan).Error; err != nil {
 		utils.ResponseError(w, http.StatusBadRequest, "Invalid body")
 		return

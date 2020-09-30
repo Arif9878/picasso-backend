@@ -16,6 +16,8 @@ COPY deviceToken deviceToken
 COPY notificationService notificationService
 COPY notificationWorker notificationWorker
 COPY notificationMessage notificationMessage
+COPY dayOff dayOff
+COPY settings settings
 COPY utils utils
 
 RUN go install ./...

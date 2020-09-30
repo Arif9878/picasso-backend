@@ -7,7 +7,7 @@ services:
     command: "satuankerja"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 50m
+    memswap_limit: 150m
     restart: always
     networks:
       - satuankerja
@@ -20,7 +20,7 @@ services:
     command: "jabatan"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 50m
+    memswap_limit: 150m
     restart: always
     networks:
       - jabatan
@@ -33,7 +33,7 @@ services:
     command: "eventuser"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 50m
+    memswap_limit: 150m
     restart: always
     networks:
       - eventuser
@@ -46,7 +46,7 @@ services:
     command: "jobAttendance"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 50m
+    memswap_limit: 150m
     restart: always
     networks:
       - jobattendance
@@ -59,7 +59,7 @@ services:
     command: "deviceToken"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 50m
+    memswap_limit: 150m
     restart: always
     networks:
       - devicetoken
@@ -72,7 +72,7 @@ services:
     command: "notificationWorker"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 50m
+    memswap_limit: 150m
     restart: always
     networks:
       - notificationworker
@@ -85,7 +85,7 @@ services:
     command: "notificationService"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 50m
+    memswap_limit: 150m
     restart: always
     networks:
       - notificationservice
@@ -98,10 +98,36 @@ services:
     command: "notificationMessage"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 50m
+    memswap_limit: 150m
     restart: always
     networks:
       - notificationmessage
+    env_file: 
+      - .env-golang
+
+  dayoff:
+    build:
+      context: ./service-golang
+    command: "dayOff"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 150m
+    restart: always
+    networks:
+      - dayoff
+    env_file: 
+      - .env-golang
+
+  settings:
+    build:
+      context: ./service-golang
+    command: "settings"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 150m
+    restart: always
+    networks:
+      - settings
     env_file: 
       - .env-golang
 
@@ -135,5 +161,13 @@ networks:
         name: gateway
   
   notificationmessage:
+      external:
+        name: gateway
+
+  dayoff:
+      external:
+        name: gateway
+  
+  settings:
       external:
         name: gateway
