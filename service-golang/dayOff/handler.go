@@ -90,16 +90,19 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	delete(sessionUser, "iat")
 	nameDB := utils.GetEnv("MONGO_DB_DAY_OFF")
 	collection := config.db.Collection(nameDB)
-
+	filename := "null"
+	resp := "null"
 	file, handler, err := r.FormFile("file")
-	if err != nil {
-		utils.ResponseError(w, http.StatusBadRequest, "Error Retrieving the File")
-		return
+	if err == nil {
+		RandomString := utils.String(30)
+		exstension := filepath.Ext(handler.Filename)
+		filename = RandomString + exstension
+		resp, err = utils.UploadFileS3(file, filename, MyBucket, sess)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
 	}
-	defer file.Close()
-	RandomString := utils.String(30)
-	exstension := filepath.Ext(handler.Filename)
-	filename := RandomString + exstension
 	layout := "2006-01-02T15:04:05.000Z"
 	ParseStartDate, err := time.Parse(layout, r.PostFormValue("start_date"))
 	ParseEndDate, err := time.Parse(layout, r.PostFormValue("end_date"))
@@ -108,7 +111,6 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	for val := range split {
 		arrayPermit = append(arrayPermit, string(split[val]))
 	}
-	resp, err := utils.UploadFileS3(file, filename, MyBucket, sess)
 	create := models.DayOff{
 		StartDate:          ParseStartDate,
 		EndDate:            ParseEndDate,
