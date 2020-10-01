@@ -3,22 +3,23 @@ RUN apk --no-cache add gcc g++ make ca-certificates git
 WORKDIR /go/src/github.com/jabardigitalservice/picasso-backend/service-golang
 
 COPY Gopkg.lock Gopkg.toml ./
-COPY vendor vendor
-COPY db_host db_host
-COPY middleware middleware
-COPY models models
-COPY retry retry
-COPY satuankerja satuankerja
-COPY jabatan jabatan
-COPY eventuser eventuser
-COPY jobAttendance jobAttendance
-COPY deviceToken deviceToken
-COPY notificationService notificationService
-COPY notificationWorker notificationWorker
-COPY notificationMessage notificationMessage
-COPY dayOff dayOff
-COPY settings settings
-COPY utils utils
+COPY . .
+# COPY vendor vendor
+# COPY db_host db_host
+# COPY middleware middleware
+# COPY models models
+# COPY retry retry
+# COPY satuankerja satuankerja
+# COPY jabatan jabatan
+# COPY eventuser eventuser
+# COPY jobAttendance jobAttendance
+# COPY deviceToken deviceToken
+# COPY notificationService notificationService
+# COPY notificationWorker notificationWorker
+# COPY notificationMessage notificationMessage
+# COPY dayOff dayOff
+# COPY settings settings
+# COPY utils utils
 
 RUN go install ./...
 
