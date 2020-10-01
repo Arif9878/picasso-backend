@@ -20,7 +20,7 @@ func newRouter(config *ConfigDB) (router *mux.Router) {
 
 func main() {
 
-	configuration, err := Initialize()
+	configuration, err := Initialize(utils.GetEnv("MONGO_DB_DAY_OFF"))
 	if err != nil {
 		log.Println(err)
 	}

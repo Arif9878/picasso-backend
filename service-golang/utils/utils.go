@@ -85,3 +85,25 @@ func StringWithCharset(length int, charset string) string {
 func String(length int) string {
 	return StringWithCharset(length, charset)
 }
+
+func RangeDate(start, end time.Time) func() time.Time {
+	// utc := time.Now().UTC()
+	// local := utc
+	// location, err := time.LoadLocation("Asia/Jakarta")
+	// if err == nil {
+	// 	local = local.In(location)
+	// }
+	y, m, d := start.Date()
+	start = time.Date(y, m, d, 0, 0, 0, 0, time.UTC)
+	y, m, d = end.Date()
+	end = time.Date(y, m, d, 1, 0, 0, 0, time.UTC)
+
+	return func() time.Time {
+		if start.After(end) {
+			return time.Time{}
+		}
+		date := start
+		start = start.AddDate(0, 0, 1)
+		return date
+	}
+}

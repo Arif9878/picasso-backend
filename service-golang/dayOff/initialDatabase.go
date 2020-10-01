@@ -15,9 +15,8 @@ type ConfigDB struct {
 }
 
 // Initialize mongodb connection
-func Initialize() (*ConfigDB, error) {
+func Initialize(nameDB string) (*ConfigDB, error) {
 	addr := "mongodb://" + utils.GetEnv("DB_MONGO_HOST") + ":" + utils.GetEnv("DB_MONGO_PORT")
-	nameDB := utils.GetEnv("MONGO_DB_DAY_OFF")
 	config := ConfigDB{}
 	// Connect to MongoDB
 	retry.ForeverSleep(2*time.Second, func(attempt int) error {
