@@ -114,12 +114,16 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	listPermit := CheckAttendanceExist(ParseStartDate, ParseEndDate)
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+	}
+	listPermit := CheckAttendanceExist(ParseStartDate.In(location), ParseEndDate.In(location))
 	if len(listPermit) != 0 {
 		utils.ResponseError(w, http.StatusInternalServerError, "Tanggal Sakit/Izin/Cuti Sudah ada")
 		return
 	}
-	for rd := utils.RangeDate(ParseStartDate, ParseEndDate); ; {
+	for rd := utils.RangeDate(ParseStartDate.In(location), ParseEndDate.In(location)); ; {
 		date := rd()
 		if date.IsZero() {
 			break
@@ -178,7 +182,11 @@ func (config *ConfigDB) deleteDayOff(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 	}
-	DeleteAttendanceDayOff(resp.StartDate, resp.EndDate, resp.PermitsType)
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+	}
+	DeleteAttendanceDayOff(resp.StartDate.In(location), resp.EndDate.In(location), resp.PermitsType)
 	result, err := collection.DeleteOne(ctx, models.DayOff{ID: id})
 	if err != nil {
 		log.Printf("Error while updateing document: %v", err)
