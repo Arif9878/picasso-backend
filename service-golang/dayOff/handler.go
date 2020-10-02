@@ -137,10 +137,11 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	for val := range split {
 		arrayPermit = append(arrayPermit, string(split[val]))
 	}
+	var PermitsTypeUpper = strings.ToUpper(r.PostFormValue("permits_type"))
 	create := models.DayOff{
 		StartDate:          ParseStartDate,
 		EndDate:            ParseEndDate,
-		PermitsType:        r.PostFormValue("permits_type"),
+		PermitsType:        PermitsTypeUpper
 		PermitAcknowledged: arrayPermit,
 		Note:               r.PostFormValue("note"),
 		FilePath:           filename,
