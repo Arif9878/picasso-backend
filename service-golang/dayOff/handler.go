@@ -123,13 +123,14 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 		utils.ResponseError(w, http.StatusInternalServerError, "Tanggal Sakit/Izin/Cuti Sudah ada")
 		return
 	}
+	var PermitsTypeUpper = strings.ToUpper(r.PostFormValue("permits_type"))
 	for rd := utils.RangeDate(ParseStartDate.In(location), ParseEndDate.In(location)); ; {
 		date := rd()
 		if date.IsZero() {
 			break
 		}
 		if int(date.Weekday()) != 6 && int(date.Weekday()) != 0 {
-			CreateAttendanceDayOff(date, r.PostFormValue("permits_type"), sessionUser)
+			CreateAttendanceDayOff(date, PermitsTypeUpper, sessionUser)
 		}
 	}
 	split := strings.Split(r.PostFormValue("permit_acknowledged"), ",")
@@ -140,7 +141,7 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	create := models.DayOff{
 		StartDate:          ParseStartDate,
 		EndDate:            ParseEndDate,
-		PermitsType:        r.PostFormValue("permits_type"),
+		PermitsType:        PermitsTypeUpper,
 		PermitAcknowledged: arrayPermit,
 		Note:               r.PostFormValue("note"),
 		FilePath:           filename,
