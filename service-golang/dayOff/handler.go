@@ -45,7 +45,7 @@ func (config *ConfigDB) listDayOff(w http.ResponseWriter, r *http.Request) {
 			"_id": -1, // -1 for descending and 1 for ascending
 		},
 	}
-	cursor, err := collection.Find(ctx, bson.M{"created_by.user_id": idUser}, &findOptions)
+	cursor, err := collection.Find(ctx, bson.M{"created_by._id": idUser}, &findOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -88,6 +88,8 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	sessionUser := headerCtx.(*jwt.Token).Claims.(jwt.MapClaims)
 	delete(sessionUser, "exp")
 	delete(sessionUser, "iat")
+	sessionUser["_id"] = sessionUser["user_id"]
+	delete(sessionUser, "user_id")
 	nameDB := utils.GetEnv("MONGO_DB_DAY_OFF")
 	collection := config.db.Collection(nameDB)
 	filename := "null"
@@ -105,7 +107,32 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	}
 	layout := "2006-01-02T15:04:05.000Z"
 	ParseStartDate, err := time.Parse(layout, r.PostFormValue("start_date"))
+	if err != nil {
+		panic(err)
+	}
 	ParseEndDate, err := time.Parse(layout, r.PostFormValue("end_date"))
+	if err != nil {
+		panic(err)
+	}
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+	}
+	listPermit := CheckAttendanceExist(ParseStartDate.In(location), ParseEndDate.In(location))
+	if len(listPermit) != 0 {
+		utils.ResponseError(w, http.StatusInternalServerError, "Tanggal Sakit/Izin/Cuti Sudah ada")
+		return
+	}
+	var PermitsTypeUpper = strings.ToUpper(r.PostFormValue("permits_type"))
+	for rd := utils.RangeDate(ParseStartDate.In(location), ParseEndDate.In(location)); ; {
+		date := rd()
+		if date.IsZero() {
+			break
+		}
+		if int(date.Weekday()) != 6 && int(date.Weekday()) != 0 {
+			CreateAttendanceDayOff(date, PermitsTypeUpper, sessionUser)
+		}
+	}
 	split := strings.Split(r.PostFormValue("permit_acknowledged"), ",")
 	var arrayPermit []string
 	for val := range split {
@@ -114,7 +141,7 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	create := models.DayOff{
 		StartDate:          ParseStartDate,
 		EndDate:            ParseEndDate,
-		PermitsType:        r.PostFormValue("permits_type"),
+		PermitsType:        PermitsTypeUpper,
 		PermitAcknowledged: arrayPermit,
 		Note:               r.PostFormValue("note"),
 		FilePath:           filename,
@@ -150,10 +177,17 @@ func (config *ConfigDB) deleteDayOff(w http.ResponseWriter, r *http.Request) {
 		utils.ResponseError(w, http.StatusInternalServerError, "Data Not Found")
 		return
 	}
-	_, err = utils.DeleteFileS3(resp.FilePath, MyBucket, sess)
-	if err != nil {
-		fmt.Println(err)
+	if resp.FilePath != "null" {
+		_, err = utils.DeleteFileS3(resp.FilePath, MyBucket, sess)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+	}
+	DeleteAttendanceDayOff(resp.StartDate.In(location), resp.EndDate.In(location), resp.PermitsType)
 	result, err := collection.DeleteOne(ctx, models.DayOff{ID: id})
 	if err != nil {
 		log.Printf("Error while updateing document: %v", err)
