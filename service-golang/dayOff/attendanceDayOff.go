@@ -56,7 +56,7 @@ func DeleteAttendanceDayOff(IdUser string, StartDate time.Time, EndDate time.Tim
 	y, m, d = EndDate.Date()
 	end := time.Date(y, m, d, 1, 0, 0, 0, time.UTC)
 	collection := configuration.db.Collection("attendances")
-	matchStage := bson.M{"created_by._id": IdUser, "message": PermitsType, "startDate": bson.M{"$gte": start, "$lt": end}}
+	matchStage := bson.M{"createdBy._id": IdUser, "message": PermitsType, "startDate": bson.M{"$gte": start, "$lt": end}}
 	cursor, err := collection.Find(ctx, matchStage)
 	if err != nil {
 		log.Fatal(err)
@@ -87,7 +87,7 @@ func CheckAttendanceExist(IdUser string, StartDate time.Time, EndDate time.Time)
 	y, m, d = EndDate.Date()
 	end := time.Date(y, m, d, 1, 0, 0, 0, time.UTC)
 	collection := configuration.db.Collection("attendances")
-	matchStage := bson.M{"created_by._id": IdUser, "startDate": bson.M{"$gte": start, "$lt": end}}
+	matchStage := bson.M{"createdBy._id": IdUser, "startDate": bson.M{"$gte": start, "$lt": end}}
 	cursor, err := collection.Find(ctx, matchStage)
 	if err != nil {
 		log.Fatal(err)
