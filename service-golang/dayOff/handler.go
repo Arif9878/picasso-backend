@@ -88,6 +88,7 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	sessionUser := headerCtx.(*jwt.Token).Claims.(jwt.MapClaims)
 	delete(sessionUser, "exp")
 	delete(sessionUser, "iat")
+	idUser := sessionUser["user_id"].(string)
 	sessionUser["_id"] = sessionUser["user_id"]
 	delete(sessionUser, "user_id")
 	nameDB := utils.GetEnv("MONGO_DB_DAY_OFF")
@@ -118,7 +119,7 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	listPermit := CheckAttendanceExist(ParseStartDate.In(location), ParseEndDate.In(location))
+	listPermit := CheckAttendanceExist(idUser, ParseStartDate.In(location), ParseEndDate.In(location))
 	if len(listPermit) != 0 {
 		utils.ResponseError(w, http.StatusInternalServerError, "Tanggal Sakit/Izin/Cuti Sudah ada")
 		return
@@ -158,12 +159,15 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 
 func (config *ConfigDB) deleteDayOff(w http.ResponseWriter, r *http.Request) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	headerCtx := r.Context().Value("user")
+	sessionUser := headerCtx.(*jwt.Token).Claims.(jwt.MapClaims)
 	nameDB := utils.GetEnv("MONGO_DB_DAY_OFF")
 	collection := config.db.Collection(nameDB)
 	AccessKeyID := utils.GetEnv("AWS_S3_ACCESS_KEY")
 	SecretAccessKey := utils.GetEnv("AWS_S3_SECRET_ACCESS_KEY")
 	MyRegion := utils.GetEnv("AWS_S3_REGION")
 	MyBucket := utils.GetEnv("AWS_S3_BUCKET")
+	idUser := sessionUser["user_id"].(string)
 	sess := utils.ConnectAws(AccessKeyID, SecretAccessKey, MyRegion)
 	var params = mux.Vars(r)
 	id, err := primitive.ObjectIDFromHex(params["ID"])
@@ -187,7 +191,7 @@ func (config *ConfigDB) deleteDayOff(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	DeleteAttendanceDayOff(resp.StartDate.In(location), resp.EndDate.In(location), resp.PermitsType)
+	DeleteAttendanceDayOff(idUser, resp.StartDate.In(location), resp.EndDate.In(location), resp.PermitsType)
 	result, err := collection.DeleteOne(ctx, models.DayOff{ID: id})
 	if err != nil {
 		log.Printf("Error while updateing document: %v", err)
