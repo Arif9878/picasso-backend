@@ -44,7 +44,7 @@ func CreateAttendanceDayOff(Date time.Time, PermitsType string, Session map[stri
 	}
 }
 
-func DeleteAttendanceDayOff(StartDate time.Time, EndDate time.Time, PermitsType string) {
+func DeleteAttendanceDayOff(IdUser string, StartDate time.Time, EndDate time.Time, PermitsType string) {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	configuration, err := Initialize(utils.GetEnv("MONGO_DB_ATTENDANCE"))
 
@@ -56,7 +56,7 @@ func DeleteAttendanceDayOff(StartDate time.Time, EndDate time.Time, PermitsType 
 	y, m, d = EndDate.Date()
 	end := time.Date(y, m, d, 1, 0, 0, 0, time.UTC)
 	collection := configuration.db.Collection("attendances")
-	matchStage := bson.M{"message": PermitsType, "startDate": bson.M{"$gte": start, "$lt": end}}
+	matchStage := bson.M{"created_by._id": IdUser, "message": PermitsType, "startDate": bson.M{"$gte": start, "$lt": end}}
 	cursor, err := collection.Find(ctx, matchStage)
 	if err != nil {
 		log.Fatal(err)
@@ -76,7 +76,7 @@ func DeleteAttendanceDayOff(StartDate time.Time, EndDate time.Time, PermitsType 
 	}
 }
 
-func CheckAttendanceExist(StartDate time.Time, EndDate time.Time) []bson.M {
+func CheckAttendanceExist(IdUser string, StartDate time.Time, EndDate time.Time) []bson.M {
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	configuration, err := Initialize(utils.GetEnv("MONGO_DB_ATTENDANCE"))
 	if err != nil {
@@ -87,7 +87,7 @@ func CheckAttendanceExist(StartDate time.Time, EndDate time.Time) []bson.M {
 	y, m, d = EndDate.Date()
 	end := time.Date(y, m, d, 1, 0, 0, 0, time.UTC)
 	collection := configuration.db.Collection("attendances")
-	matchStage := bson.M{"startDate": bson.M{"$gte": start, "$lt": end}}
+	matchStage := bson.M{"created_by._id": IdUser, "startDate": bson.M{"$gte": start, "$lt": end}}
 	cursor, err := collection.Find(ctx, matchStage)
 	if err != nil {
 		log.Fatal(err)
