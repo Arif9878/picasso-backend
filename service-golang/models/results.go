@@ -1,5 +1,10 @@
 package models
 
+type ErrorResults struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 type ResultsData struct {
 	Status  int         `json:"status"`
 	Success bool        `json:"success"`
