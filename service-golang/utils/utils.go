@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jabardigitalservice/picasso-backend/service-golang/models"
 	"github.com/joho/godotenv"
 )
 
@@ -30,10 +31,12 @@ func ResponseError(w http.ResponseWriter, code int, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 
-	body := map[string]string{
-		"error": message,
+	results := models.ErrorResults{
+		Code:    code,
+		Message: message,
 	}
-	json.NewEncoder(w).Encode(body)
+
+	json.NewEncoder(w).Encode(results)
 }
 
 func PageCount(total int, limit int) int {

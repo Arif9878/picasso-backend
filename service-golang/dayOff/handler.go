@@ -53,7 +53,10 @@ func (config *ConfigDB) listDayOff(w http.ResponseWriter, r *http.Request) {
 	if err = cursor.All(ctx, &result); err != nil {
 		log.Fatal(err)
 	}
-	total, err := collection.CountDocuments(ctx, bson.M{})
+	if len(result) == 0 {
+		result = []bson.M{}
+	}
+	total, err := collection.CountDocuments(ctx, bson.M{"created_by._id": idUser})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -152,7 +155,8 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 	}
 	result, err := collection.InsertOne(ctx, create)
 	if err != nil {
-		log.Fatal(err)
+		utils.ResponseError(w, http.StatusInternalServerError, "Gagal menyimpan data")
+		return
 	}
 	utils.ResponseOk(w, result)
 }
