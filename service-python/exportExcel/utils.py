@@ -44,7 +44,10 @@ def getHours(mongoClient, idUser, date):
     if not itm:
         count = 0
     else:
-        count = math.ceil(itm[0]['officeHours'])
+        try:
+            count = math.ceil(itm[0]['officeHours'])
+        except KeyError:
+            count = 0
     return count
 
 def getInformation(mongoClient, idUser, date):
@@ -78,8 +81,6 @@ def queryAccount(divisi=None):
     query = """
         SELECT
             accounts_account.id,
-            accounts_account.email,
-            accounts_account.username,
             accounts_account.first_name,
             accounts_account.last_name,
             accounts_account.id_divisi,
