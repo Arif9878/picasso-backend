@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
+const {
+    logBookConnection
+} = require('../utils/connections')
 
 const BlobsFile = new Schema({
     logBookId: mongoose.Schema.Types.ObjectId,
@@ -21,4 +24,7 @@ BlobsFile.index({
     blob: 1
 })
 
-module.exports = mongoose.models.BlobsFile || mongoose.model('BlobsFile', BlobsFile)
+// module.exports = mongoose.models.BlobsFile || mongoose.model('BlobsFile', BlobsFile)
+const blobsFileModel = logBookConnection.model('BlobsFile', BlobsFile)
+
+module.exports = blobsFileModel
