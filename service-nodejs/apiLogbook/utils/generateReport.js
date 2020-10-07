@@ -32,15 +32,47 @@ const generateReport = (docDefinition, filePath) => {
 const logBook = (data) => {
     let records = []
     data.forEach((item, index) => {
-        records.push([ 
-            { text: index + 1 },
-            { text: moment(item.dateTask).format('dddd, DD MMMM YYYY') },
-            { text: item.projectName + ' - ' +  item.nameTask},
-            { text: item.workPlace },
-            { text: 'PLD' },
-            { text: item.isMainTask ? '√' : '' },
-            { text: !item.isMainTask ? '√' : '' }
-        ])
+        if (['CUTI', 'SAKIT', 'IZIN'].includes(item.nameTask)) {
+            records.push([{
+                    text: index + 1
+                },
+                {
+                    text: moment(item.dateTask).format('dddd, DD MMMM YYYY')
+                },
+                {
+                    text: item.nameTask,
+                    colSpan: 5,
+                    alignment: 'center'
+                },
+                {},
+                {},
+                {},
+                {}
+            ])
+        } else {
+            records.push([{
+                    text: index + 1
+                },
+                {
+                    text: moment(item.dateTask).format('dddd, DD MMMM YYYY')
+                },
+                {
+                    text: item.projectName + ' - ' + item.nameTask
+                },
+                {
+                    text: item.workPlace
+                },
+                {
+                    text: 'PLD'
+                },
+                {
+                    text: item.isMainTask ? '√' : ''
+                },
+                {
+                    text: !item.isMainTask ? '√' : ''
+                }
+            ])
+        }
     })
     return records
 }

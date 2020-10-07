@@ -6,6 +6,9 @@ const {
     generateReport,
     reportForm 
 } = require('../utils/generateReport')
+const {
+    listAttendance
+} = require('../utils/listAttendanceReport')
 const LogBook = require('../models/LogBook')
 const moment = require('moment')
 const servers_nats = [process.env.NATS_URI]
@@ -80,7 +83,12 @@ module.exports = async (req, res, next) => {
         const logBook = await LogBook
             .aggregate(rules)
             .sort(sort)
-
+        
+        const attendance = await listAttendance(userId, start_date, dueDate)
+        Object.assign(logBook, attendance)
+        logBook.sort(function (a, b) {
+            return new Date(a.dateTask) - new Date(b.dateTask)
+        })
         // Get logbook per Day
         rules.push({
             $group: {

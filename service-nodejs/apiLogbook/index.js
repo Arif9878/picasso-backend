@@ -29,7 +29,8 @@ try {
 const authenticate = require('./controllers/authenticate')
 
 const app = express()
-const db = require("./utils/database").mongoURI
+// const db1 = require("./utils/database").mongoURI1
+// const db2 = require("./utils/database").mongoURI2
 
 // default options
 app.use(cors())
@@ -38,17 +39,20 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(fileUpload())
 
-const connectWithRetry = function() {
-    return mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true }, function(err) {
-        if (err) {
-            console.error('Failed to connect to mongo on startup - retrying in 5 sec', err);
-            setTimeout(connectWithRetry, 5000);
-        } else {
-            console.log("mongoDB Connected")
-        }
-    });
-};
-connectWithRetry();
+// const connectWithRetry = function() {
+//     return mongoose.connect(db1, {
+//                 useNewUrlParser: true,
+//                 useUnifiedTopology: true
+//             }, function (err) {
+//         if (err) {
+//             console.error('Failed to connect to mongo on startup - retrying in 5 sec', err);
+//             setTimeout(connectWithRetry, 5000);
+//         } else {
+//             console.log("mongoDB Connected")
+//         }
+//     });
+// };
+// connectWithRetry();
 
 mongoose.Promise = global.Promise
 
