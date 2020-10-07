@@ -83,9 +83,8 @@ module.exports = async (req, res, next) => {
         const logBook = await LogBook
             .aggregate(rules)
             .sort(sort)
-        
         const attendance = await listAttendance(userId, start_date, dueDate)
-        Object.assign(logBook, attendance)
+        logBook.push(...attendance)
         logBook.sort(function (a, b) {
             return new Date(a.dateTask) - new Date(b.dateTask)
         })
