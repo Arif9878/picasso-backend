@@ -97,8 +97,8 @@ def exportExcel():
     indexNamePegawai = 2
     for i in result:
         indexNamePegawai += 1
-        fullname = i[3]+" "+i[4]
-        divisiName = i[3]
+        fullname = i[1]+" "+i[2]
+        divisiName = i[4]
         worksheet.write(indexNamePegawai, 0, fullname)
         indexDate = 0
         for b in range(0, totalListDate * 2):
