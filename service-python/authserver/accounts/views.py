@@ -30,6 +30,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         """
         search = self.request.query_params.get('search', None)
         idDivisi = self.request.query_params.get('idDivisi', None)
+        is_active = self.request.query_params.get('is_active', None)
         blank = ""
         if search is not None and search is not blank:
             self.queryset = self.queryset.filter(
@@ -40,6 +41,9 @@ class AccountViewSet(viewsets.ModelViewSet):
         if idDivisi is not None and idDivisi is not blank:
             self.queryset = self.queryset.filter(
                 (Q(id_divisi=idDivisi)))
+        if is_active is not None and is_active is not blank:
+            self.queryset = self.queryset.filter(
+                (Q(is_active=is_active.title())))
         return self.queryset
 
     def post(self, request, format=None):
