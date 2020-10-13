@@ -7,7 +7,7 @@ from .models import Account
 from .utils import create_token
 
 class AccountSerializer(serializers.ModelSerializer):
-    nama_lengkap = serializers.SerializerMethodField('get_nama_lengkap_')
+    fullname = serializers.SerializerMethodField('get_full_name_')
     is_staff = serializers.SerializerMethodField('get_status_')
 
     def create(self, validated_data):
@@ -21,7 +21,7 @@ class AccountSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'email',
-            'nama_lengkap',
+            'fullname',
             'username',
             'first_name',
             'last_name',
@@ -40,7 +40,7 @@ class AccountSerializer(serializers.ModelSerializer):
             'is_active'
         )
 
-    def get_nama_lengkap_(self, obj):
+    def get_full_name_(self, obj):
         return obj.get_full_name()
 
     def get_status_(self, obj):
