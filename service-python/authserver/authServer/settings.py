@@ -41,7 +41,7 @@ DATABASE_HOST = os.environ.get("POSTGRESQL_HOST")
 DATABASE_PORT = os.environ.get("POSTGRESQL_PORT")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 CSRF_USE_SESSIONS = False
 ALLOWED_HOSTS = ['*']
 

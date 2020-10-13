@@ -85,6 +85,10 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	id_village = models.CharField(verbose_name="ID Desa", max_length=40, null=True, blank=True)
 	village = models.CharField(verbose_name="Desa", max_length=150, null=True, blank=True)
 
+	manager_category = models.CharField(verbose_name="Kategori Pengelola", max_length=150, null=True, blank=True)
+
+	join_date = models.DateTimeField(verbose_name="Tanggal Bergabung", null=True, blank=True)
+
 	address = models.CharField(verbose_name="Alamat", max_length=255, null=True, blank=True)
 
 	lt = models.CharField(max_length=50, verbose_name='lt', blank=True, null=True)
