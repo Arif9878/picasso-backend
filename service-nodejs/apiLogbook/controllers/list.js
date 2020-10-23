@@ -91,7 +91,7 @@ module.exports = async (req, res, next) => {
     }
 
     // Get page count
-    const count = await LogBook.countDocuments({'createdBy.email': session.email})
+    const count = await LogBook.countDocuments(rules)
     const filtered = await LogBook.aggregate([
       ...rules,
       {

@@ -37,7 +37,9 @@ class AccountSerializer(serializers.ModelSerializer):
             'manager_category',
             'join_date',
             'is_admin',
-            'is_active'
+            'is_active',
+            'resign_date',
+            'reason_resignation'
         )
 
     def get_full_name_(self, obj):

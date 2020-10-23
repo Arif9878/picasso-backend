@@ -88,6 +88,8 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	manager_category = models.CharField(verbose_name="Kategori Pengelola", max_length=150, null=True, blank=True)
 
 	join_date = models.DateTimeField(verbose_name="Tanggal Bergabung", null=True, blank=True)
+	resign_date = models.DateTimeField(verbose_name="Tanggal Pengunduran Diri", null=True, blank=True)
+	reason_resignation = models.CharField(verbose_name="Alasan Pengunduran Diri", max_length=255, null=True, blank=True)
 
 	address = models.CharField(verbose_name="Alamat", max_length=255, null=True, blank=True)
 
