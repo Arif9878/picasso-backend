@@ -49,6 +49,26 @@ const logBook = (data) => {
                 {},
                 {}
             ])
+        } else if (item.nameTask === 'LIBUR') {
+            records.push([{
+                    text: index + 1,
+                     color: 'red',
+                },
+                {
+                    text: moment(item.dateTask).format('dddd, DD MMMM YYYY'),
+                     color: 'red',
+                },
+                {
+                    text: item.nameTask,
+                    colSpan: 5,
+                    alignment: 'center',
+                     color: 'red',
+                },
+                {},
+                {},
+                {},
+                {}
+            ])
         } else {
             records.push([{
                     text: index + 1
@@ -144,7 +164,7 @@ const reportForm = (data) => {
             fontSize: 16
           },
           {
-            text: `BULAN ${month} ${year}`,
+            text: `Bulan ${month} ${year}`,
             alignment: 'center',
             style: 'boldNormal'
           },
