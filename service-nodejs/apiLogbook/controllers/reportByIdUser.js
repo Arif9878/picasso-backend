@@ -8,7 +8,6 @@ const {
 } = require('../utils/generateReport')
 const {
     getListWeekend,
-    staticDayOff,
 } = require('../utils/functions')
 const {
     listAttendance
@@ -90,7 +89,6 @@ module.exports = async (req, res, next) => {
         const attendance = await listAttendance(userId, start_date, dueDate)
         logBook.push(...attendance)
         logBook.push(...list_weekend)
-        logBook.push(...staticDayOff)
         logBook.sort(function (a, b) {
             return new Date(a.dateTask) - new Date(b.dateTask)
         })
