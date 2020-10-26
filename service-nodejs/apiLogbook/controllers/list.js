@@ -91,7 +91,10 @@ module.exports = async (req, res, next) => {
     }
 
     // Get page count
-    const count = await LogBook.countDocuments(rules)
+    // const count = await LogBook.aggregate([
+    //   ...rules,
+
+    // ])
     const filtered = await LogBook.aggregate([
       ...rules,
       {
@@ -103,7 +106,6 @@ module.exports = async (req, res, next) => {
         },
       },
     ])
-
     const totalPage = Math.ceil((filtered.length > 0 ? filtered[0].rows : 0) / pageSize)
 
     // Get results
@@ -114,11 +116,10 @@ module.exports = async (req, res, next) => {
       .limit(pageSize)
 
     res.status(200).json({
-      filtered: filtered.length > 0 ? filtered[0].rows : 0,
       pageSize,
       results,
       _meta: {
-        totalCount: count,
+        totalCount: filtered.length > 0 ? filtered[0].rows : 0,
         totalPage: totalPage,
         currentPage: page,
         perPage: pageSize

@@ -7,6 +7,10 @@ const {
     reportForm 
 } = require('../utils/generateReport')
 const {
+    getListWeekend,
+    staticDayOff,
+} = require('../utils/functions')
+const {
     listAttendance
 } = require('../utils/listAttendanceReport')
 const LogBook = require('../models/LogBook')
@@ -31,7 +35,7 @@ module.exports = async (req, res, next) => {
         } = req.query
 
         const dueDate = moment(end_date).add(1,'days').format('YYYY-MM-DD')
-
+        const list_weekend = getListWeekend(start_date, dueDate)
         if (!userId) throw new APIError(errors.serverError)
 
         const rules = [{
@@ -85,8 +89,21 @@ module.exports = async (req, res, next) => {
             .sort(sort)
         const attendance = await listAttendance(userId, start_date, dueDate)
         logBook.push(...attendance)
+        logBook.push(...list_weekend)
+        logBook.push(...staticDayOff)
         logBook.sort(function (a, b) {
             return new Date(a.dateTask) - new Date(b.dateTask)
+        })
+       logBook.filter((a, b) => {
+            index = b+1
+            if (logBook[index] === undefined) return
+            if (moment(a.dateTask).isSame(logBook[b+1].dateTask, 'day')) {
+                if (logBook[b+1].nameTask === 'LIBUR') {
+                    logBook.splice(index,1)
+                } else if (a.nameTask === 'LIBUR') {
+                    logBook.splice(logBook.indexOf(a),1)
+                }
+            }
         })
         // Get logbook per Day
         rules.push({
