@@ -47,7 +47,7 @@ module.exports = async (req, res, next) => {
     }
 
     // Get page count
-    const count = await Project.countDocuments({'createdBy.email': session.email})
+    const count = await Project.countDocuments(rules)
     const filtered = await Project.aggregate([
       ...rules,
       {

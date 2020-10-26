@@ -39,10 +39,13 @@ db = SQLAlchemy(app)
 
 @app.route('/api/monthly-report/')
 def listUserByUnit():
+    search = request.args.get('search')
     divisi = request.args.get('divisi')
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     query = queryAccount(divisi=divisi)
+    if search:
+        query = queryAccount(search='%'+search+'%', divisi=divisi)
     result = db.session.execute(query)
     response = []
     if result.returns_rows == False:
