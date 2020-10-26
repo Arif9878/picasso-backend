@@ -2,7 +2,7 @@ import xlsxwriter
 from xlsxwriter.utility import xl_range
 from utils import isWeekDay, getHours, getInformation, getTimePresence
 
-def exportExcelFormatByDivisi(mongoClient, output, listDate ,result):
+def exportExcelFormatHorizontal(mongoClient, output, listDate ,result):
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
 
@@ -77,7 +77,7 @@ def exportExcelFormatByDivisi(mongoClient, output, listDate ,result):
     workbook.close()
     return output, nameFile
 
-def exportExcelFormatByCategory(mongoClient, output, listDate ,result):
+def exportExcelFormatVertical(mongoClient, output, listDate ,result):
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
 
@@ -95,22 +95,30 @@ def exportExcelFormatByCategory(mongoClient, output, listDate ,result):
     worksheet.write('H1', 'Total Jumlah Jam Kerja', yellow_format)
     worksheet.write('I1', 'TTD', yellow_format)
 
-    b = 0
+    lengthDate = len(listDate)
     indexPegawai = 0
+    indexContents = 0
+    indexLengthDate = 1
     for i in result:
         indexPegawai += 1
         for d in listDate:
-            b += 1
+            indexContents += 1
             presence = getTimePresence(mongoClient, i[0], d)
             hour = getHours(mongoClient, i[0], d)
             information = getInformation(mongoClient, i[0], d)
-            worksheet.write(b, 0, indexPegawai)
-            worksheet.write(b, 1, i[1])
-            worksheet.write(b, 2, d)
-            worksheet.write(b, 3, presence[0])
-            worksheet.write(b, 4, presence[1])
-            worksheet.write(b, 5, hour)
-            worksheet.write(b, 6, information)
+            worksheet.write(indexContents, 0, indexPegawai)
+            worksheet.write(indexContents, 1, i[1])
+            worksheet.write(indexContents, 2, d)
+            worksheet.write(indexContents, 3, presence[0])
+            worksheet.write(indexContents, 4, presence[1])
+            worksheet.write(indexContents, 5, hour)
+            worksheet.write(indexContents, 6, information)
+        if indexPegawai > 1:
+            indexLengthDate += lengthDate
+        cell_range = xl_range(indexLengthDate, 5, indexPegawai*lengthDate, 5)
+        formula = '=SUM(%s)' % cell_range
+        worksheet.merge_range(indexLengthDate, 7, indexPegawai*lengthDate, 7, formula)
+        worksheet.merge_range(indexLengthDate, 8, indexPegawai*lengthDate, 8, '')
 
     workbook.close()
     return output
