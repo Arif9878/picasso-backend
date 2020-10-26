@@ -1,4 +1,5 @@
 const sharp = require('sharp')
+const moment = require('moment')
 
 function encode(input) {
     const keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
@@ -44,7 +45,37 @@ function imageResize(input) {
         .toBuffer()
 }
 
+function getListWeekend(start_date, end_date) {
+    let list_weekend = []
+    for (var d = new Date(start_date); d < new Date(end_date); d.setDate(d.getDate() + 1)) {
+        if (d.getDay() === 6 || d.getDay() === 0) {
+            list_weekend.push({
+                'dateTask':moment(d).format('YYYY-MM-DDTHH:mm:ssZ'),
+                'nameTask': 'LIBUR'
+            })
+        }
+    }
+    return list_weekend;
+}
+
+const staticDayOff = [
+    {
+        'dateTask': '2020-10-28T00:00:00.000Z',       
+        'nameTask': 'LIBUR'
+    },
+    {
+        'dateTask': '2020-10-29T00:00:00.000Z',       
+        'nameTask': 'LIBUR'
+    },
+    {
+        'dateTask': '2020-10-30T00:00:00.000Z',       
+        'nameTask': 'LIBUR'
+    }
+]
+
 module.exports = {
     encode,
     imageResize,
+    staticDayOff,
+    getListWeekend
 }

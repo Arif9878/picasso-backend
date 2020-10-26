@@ -86,13 +86,6 @@ module.exports = async (req, res, next) => {
     }
 
     // Get page count
-    const count = await Attendance.countDocuments({
-      'createdBy.email': session.email,
-      startDate: {
-        $gte: new Date(`${start} 00:00:00`),
-        $lt: new Date(`${end} 23:59:59`)
-      }
-    })
     const filtered = await Attendance.aggregate([
       ...rules,
       {
@@ -115,11 +108,10 @@ module.exports = async (req, res, next) => {
       .limit(pageSize)
 
     res.status(200).json({
-      filtered: filtered.length > 0 ? filtered[0].rows : 0,
       pageSize,
       results,
       _meta: {
-        totalCount: count,
+        totalCount: filtered.length > 0 ? filtered[0].rows : 0,
         totalPage: totalPage,
         currentPage: page,
         perPage: pageSize
