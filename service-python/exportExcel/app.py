@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from pymongo import MongoClient
 from utils import monthlist_short, queryAccount
 
-from worksheet_format import exportExcelFormatByDivisi, exportExcelFormatByCategory
+from worksheet_format import exportExcelFormatHorizontal, exportExcelFormatVertical
 
 app = Flask(__name__)
 
@@ -56,7 +56,7 @@ def exportExcelByDivisi():
 
     listDate = list(monthlist_short(dates))
     memory = io.BytesIO()
-    output, nameFile = exportExcelFormatByDivisi(mongoClient, memory, listDate, result)
+    output, nameFile = exportExcelFormatHorizontal(mongoClient, memory, listDate, result)
     output.seek(0)
     return send_file(output, attachment_filename="%s.xlsx" % nameFile, as_attachment=True)
 
@@ -77,10 +77,9 @@ def exportExcelByCategory():
     result = db.session.execute(query)
     listDate = list(monthlist_short(dates))
     memory = io.BytesIO()
-    nameFile = 'test'
-    output = exportExcelFormatByCategory(mongoClient, memory, listDate, result)
+    output = exportExcelFormatVertical(mongoClient, memory, listDate, result)
     output.seek(0)
-    return send_file(output, attachment_filename="%s.xlsx" % nameFile, as_attachment=True)
+    return send_file(output, attachment_filename="%s.xlsx" % manager_category, as_attachment=True)
 
 port = os.environ.get('EXPORT_EXCEL_PORT', 80)
 if __name__ == '__main__':

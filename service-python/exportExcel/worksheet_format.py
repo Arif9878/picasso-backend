@@ -2,7 +2,7 @@ import xlsxwriter
 from xlsxwriter.utility import xl_range
 from utils import isWeekDay, getHours, getInformation, getTimePresence
 
-def exportExcelFormatByDivisi(mongoClient, output, listDate ,result):
+def exportExcelFormatHorizontal(mongoClient, output, listDate ,result):
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
 
@@ -77,7 +77,7 @@ def exportExcelFormatByDivisi(mongoClient, output, listDate ,result):
     workbook.close()
     return output, nameFile
 
-def exportExcelFormatByCategory(mongoClient, output, listDate ,result):
+def exportExcelFormatVertical(mongoClient, output, listDate ,result):
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet()
 
@@ -95,8 +95,10 @@ def exportExcelFormatByCategory(mongoClient, output, listDate ,result):
     worksheet.write('H1', 'Total Jumlah Jam Kerja', yellow_format)
     worksheet.write('I1', 'TTD', yellow_format)
 
-    b = 0
+    lengthDate = len(listDate)
     indexPegawai = 0
+    x = 1
+    b = 0
     for i in result:
         indexPegawai += 1
         for d in listDate:
@@ -111,6 +113,12 @@ def exportExcelFormatByCategory(mongoClient, output, listDate ,result):
             worksheet.write(b, 4, presence[1])
             worksheet.write(b, 5, hour)
             worksheet.write(b, 6, information)
+        if indexPegawai > 1:
+            x += lengthDate
+        cell_range = xl_range(x, 5, indexPegawai*lengthDate, 5)
+        formula = '=SUM(%s)' % cell_range
+        worksheet.merge_range(x, 7, indexPegawai*lengthDate, 7, formula)
+        worksheet.merge_range(x, 8, indexPegawai*lengthDate, 8, '')
 
     workbook.close()
     return output
