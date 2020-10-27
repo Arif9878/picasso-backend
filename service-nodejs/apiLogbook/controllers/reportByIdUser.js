@@ -25,7 +25,8 @@ module.exports = async (req, res, next) => {
             dateTask: 1,
         }
         const {
-            userId
+            userId,
+            state
         } = req.params
 
         const {
@@ -140,10 +141,16 @@ module.exports = async (req, res, next) => {
             const month = req.query.date || moment().format('YYYY')
             const fileName = `LaporanPLD_${month}_${fullName}.pdf`.replace(/[-\s]/g, '_')
             const pdfFile = await generateReport(layout, fileName)
+            if (state != 'view') {
+                res.set('Content-disposition', 'attachment; filename=' + fileName)
+                res.set('Content-Type', 'attachment')
+                res.status(200).send(pdfFile)
+            } else {
+                const pdfBlob = 'data:application/pdf;base64,' + pdfFile.toString('base64')
+                res.set('content-type', 'application/pdf')
+                res.status(200).send(pdfBlob)
+            }
 
-            res.set('Content-disposition', 'attachment; filename=' + fileName)
-            res.set('Content-Type', 'attachment')
-            res.status(200).send(pdfFile)
         })
     } catch (error) {
         next(error)
