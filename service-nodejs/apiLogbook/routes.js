@@ -17,6 +17,6 @@ router.put('/:_id', form(), update)
 router.delete('/:_id', deleted)
 router.get('/:_id', detail)
 router.get('/', list)
-router.get('/report-by-user/:userId', reportByIdUser)
+router.get('/report-by-user/:state/:userId', reportByIdUser)
 
 module.exports = router
