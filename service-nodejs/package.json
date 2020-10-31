@@ -41,7 +41,7 @@
     "express-gateway-plugin-example": "^1.0.1",
     "express-session": "1.16.2",
     "express-validator": "^6.6.0",
-    "firebase": "^7.15.0",
+    "firebase": "^7.23.0",
     "firebase-admin": "^8.12.1",
     "helmet": "^3.21.1",
     "http": "^0.0.0",
