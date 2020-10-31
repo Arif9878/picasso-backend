@@ -91,10 +91,6 @@ module.exports = async (req, res, next) => {
     }
 
     // Get page count
-    // const count = await LogBook.aggregate([
-    //   ...rules,
-
-    // ])
     const filtered = await LogBook.aggregate([
       ...rules,
       {
