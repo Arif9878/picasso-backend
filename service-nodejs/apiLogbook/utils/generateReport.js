@@ -147,8 +147,8 @@ const logBookPerDay = (data) => {
                         fontSize: 11,
                         text: isDocumentTaskURL ? '' : itemB.documentTaskURL
                 })
+            })
         })
-    })
     }
     return records
 }
