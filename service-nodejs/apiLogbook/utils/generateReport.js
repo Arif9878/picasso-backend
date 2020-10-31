@@ -99,44 +99,57 @@ const logBook = (data) => {
 
 const logBookPerDay = (data) => {
     let records = []
-    data['logBookPerDay'].forEach((item, index) => {
-        records.push({
-            margin: [0, 15, 0, 0],
+    if (data['logBookPerDay'].length > 0 ) {
+        records.push(
+        // EVIDENCE   
+        {
+            alignment: 'center',
+            style: 'boldNormal',
+            pageBreak: 'before',
+            pageOrientation: 'landscape',
+            text: 'LAMPIRAN'
+        },
+        {
             fontSize: 11,
-            bold: true,
-            text: 'Hari, Tanggal : ' + moment(item._id).format('dddd, DD MMMM YYYY')
+            text: 'Berikut adalah evidence daftar uraian kegiatan harian yang didetailkan setiap harinya dibulan ini.'
         })
-        item['items'].forEach(async (itemB, indexB) => {
-            const isDocumentTaskURL = String(itemB.documentTaskURL) === 'null'
-            records.push(
-                {
-                    margin: [10, 10, 0, 0],
-                    fontSize: 11,
-                    text: (indexB+1) + '. ' + `${itemB.projectName} - ${itemB.nameTask}`
-                },
-                {
-                    margin: [20, 0, 0, 0],
-                    fontSize: 11,
-                    text: 'a. FOTO'
-                },
-                {
-                    margin: [80, 0, 10, 0],
-                    image: itemB.blobsEvidence,
-                    width: 350,
-                },
-                {
-                    margin: [20, 0, 0, 0],
-                    fontSize: 11,
-                    text: isDocumentTaskURL ? '' : 'b. LINK'
-                },
-                {
-                    margin: [20, 0, 0, 0],
-                    fontSize: 11,
-                    text: isDocumentTaskURL ? '' : itemB.documentTaskURL
-                }
-            )
+        data['logBookPerDay'].forEach((item, index) => {
+            records.push({
+                margin: [0, 15, 0, 0],
+                fontSize: 11,
+                bold: true,
+                text: 'Hari, Tanggal : ' + moment(item._id).format('dddd, DD MMMM YYYY')
+            })
+            item['items'].forEach(async (itemB, indexB) => {
+                const isDocumentTaskURL = String(itemB.documentTaskURL) === 'null'
+                records.push({
+                        margin: [10, 10, 0, 0],
+                        fontSize: 11,
+                        text: (indexB+1) + '. ' + `${itemB.projectName} - ${itemB.nameTask}`
+                    },
+                    {
+                        margin: [20, 0, 0, 0],
+                        fontSize: 11,
+                        text: 'a. FOTO'
+                    },
+                    {
+                        margin: [80, 0, 10, 0],
+                        image: itemB.blobsEvidence,
+                        width: 350,
+                    },
+                    {
+                        margin: [20, 0, 0, 0],
+                        fontSize: 11,
+                        text: isDocumentTaskURL ? '' : 'b. LINK'
+                    },
+                    {
+                        margin: [20, 0, 0, 0],
+                        fontSize: 11,
+                        text: isDocumentTaskURL ? '' : itemB.documentTaskURL
+                })
         })
     })
+    }
     return records
 }
 
@@ -149,6 +162,7 @@ const reportForm = (data) => {
       jabatan
   } = data
   const docDefinition = {
+      compress: true,
       content: [
           {
               image: 'static/images/logo_jabarprov.png',
@@ -310,18 +324,6 @@ const reportForm = (data) => {
                 ]
             }
          },
-        // EVIDENCE   
-        {
-            alignment: 'center',
-            style: 'boldNormal',
-            pageBreak: 'before',
-            pageOrientation: 'landscape',
-            text: 'LAMPIRAN'
-        },
-        {
-            fontSize: 11,
-            text: 'Berikut adalah evidence daftar uraian kegiatan harian yang didetailkan setiap harinya dibulan ini.'
-        },
         ...logBookPerDay(data)
       ],
       styles: {

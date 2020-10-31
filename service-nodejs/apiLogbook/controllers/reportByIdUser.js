@@ -113,10 +113,12 @@ module.exports = async (req, res, next) => {
                 }
             }
         })
-
-        const logBookPerDay = await LogBook
-            .aggregate(rules)
-            .sort({ _id: 1 })
+        let logBookPerDay = []
+        if (state != 'view') {
+            logBookPerDay = await LogBook
+                .aggregate(rules)
+                .sort({ _id: 1 })
+        } 
 
         if (!logBook) throw new APIError(errors.serverError)       
 
