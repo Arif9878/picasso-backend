@@ -33,6 +33,7 @@ class AccountSerializer(serializers.ModelSerializer):
             'id_divisi',
             'divisi',
             'id_jabatan',
+            'address',
             'jabatan',
             'manager_category',
             'join_date',
