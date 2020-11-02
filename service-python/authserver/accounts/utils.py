@@ -68,7 +68,7 @@ def generate_refresh_token(user):
         'username': user.username,
         'divisi': user.divisi,
         'jabatan': user.jabatan,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=3),
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
         'iat': datetime.datetime.utcnow()
     }
     refresh_token = jwt.encode(
