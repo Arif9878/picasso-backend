@@ -118,6 +118,19 @@ services:
     env_file: 
       - .env-golang
 
+  holidaydate:
+    build:
+      context: ./service-golang
+    command: "holidayDate"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 150m
+    restart: always
+    networks:
+      - holidaydate
+    env_file: 
+      - .env-golang
+
   settings:
     build:
       context: ./service-golang
@@ -167,7 +180,11 @@ networks:
   dayoff:
       external:
         name: gateway
-  
+
+  holidaydate:
+      external:
+        name: gateway
+
   settings:
       external:
         name: gateway

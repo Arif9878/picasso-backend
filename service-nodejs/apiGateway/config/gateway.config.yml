@@ -72,6 +72,11 @@ apiEndpoints:
     paths: /day-off/*
     methods: ["GET","POST","DELETE","OPTIONS"]
 
+  holidaydate:
+    host: '*'
+    paths: /holiday-date/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
   settings:
     host: '*'
     paths: /settings/*
@@ -116,6 +121,9 @@ serviceEndpoints:
 
   dayoff:
       url: '${DAY_OFF_GO_SERVICE_URI}/api/'
+
+  holidaydate:
+      url: '${HOLIDAY_DATE_GO_SERVICE_URI}/api/'
 
   settings:
       url: '${SETTINGS_GO_SERVICE_URI}/api/'
@@ -346,6 +354,21 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: dayoff
+              changeOrigin: true
+  holidaydate:
+    apiEndpoints:
+      - holidaydate
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: holidaydate
               changeOrigin: true
 
   settings:
