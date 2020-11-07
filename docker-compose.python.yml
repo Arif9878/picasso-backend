@@ -6,8 +6,8 @@ services:
       context: ./service-python/authserver
     command: /usr/local/bin/gunicorn authServer.wsgi:application -w 2 -b :80
     cpus: 0.5
-    mem_limit: 250m
-    memswap_limit: 50m
+    mem_limit: 550m
+    memswap_limit: 150m
     restart: always
     networks:
       - authserver
