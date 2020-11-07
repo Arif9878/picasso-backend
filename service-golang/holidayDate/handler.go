@@ -181,6 +181,28 @@ func (config *ConfigDB) putHolidayDate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		log.Fatal(err)
+	}
+	matchStage := bson.M{
+		"holiday_date": bson.M{
+			"$gte": payload.HolidayDate.In(location),
+			"$lt":  payload.HolidayDate.In(location).Add(time.Hour * time.Duration(9)),
+		},
+	}
+	match, err := collection.Find(ctx, matchStage)
+	if err != nil {
+		log.Fatal(err)
+	}
+	var resultMatch []bson.M
+	if err = match.All(ctx, &resultMatch); err != nil {
+		log.Fatal(err)
+	}
+	if len(resultMatch) != 0 {
+		utils.ResponseError(w, http.StatusInternalServerError, "Tanggal tersebut sudah terisi libur")
+		return
+	}
 	holidayData := models.HolidayDate{
 		HolidayDate: payload.HolidayDate,
 		HolidayType: payload.HolidayType,
