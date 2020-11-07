@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const db1 = require("../utils/database").mongoURI1
 const db2 = require("../utils/database").mongoURI2
+const db3 = require("../utils/database").mongoURI3
 
 function makeNewConnection(uri) {
     const db = mongoose.createConnection(uri, {
@@ -29,8 +30,10 @@ function makeNewConnection(uri) {
 
 const logBookConnection = makeNewConnection(db1);
 const attendanceConnection = makeNewConnection(db2);
+const holidaydateConnection = makeNewConnection(db3);
 
 module.exports = {
     logBookConnection,
     attendanceConnection,
+    holidaydateConnection,
 };

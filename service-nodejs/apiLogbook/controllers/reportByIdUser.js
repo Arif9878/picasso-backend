@@ -4,14 +4,16 @@ const {
 } = require('../utils/exceptions')
 const { 
     generateReport,
-    reportForm 
+    reportForm ,
+    holidayType
 } = require('../utils/generateReport')
 const {
     getListWeekend,
 } = require('../utils/functions')
 const {
-    listAttendance
-} = require('../utils/listAttendanceReport')
+    listAttendance,
+    listHolidayDate
+} = require('../utils/listOtherReport')
 const LogBook = require('../models/LogBook')
 const moment = require('moment')
 const servers_nats = [process.env.NATS_URI]
@@ -88,8 +90,10 @@ module.exports = async (req, res, next) => {
             .aggregate(rules)
             .sort(sort)
         const attendance = await listAttendance(userId, start_date, dueDate)
+        const holiday = await listHolidayDate(start_date, dueDate)
         logBook.push(...attendance)
         logBook.push(...list_weekend)
+        logBook.push(...holiday)
         logBook.sort(function (a, b) {
             return new Date(a.dateTask) - new Date(b.dateTask)
         })
@@ -97,9 +101,9 @@ module.exports = async (req, res, next) => {
             index = b+1
             if (logBook[index] === undefined) return
             if (moment(a.dateTask).isSame(logBook[b+1].dateTask, 'day')) {
-                if (logBook[b+1].nameTask === 'LIBUR') {
+                if (logBook[b+1].nameTask === 'LIBUR' || holidayType.includes(logBook[b+1].type)) {
                     logBook.splice(index,1)
-                } else if (a.nameTask === 'LIBUR') {
+                } else if (a.nameTask === 'LIBUR' || holidayType.includes(a.type)) {
                     logBook.splice(logBook.indexOf(a),1)
                 }
             }
