@@ -62,7 +62,7 @@ func (config *ConfigDB) listHolidayDate(w http.ResponseWriter, r *http.Request) 
 		},
 		"$expr": bson.M{
 			"$eq": []interface{}{
-				bson.M{"$year": "$holiday_date"},
+				bson.M{"$year": bson.M{"date": "$holiday_date", "timezone": "Asia/Jakarta"}},
 				bson.M{"$year": yearTime},
 			},
 		},
@@ -174,51 +174,90 @@ func (config *ConfigDB) putHolidayDate(w http.ResponseWriter, r *http.Request) {
 	delete(sessionUser, "user_id")
 	nameDB := utils.GetEnv("MONGO_DB_HOLIDAY_DATE")
 	collection := config.db.Collection(nameDB)
-	id, err := primitive.ObjectIDFromHex(params["ID"])
+	id, errID := primitive.ObjectIDFromHex(params["ID"])
+	if errID != nil {
+		utils.ResponseError(w, http.StatusInternalServerError, "id that you sent is wrong!!!")
+		return
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	payload := models.HolidayDate{}
 	if err := decoder.Decode(&payload); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	location, err := time.LoadLocation("Asia/Jakarta")
+
+	var holidayDateCheck models.HolidayDate
+	err := collection.FindOne(ctx, models.HolidayDate{ID: id}).Decode(&holidayDateCheck)
 	if err != nil {
-		log.Fatal(err)
-	}
-	matchStage := bson.M{
-		"holiday_date": bson.M{
-			"$gte": payload.HolidayDate.In(location),
-			"$lt":  payload.HolidayDate.In(location).Add(time.Hour * time.Duration(9)),
-		},
-	}
-	match, err := collection.Find(ctx, matchStage)
-	if err != nil {
-		log.Fatal(err)
-	}
-	var resultMatch []bson.M
-	if err = match.All(ctx, &resultMatch); err != nil {
-		log.Fatal(err)
-	}
-	if len(resultMatch) != 0 {
-		utils.ResponseError(w, http.StatusInternalServerError, "Tanggal tersebut sudah terisi libur")
+		switch err {
+		case mongo.ErrNoDocuments:
+			utils.ResponseError(w, http.StatusInternalServerError, "device token not found")
+		default:
+			utils.ResponseError(w, http.StatusInternalServerError, "there is an error on server!!!")
+		}
 		return
+	} else {
+		checkDate := utils.DateEqual(holidayDateCheck.HolidayDate, payload.HolidayDate)
+		if checkDate == true {
+			holidayData := models.HolidayDate{
+				HolidayDate: payload.HolidayDate,
+				HolidayType: payload.HolidayType,
+				HolidayName: payload.HolidayName,
+				UpdatedAt:   time.Now(),
+				UpdatedBy:   sessionUser,
+			}
+			update := bson.M{
+				"$set": holidayData,
+			}
+			result, err := collection.UpdateOne(ctx, models.HolidayDate{ID: id}, update)
+			if err != nil {
+				utils.ResponseError(w, http.StatusInternalServerError, "Gagal mengubah data")
+				return
+			}
+			utils.ResponseOk(w, result)
+		} else {
+			location, err := time.LoadLocation("Asia/Jakarta")
+			if err != nil {
+				log.Fatal(err)
+			}
+			matchStage := bson.M{
+				"holiday_date": bson.M{
+					"$gte": payload.HolidayDate.In(location),
+					"$lt":  payload.HolidayDate.In(location).Add(time.Hour * time.Duration(9)),
+				},
+			}
+			match, err := collection.Find(ctx, matchStage)
+			if err != nil {
+				log.Fatal(err)
+			}
+			var resultMatch []bson.M
+			if err = match.All(ctx, &resultMatch); err != nil {
+				log.Fatal(err)
+			}
+			if len(resultMatch) != 0 {
+				utils.ResponseError(w, http.StatusInternalServerError, "Tanggal tersebut sudah terisi libur")
+				return
+			} else {
+				holidayData := models.HolidayDate{
+					HolidayDate: payload.HolidayDate,
+					HolidayType: payload.HolidayType,
+					HolidayName: payload.HolidayName,
+					UpdatedAt:   time.Now(),
+					UpdatedBy:   sessionUser,
+				}
+				update := bson.M{
+					"$set": holidayData,
+				}
+				result, err := collection.UpdateOne(ctx, models.HolidayDate{ID: id}, update)
+				if err != nil {
+					utils.ResponseError(w, http.StatusInternalServerError, "Gagal mengubah data")
+					return
+				}
+				utils.ResponseOk(w, result)
+			}
+		}
 	}
-	holidayData := models.HolidayDate{
-		HolidayDate: payload.HolidayDate,
-		HolidayType: payload.HolidayType,
-		HolidayName: payload.HolidayName,
-		UpdatedAt:   time.Now(),
-		UpdatedBy:   sessionUser,
-	}
-	update := bson.M{
-		"$set": holidayData,
-	}
-	result, err := collection.UpdateOne(ctx, models.HolidayDate{ID: id}, update)
-	if err != nil {
-		utils.ResponseError(w, http.StatusInternalServerError, "Gagal mengubah data")
-		return
-	}
-	utils.ResponseOk(w, result)
 }
 
 func (config *ConfigDB) deleteHolidayDate(w http.ResponseWriter, r *http.Request) {
