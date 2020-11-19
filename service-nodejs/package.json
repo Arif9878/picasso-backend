@@ -27,7 +27,7 @@
     "babel-preset-env": "^1.7.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
-    "mongoose": "^5.9.4",
+    "mongoose": "^5.10.9",
     "accesscontrol": "^2.2.1",
     "aws-sdk": "^2.639.0",
     "axios": "^0.19.2",
