@@ -29,7 +29,7 @@
     "cors": "^2.8.5",
     "mongoose": "^5.10.9",
     "accesscontrol": "^2.2.1",
-    "aws-sdk": "^2.639.0",
+    "aws-sdk": "^2.771.0",
     "axios": "^0.19.2",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
