@@ -30,7 +30,7 @@
     "raven": "^2.6.4",
     "moment": "^2.27.0",
     "pdfmake": "^0.1.66",
-    "sharp": "^0.25.4",
+    "sharp": "^0.26.2",
     "express-validator": "^6.6.0"
   }
 }
