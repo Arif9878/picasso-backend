@@ -43,7 +43,7 @@ class MenuViewSet(viewsets.ModelViewSet):
         menu_type = self.request.query_params.get('menu_type', None)
         user = request.user
         blank = ""
-        queryset = Menu.v1.list()
+        queryset = []
         if user.menu:
             queryset = Menu.v1.list(menu_type=user.menu.id)
         if menu_type is not None and menu_type is not blank:
