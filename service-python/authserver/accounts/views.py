@@ -38,8 +38,8 @@ class AccountViewSet(viewsets.ModelViewSet):
         if struktural is not None and struktural is not blank:
             self.queryset = self.queryset.filter(
             (Q(divisi="Struktural")))
-        else:
-            self.queryset = self.queryset.filter(~Q(divisi="Struktural"))
+        # else:
+        #     self.queryset = self.queryset.filter(~Q(divisi="Struktural"))
         if search is not None and search is not blank:
             self.queryset = self.queryset.annotate(fullname=Concat('first_name', V(' '), 'last_name')).\
                 filter((Q(fullname__icontains=search))|
