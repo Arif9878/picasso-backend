@@ -62,7 +62,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_social_oauth2',
     'master',
-    'accounts'
+    'accounts',
+    'menu'
 ]
 
 MIDDLEWARE = [

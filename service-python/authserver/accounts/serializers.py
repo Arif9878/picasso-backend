@@ -40,6 +40,7 @@ class AccountSerializer(serializers.ModelSerializer):
             'is_admin',
             'is_active',
             'resign_date',
+            'menu',
             'reason_resignation'
         )
 

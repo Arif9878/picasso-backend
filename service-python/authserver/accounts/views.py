@@ -31,9 +31,15 @@ class AccountViewSet(viewsets.ModelViewSet):
         the user as determined by the username portion of the URL.
         """
         search = self.request.query_params.get('search', None)
+        struktural = self.request.query_params.get('struktural', None)
         id_divisi = self.request.query_params.get('id_divisi', None)
         is_active = self.request.query_params.get('is_active', None)
         blank = ""
+        if struktural is not None and struktural is not blank:
+            self.queryset = self.queryset.filter(
+            (Q(divisi="Struktural")))
+        else:
+            self.queryset = self.queryset.filter(~Q(divisi="Struktural"))
         if search is not None and search is not blank:
             self.queryset = self.queryset.annotate(fullname=Concat('first_name', V(' '), 'last_name')).\
                 filter((Q(fullname__icontains=search))|
