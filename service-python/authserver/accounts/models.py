@@ -6,6 +6,7 @@ from django.contrib.postgres.indexes import GinIndex
 import django.contrib.postgres.search as pg_search
 
 from master.models import JenisNomorIdentitas, MetaAtribut
+from menu.models import MenuType
 
 from datetime import datetime, date
 
@@ -98,6 +99,8 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 
 	photo = models.CharField(verbose_name="Foto", max_length=150, null=True, blank=True)
 	sv = pg_search.SearchVectorField(null=True, blank=True)
+
+	menu = models.ForeignKey(MenuType, on_delete=models.CASCADE, blank=True, null=True)
 
 	is_active = models.BooleanField(default=True)
 	is_admin = models.BooleanField(default=False)

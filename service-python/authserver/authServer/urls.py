@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from accounts.views import AccountViewSet
+from menu.views import MenuViewSet, MenuTypeViewSet
 from accounts.views_social import oauth2_signin, detailUser
 from accounts.views_login import login_view, login_admin_view, refresh_token_view
 from rest_framework_jwt.views import refresh_jwt_token
@@ -23,6 +24,8 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r'user', AccountViewSet)
+router.register(r'menu-type', MenuTypeViewSet)
+router.register(r'menu', MenuViewSet)
 user_detail = AccountViewSet.as_view({'get':'detail'})
 
 urlpatterns = [
@@ -34,6 +37,7 @@ urlpatterns = [
     path('api/auth/login/', login_view),
     path('api/auth/admin/login/', login_admin_view),
     path('api/auth/refresh/', refresh_token_view),
+    path('api/menu/user/list/', MenuViewSet.as_view({ 'get': 'list'}),name='menu'),
 
     #Restframework
     path('api/', include(router.urls)),
