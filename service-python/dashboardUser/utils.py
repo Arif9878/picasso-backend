@@ -1,200 +1,65 @@
-import math, pytz, jwt
+import pytz, jwt
 from datetime import datetime
+from calendar import monthrange
 
-    
 busmask_names = 'Mon Tue Wed Thu Fri'
 weekmask_names = 'Sat Sun'
 
 local = pytz.timezone("Asia/Jakarta")
 
-def responseDashboard(
-    noPresence=0,
-    precentageNoPresence=0,
-    presence=0,
-    precentagePresence=0,
-    permit=0,
-    precentagePermit=0,
-    presenceWeekend=0,
-    precentagePresenceWeekend=0,
-    totalLatePresence=0,
-    precentageLatePresence=0,
-    totalWfo=0,
-    precentageWfo=0,
-    totalWfh=0,
-    precentageWfh=0):
+def last_day_of_month(date_value):
+    return date_value.replace(day = monthrange(date_value.year, date_value.month)[1])
+
+def arrayPresence(totalNoPresence=0,precentageNoPresence=0,totalPresence=0,precentagePresence=0,totalPresenceWeekend=0,precentagePresenceWeekend=0,totalLatePresence=0,precentageLatePresence=0):
     data = {
-        'total_no_presence': noPresence,
+        'total_no_presence': totalNoPresence,
         'precentage_no_presence': precentageNoPresence,
-        'total_presence': presence-permit,
+        'total_presence': totalPresence,
         'precentage_already_presence': precentagePresence,
-        'total_permit': permit,
-        'precentage_total_permit': precentagePermit,
-        'total_weekend_presence': presenceWeekend,
+        'total_weekend_presence': totalPresenceWeekend,
         'precentage_weekend_presence': precentagePresenceWeekend,
         'total_late_presence': totalLatePresence,
         'precentage_late_presence': precentageLatePresence,
+    }
+    return data
+
+def arrayPermit(permit=0, precentagePermit=0):
+    data = {
+        'total_permit': permit,
+        'precentage_total_permit': precentagePermit,
+    }
+    return data
+
+def arrayLocationUser(totalWfo=0,precentageWfo=0,totalWfh=0,precentageWfh=0,totalPerjadin=0,precentagePerjadin=0):
+    data = {
         'total_wfo': totalWfo,
         'precentage_wfo': precentageWfo,
         'total_wfh': totalWfh,
         'precentage_wfh': precentageWfh,
+        'total_perjadin': totalPerjadin,
+        'precentage_perjadin': precentagePerjadin,
     }
     return data
 
-class AuthUser:
-    @staticmethod
-    def decode_auth_token(secret_key, auth_token):
-        try:
-            payload = jwt.decode(auth_token, secret_key)
-            return payload
-        except jwt.ExpiredSignatureError:
-            return 401
-        except jwt.InvalidTokenError:
-            return 401
+def arrayReportUser(totalReportYear=0, totalReportMonth=0):
+    data = {
+        'total_report_year': totalReportYear,
+        'total_report_month': totalReportMonth,
+    }
+    return data
 
+def arrayOfficeHourUser(totalOfficeHourYear=0, totalOfficeHourMonth=0):
+    data = {
+        'total_office_hour_year': totalOfficeHourYear,
+        'total_office_hour_month': totalOfficeHourMonth,
+    }
+    return data
 
-def getPresence(mongoClient, idUser, date):
-    dbMongo = mongoClient.attendance
-    start_date = datetime.strptime(date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
-    end_date = datetime.strptime(date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
-    agr = [
-        {
-            '$match': {
-                "createdBy._id": str(idUser),
-                'startDate': {
-                    '$gte': local.localize(start_date, is_dst=None),
-                    '$lt': local.localize(end_date, is_dst=None)
-                }
-            }
-        }, {
-            '$project': {
-                '_id': 1,
-            }
-        }
-    ]
-    itm = list(dbMongo.attendances.aggregate(agr))
-    exist = False
-    if len(itm) > 0:
-        exist = True
-    return exist
-
-def countPermit(mongoClient, idUser, start_date, end_date):
-    dbMongo = mongoClient.attendance
-    start_date = datetime.strptime(start_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
-    end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
-    agr = [
-        {
-            '$match': {
-                'createdBy._id': idUser,
-                'message': {
-                    '$in': ['CUTI', 'SAKIT', 'IZIN']
-                },
-                'startDate': {
-                    '$gte': local.localize(start_date, is_dst=None),
-                    '$lt': local.localize(end_date, is_dst=None)
-                }
-            }
-        }, {
-            '$count': 'count'
-        }
-    ]
-
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if len(itm) < 1:
-        count = 0
-    else:
-        try:
-            count = itm[0]['count']
-        except KeyError:
-            count = 0
-    return count
-
-def countLocationPresence(mongoClient, idUser, location, start_date, end_date):
-    dbMongo = mongoClient.attendance
-    start_date = datetime.strptime(start_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
-    end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
-    agr = [
-        {
-            '$match': {
-                "createdBy._id": str(idUser),
-                "location": location,
-                'startDate': {
-                    '$gte': local.localize(start_date, is_dst=None),
-                    '$lt': local.localize(end_date, is_dst=None)
-                }
-            }
-        },  {
-            '$count': 'count'
-        }
-    ]
-
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if len(itm) < 1:
-        count = 0
-    else:
-        try:
-            count = itm[0]['count']
-        except KeyError:
-            count = 0
-    return count
-
-def countLatePresence(mongoClient, idUser, start_date, end_date):
-    dbMongo = mongoClient.attendance
-    start_date = datetime.strptime(start_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
-    end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
-    agr = [
-            {
-                '$addFields': {
-                    'date': {
-                        '$dateToString': {
-                            'format': '%Y-%m-%d %H:%M:%S', 
-                            'timezone': 'Asia/Jakarta', 
-                            'date': '$startDate'
-                        }
-                    }, 
-                    'isLate': {
-                        '$and': [
-                            {
-                                '$gte': [
-                                    {
-                                        '$hour': '$startDate'
-                                    }, 1
-                                ]
-                            }, {
-                                '$gte': [
-                                    {
-                                        '$minute': '$startDate'
-                                    }, 1
-                                ]
-                            }, {
-                                '$gte': [
-                                    {
-                                        '$second': '$startDate'
-                                    }, 0
-                                ]
-                            }
-                        ]
-                    }
-                }
-            }, {
-                '$match': {
-                    'isLate': True, 
-                    "createdBy._id": str(idUser),
-                    'startDate': {
-                        '$gte': local.localize(start_date, is_dst=None),
-                        '$lt': local.localize(end_date, is_dst=None)
-                    }
-                }
-            }, {
-                '$count': 'count'
-            }
-        ]
-
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if len(itm) < 1:
-        count = 0
-    else:
-        try:
-            count = itm[0]['count']
-        except KeyError:
-            count = 0
-    return count
+def decode_auth_token(secret_key, auth_token):
+    try:
+        payload = jwt.decode(auth_token, secret_key)
+        return payload
+    except jwt.ExpiredSignatureError:
+        return 401
+    except jwt.InvalidTokenError:
+        return 401
