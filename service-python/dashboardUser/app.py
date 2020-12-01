@@ -29,6 +29,7 @@ from attendance_query import (
 from report_query import countReportUserYear, countReportUserMonthly
 
 app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../.env')):
