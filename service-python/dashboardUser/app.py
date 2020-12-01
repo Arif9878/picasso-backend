@@ -64,7 +64,7 @@ def dashboardAttendanceUser():
             start = today
             end = last_day_of_month(today)+timedelta(days=1)
             dateRange = np.arange(np.datetime64(start), np.datetime64(end), dtype='datetime64[D]')
-            # dateRangeFromNow = np.arange(np.datetime64(start), np.datetime64(today), dtype='datetime64[D]')
+            # dateRangeFromNow = np.arange(np.datetime64(start), np.datetime64(today+timedelta(days=1)), dtype='datetime64[D]')
             # listBusdayFromNow = np.busdaycalendar(holidays=dateRangeFromNow, weekmask=busmask_names)
             listBusday = np.busdaycalendar(holidays=dateRange, weekmask=busmask_names)
             listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
@@ -79,7 +79,6 @@ def dashboardAttendanceUser():
             for i in listWeekend.holidays:
                 if getPresence(mongoClient, user['user_id'], str(i)):
                     presenceWeekend += 1
-            print(dateRange)
             # busDaysFromNow = len(listBusdayFromNow.holidays)
             busDays = len(listBusday.holidays)
             weekEnd = len(listWeekend.holidays)
