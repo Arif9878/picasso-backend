@@ -40,6 +40,19 @@ services:
     env_file: 
       - .env-python
 
+  dashboarduser:
+    build:
+      context: ./service-python/dashboardUser
+    command: /usr/local/bin/gunicorn wsgi:app -w 2 --timeout 200 -b :80
+    cpus: 0.5
+    mem_limit: 550m
+    memswap_limit: 150m
+    restart: always
+    networks:
+      - dashboarduser
+    env_file: 
+      - .env-python
+
 networks:
   authserver:
     external:
@@ -50,5 +63,9 @@ networks:
       name: gateway
 
   exportexcel:
+    external:
+      name: gateway
+
+  dashboarduser:
     external:
       name: gateway
