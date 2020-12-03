@@ -15,7 +15,7 @@ apiEndpoints:
   dashboarduser:
     host: '*'
     paths: /dashboard/*
-    methods: ["GET"]
+    methods: ["GET", "OPTIONS"]
 
   menutype:
     host: '*'
