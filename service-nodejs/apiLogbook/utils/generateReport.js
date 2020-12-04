@@ -2,7 +2,8 @@ const fs = require('fs')
 const PdfPrinter = require('pdfmake')
 const moment = require('moment')
 moment.locale('id')
-
+const dayOffType = ['CUTI', 'SAKIT', 'IZIN']
+const holidayType = ['Libur Nasional', 'Cuti Bersama']
 const generateReport = (docDefinition, filePath) => {
   return new Promise((resolve, reject) => {
       try {
@@ -32,7 +33,7 @@ const generateReport = (docDefinition, filePath) => {
 const logBook = (data) => {
     let records = []
     data.forEach((item, index) => {
-        if (['CUTI', 'SAKIT', 'IZIN'].includes(item.nameTask)) {
+        if (dayOffType.includes(item.nameTask)) {
             records.push([{
                     text: index + 1
                 },
@@ -49,7 +50,7 @@ const logBook = (data) => {
                 {},
                 {}
             ])
-        } else if (item.nameTask === 'LIBUR') {
+        } else if (item.nameTask === 'LIBUR' || holidayType.includes(item.type)) {
             records.push([{
                     text: index + 1,
                      color: 'red',
@@ -352,5 +353,6 @@ const reportForm = (data) => {
 
 module.exports = {
   reportForm,
-  generateReport
+  generateReport,
+  holidayType
 }

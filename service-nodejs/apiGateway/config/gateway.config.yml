@@ -12,6 +12,21 @@ apiEndpoints:
     paths: /user/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
 
+  dashboarduser:
+    host: '*'
+    paths: /dashboard/*
+    methods: ["GET", "OPTIONS"]
+
+  menutype:
+    host: '*'
+    paths: /menu-type/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
+  menu:
+    host: '*'
+    paths: /menu/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
   oauth2_login:
     host: '*'
     paths: /social/google-oauth2/*
@@ -72,6 +87,11 @@ apiEndpoints:
     paths: /day-off/*
     methods: ["GET","POST","DELETE","OPTIONS"]
 
+  holidaydate:
+    host: '*'
+    paths: /holiday-date/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
   settings:
     host: '*'
     paths: /settings/*
@@ -79,9 +99,6 @@ apiEndpoints:
 
 serviceEndpoints:
   authentication:
-    url: '${AUTHENTICATION_PY_SERVICE_URI}/api/'
-
-  user:
     url: '${AUTHENTICATION_PY_SERVICE_URI}/api/'
 
   satuankerja:
@@ -99,6 +116,9 @@ serviceEndpoints:
   exportexcel:
     url: '${EXPORT_EXCEL_PY_SERVICE_URI}/api/'
 
+  dashboarduser:
+    url: '${DASHBOARD_USER_PY_SERVICE_URI}/api/'
+  
   project:
     url: '${PROJECT_NODEJS_SERVICE_URI}/api/'
 
@@ -116,6 +136,9 @@ serviceEndpoints:
 
   dayoff:
       url: '${DAY_OFF_GO_SERVICE_URI}/api/'
+
+  holidaydate:
+      url: '${HOLIDAY_DATE_GO_SERVICE_URI}/api/'
 
   settings:
       url: '${SETTINGS_GO_SERVICE_URI}/api/'
@@ -153,7 +176,7 @@ pipelines:
               allowedHeaders: '*'
       - proxy:
           - action:
-              serviceEndpoint: user
+              serviceEndpoint: authentication
               changeOrigin: true
 
   user:
@@ -169,9 +192,57 @@ pipelines:
               checkCredentialExistence: false
       - proxy:
           - action:
-              serviceEndpoint: user
+              serviceEndpoint: authentication
               changeOrigin: true
 
+  dashboarduser:
+    apiEndpoints:
+      - dashboarduser
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: dashboarduser
+              changeOrigin: true
+              
+  menu:
+    apiEndpoints:
+      - menu
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: authentication
+              changeOrigin: true
+
+  menutype:
+    apiEndpoints:
+      - menutype
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: authentication
+              changeOrigin: true
+              
   satuankerja:
     apiEndpoints:
       - satuankerja
@@ -346,6 +417,21 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: dayoff
+              changeOrigin: true
+  holidaydate:
+    apiEndpoints:
+      - holidaydate
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: holidaydate
               changeOrigin: true
 
   settings:
