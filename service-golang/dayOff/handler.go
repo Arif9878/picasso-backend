@@ -14,6 +14,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jabardigitalservice/picasso-backend/service-golang/models"
 	"github.com/jabardigitalservice/picasso-backend/service-golang/utils"
+	"github.com/lib/pq"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -137,16 +138,13 @@ func (config *ConfigDB) postDayOff(w http.ResponseWriter, r *http.Request) {
 			CreateAttendanceDayOff(date, PermitsTypeUpper, sessionUser)
 		}
 	}
-	split := strings.Split(r.PostFormValue("permit_acknowledged"), ",")
-	var arrayPermit []string
-	for val := range split {
-		arrayPermit = append(arrayPermit, string(split[val]))
-	}
+
+	arrayPermit := strings.Split(r.PostFormValue("permit_acknowledged"), ",")
 	create := models.DayOff{
 		StartDate:          ParseStartDate,
 		EndDate:            ParseEndDate,
 		PermitsType:        PermitsTypeUpper,
-		PermitAcknowledged: arrayPermit,
+		PermitAcknowledged: pq.StringArray(arrayPermit),
 		Note:               r.PostFormValue("note"),
 		FilePath:           filename,
 		FileURL:            resp,
