@@ -12,6 +12,11 @@ apiEndpoints:
     paths: /user/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
 
+  dashboarduser:
+    host: '*'
+    paths: /dashboard/*
+    methods: ["GET", "OPTIONS"]
+
   menutype:
     host: '*'
     paths: /menu-type/*
@@ -111,6 +116,9 @@ serviceEndpoints:
   exportexcel:
     url: '${EXPORT_EXCEL_PY_SERVICE_URI}/api/'
 
+  dashboarduser:
+    url: '${DASHBOARD_USER_PY_SERVICE_URI}/api/'
+  
   project:
     url: '${PROJECT_NODEJS_SERVICE_URI}/api/'
 
@@ -187,6 +195,22 @@ pipelines:
               serviceEndpoint: authentication
               changeOrigin: true
 
+  dashboarduser:
+    apiEndpoints:
+      - dashboarduser
+    policies:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: dashboarduser
+              changeOrigin: true
+              
   menu:
     apiEndpoints:
       - menu
