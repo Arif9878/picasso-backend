@@ -55,6 +55,8 @@ Raven.config(process.env.SENTRY_URI).install()
 const host = process.env.HOST || "0.0.0.0"
 const port = process.env.LOGBOOK_PORT || 80
 
-app.listen(port, () => {
+var server = app.listen(port, () => {
     console.log(`Api Logbook service listening on port ${host}:${port}`)
 })
+
+server.setTimeout(300000)
