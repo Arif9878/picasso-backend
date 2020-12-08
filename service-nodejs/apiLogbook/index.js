@@ -58,3 +58,6 @@ const port = process.env.LOGBOOK_PORT || 80
 app.listen(port, () => {
     console.log(`Api Logbook service listening on port ${host}:${port}`)
 })
+
+var server = app.listen()
+server.setTimeout(300000)
