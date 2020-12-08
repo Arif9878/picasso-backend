@@ -286,10 +286,14 @@ pipelines:
         - action:
             secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
             checkCredentialExistence: false
+      # - rate-limit:
+      #     - action:
+      #         windowMs: 600000
       - proxy:
           - action:
               serviceEndpoint: logbook
               changeOrigin: true
+              timeout: 600000
 
   monthlyreport:
     apiEndpoints:

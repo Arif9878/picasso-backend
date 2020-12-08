@@ -33,16 +33,19 @@ const app = express()
 
 // default options
 app.use(cors())
-app.use(helmet());
+app.use(helmet())
 app.use(timeout('5m'))
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
 app.use(fileUpload())
-app.use(haltOnTimedout)
 
 function haltOnTimedout (req, res, next) {
-  if (!req.timedout) next()
+    req.clearTimeout()
+    req.setTimeout(300000)
+    next()
 }
+
+app.use(haltOnTimedout)
 
 mongoose.Promise = global.Promise
 
@@ -57,6 +60,7 @@ const route = require('./routes')
 
 //routes
 app.use('/api/logbook', route)
+
 Raven.config(process.env.SENTRY_URI).install()
 
 const host = process.env.HOST || "0.0.0.0"
