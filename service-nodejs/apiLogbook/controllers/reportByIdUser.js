@@ -93,11 +93,6 @@ module.exports = async (req, res, next) => {
             .hint({ nameTask:1 })
             .sort(sort)
 
-        for (const logbook of logBook) {
-            const results = await BlobsFile.findOne({ logBookId: mongoose.Types.ObjectId(logbook._id) }).lean()
-            logbook['blobsEvidence'] = results.blob
-        }
-
         const attendance = await listAttendance(userId, start_date, dueDate)
         const holiday = await listHolidayDate(start_date, dueDate)
         logBook.push(...attendance)
