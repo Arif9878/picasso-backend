@@ -90,8 +90,6 @@ LogBook.index({
     projectName: 1
 })
 
-// module.exports = mongoose.models.LogBook || mongoose.model('LogBook', LogBook)
-
 const logBookModel = logBookConnection.model('LogBook', LogBook)
 
 module.exports = logBookModel
