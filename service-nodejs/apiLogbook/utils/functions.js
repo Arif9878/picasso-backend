@@ -58,24 +58,8 @@ function getListWeekend(start_date, end_date) {
     return list_weekend;
 }
 
-const staticDayOff = [
-    {
-        'dateTask': '2020-10-28T00:00:00.000Z',       
-        'nameTask': 'LIBUR'
-    },
-    {
-        'dateTask': '2020-10-29T00:00:00.000Z',       
-        'nameTask': 'LIBUR'
-    },
-    {
-        'dateTask': '2020-10-30T00:00:00.000Z',       
-        'nameTask': 'LIBUR'
-    }
-]
-
 module.exports = {
     encode,
     imageResize,
-    staticDayOff,
     getListWeekend
 }
