@@ -2,6 +2,7 @@ const {
     errors,
     APIError
 } = require('../utils/exceptions')
+const mongoose = require('mongoose')
 const { 
     generateReport,
     reportForm ,
@@ -15,6 +16,7 @@ const {
     listHolidayDate
 } = require('../utils/listOtherReport')
 const LogBook = require('../models/LogBook')
+const BlobsFile = require('../models/BlobsFile')
 const moment = require('moment')
 const servers_nats = [process.env.NATS_URI]
 const nats = require('nats').connect({
@@ -49,20 +51,20 @@ module.exports = async (req, res, next) => {
                     }
                 },
             },
-            {
-                '$lookup': {
-                    'from': 'blobsfiles',
-                    'localField': '_id',
-                    'foreignField': 'logBookId',
-                    'as': 'blobsEvidence'
-                }
-            },
-            {
-                '$unwind': {
-                    'path': '$blobsEvidence',
-                    'includeArrayIndex': 'arrayIndex'
-                }
-            },
+            // {
+            //     '$lookup': {
+            //         'from': 'blobsfiles',
+            //         'localField': '_id',
+            //         'foreignField': 'logBookId',
+            //         'as': 'blobsEvidence'
+            //     }
+            // },
+            // {
+            //     '$unwind': {
+            //         'path': '$blobsEvidence',
+            //         'includeArrayIndex': 'arrayIndex'
+            //     }
+            // },
             {
                 '$project': {
                     'dateTask': 1,
@@ -79,8 +81,8 @@ module.exports = async (req, res, next) => {
                     'evidenceTaskURL': '$evidenceTask.fileURL',
                     'evidenceBlob': '$evidenceTask.fileBlob',
                     'documentTaskPath': '$documentTask.filePath',
-                    'documentTaskURL': '$documentTask.fileURL',
-                    'blobsEvidence': '$blobsEvidence.blob'
+                    'documentTaskURL': '$documentTask.fileURL'
+                    // 'blobsEvidence': '$blobsEvidence.blob'
                 }
             }
         ]
@@ -90,6 +92,12 @@ module.exports = async (req, res, next) => {
             .aggregate(rules)
             .hint({ nameTask:1 })
             .sort(sort)
+
+        for (const logbook of logBook) {
+            const results = await BlobsFile.findOne({ logBookId: mongoose.Types.ObjectId(logbook._id) }).lean()
+            logbook['blobsEvidence'] = results.blob
+        }
+
         const attendance = await listAttendance(userId, start_date, dueDate)
         const holiday = await listHolidayDate(start_date, dueDate)
         logBook.push(...attendance)
@@ -123,8 +131,15 @@ module.exports = async (req, res, next) => {
             logBookPerDay = await LogBook
                 .aggregate(rules)
                 .sort({ _id: 1 })
-        } 
 
+            for (const eachDay of logBookPerDay) {
+                for (const items of eachDay.items) {
+                    const results = await BlobsFile.findOne({ logBookId: mongoose.Types.ObjectId(items._id) }).lean()
+                    items['blobsEvidence'] = results.blob
+                }
+            }
+        } 
+             
         if (!logBook) throw new APIError(errors.serverError)       
 
         const report = []
