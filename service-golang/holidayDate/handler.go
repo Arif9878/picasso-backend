@@ -149,6 +149,7 @@ func (config *ConfigDB) postHolidayDate(w http.ResponseWriter, r *http.Request) 
 	}
 	mod := mongo.IndexModel{
 		Keys: bson.M{
+			"holiday_date": 1,
 			"holiday_name": 1, // index in ascending order
 		},
 		Options: nil,

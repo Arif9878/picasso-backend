@@ -37,6 +37,8 @@ const Attendance = new Schema({
 })
 
 Attendance.index({
+    startDate: 1,
+    endDate: 1,
     location: 1
 })
 
