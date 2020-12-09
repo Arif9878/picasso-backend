@@ -88,6 +88,7 @@ module.exports = async (req, res, next) => {
         // Get logbook
         const logBook = await LogBook
             .aggregate(rules)
+            .hint({ nameTask:1 })
             .sort(sort)
         const attendance = await listAttendance(userId, start_date, dueDate)
         const holiday = await listHolidayDate(start_date, dueDate)
@@ -126,13 +127,19 @@ module.exports = async (req, res, next) => {
 
         if (!logBook) throw new APIError(errors.serverError)       
 
-        nats.requestOne('userDetail', String(userId), {}, 800, async function(response) {
-            // `NATS` is the library.
-            if (response.code) {
+        const report = []
+        // `NATS` is the library.
+        const sid = nats.request('userDetail', String(userId), (response) => {
+            report.push(JSON.parse(response)[0])
+            report.push(JSON.parse(response)[1])
+        })
+        setTimeout(async () => {
+            nats.unsubscribe(sid)
+            if (!report[0]) {
                 res.status(500).send(errors.serverError)
             }
-            const responseParseUser = JSON.parse(response)[0]
-            const responseParseJabatan = JSON.parse(response)[1]
+            const responseParseUser = report[0]
+            const responseParseJabatan = report[1]
             const user = JSON.parse(responseParseUser)
             const jabatan = JSON.parse(responseParseJabatan)
             const reporting_date = end_date ? end_date : moment().format('YYYY-MM-DD')
@@ -156,8 +163,7 @@ module.exports = async (req, res, next) => {
                 res.set('content-type', 'application/pdf')
                 res.status(200).send(pdfBlob)
             }
-
-        })
+        }, 500)
     } catch (error) {
         next(error)
     }
