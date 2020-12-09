@@ -20,11 +20,10 @@ const BlobsFile = new Schema({
 
 BlobsFile.index({
     _id: 1,
-    logBookId: 1,
-    blob: 1
+    dateTask: 1,
+    logBookId: 1
 })
 
-// module.exports = mongoose.models.BlobsFile || mongoose.model('BlobsFile', BlobsFile)
 const blobsFileModel = logBookConnection.model('BlobsFile', BlobsFile)
 
 module.exports = blobsFileModel
