@@ -83,7 +83,12 @@ const LogBook = new Schema({
     ...attributes
 })
 
-LogBook.index({ nameTask: 1 })
+LogBook.index({
+    dateTask: 1,
+    nameTask: 1,
+    projectId: 1,
+    projectName: 1
+})
 
 // module.exports = mongoose.models.LogBook || mongoose.model('LogBook', LogBook)
 
