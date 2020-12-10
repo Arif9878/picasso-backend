@@ -27,6 +27,7 @@ from attendance_query import (
         countOfficeHourUserMonthly
     )
 from report_query import countReportUserYear, countReportUserMonthly
+from holiday_query import getListHoliday
 
 app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
@@ -69,17 +70,22 @@ def dashboardAttendanceUser():
             listBusdayFromNow = np.busdaycalendar(holidays=dateRangeFromNow, weekmask=busmask_names)
             listBusday = np.busdaycalendar(holidays=dateRange, weekmask=busmask_names)
             listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
+            listHoliday = getListHoliday(mongoClient, np, start.year, start.month)
+
+            # Delete working days if there are holidays
+            listBusdayFromNow = np.array(list(filter(lambda x: x not in listHoliday, listBusdayFromNow.holidays)))
+            listBusday = np.array(list(filter(lambda x: x not in listHoliday, listBusday.holidays)))
 
             presence = 0
             noPresence = 0
             if month == None or today.month == int(month):
-                for i in listBusdayFromNow.holidays:
+                for i in listBusdayFromNow:
                     if getPresence(mongoClient, user['user_id'], str(i)):
                         presence += 1
                     else:
                         noPresence += 1
             else:
-                for i in listBusday.holidays:
+                for i in listBusday:
                     if getPresence(mongoClient, user['user_id'], str(i)):
                         presence += 1
                     else:
@@ -89,8 +95,8 @@ def dashboardAttendanceUser():
             for i in listWeekend.holidays:
                 if getPresence(mongoClient, user['user_id'], str(i)):
                     presenceWeekend += 1
-            busDaysFromNow = len(listBusdayFromNow.holidays)
-            busDays = len(listBusday.holidays)
+            busDaysFromNow = len(listBusdayFromNow)
+            busDays = len(listBusday)
             weekEnd = len(listWeekend.holidays)
 
             permit = countPermit(mongoClient, user['user_id'], str(start), str(end))
