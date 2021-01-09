@@ -135,8 +135,10 @@ func (config *ConfigDB) postHolidayDate(w http.ResponseWriter, r *http.Request) 
 		utils.ResponseError(w, http.StatusInternalServerError, "Tanggal tersebut sudah terisi libur")
 		return
 	}
+	y, m, d := payload.HolidayDate.Date()
+	holidayDate := time.Date(y, m, d, 1, 0, 0, 0, time.UTC)
 	create := models.HolidayDate{
-		HolidayDate: payload.HolidayDate,
+		HolidayDate: holidayDate,
 		HolidayType: payload.HolidayType,
 		HolidayName: payload.HolidayName,
 		CreatedAt:   time.Now(),
@@ -188,6 +190,11 @@ func (config *ConfigDB) putHolidayDate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	location, errLoc := time.LoadLocation("Asia/Jakarta")
+	if errLoc != nil {
+		log.Fatal(errLoc)
+	}
+
 	var holidayDateCheck models.HolidayDate
 	err := collection.FindOne(ctx, models.HolidayDate{ID: id}).Decode(&holidayDateCheck)
 	if err != nil {
@@ -199,10 +206,12 @@ func (config *ConfigDB) putHolidayDate(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	} else {
+		y, m, d := payload.HolidayDate.Date()
+		holidayDate := time.Date(y, m, d, 1, 0, 0, 0, time.UTC)
 		checkDate := utils.DateEqual(holidayDateCheck.HolidayDate, payload.HolidayDate)
 		if checkDate == true {
 			holidayData := models.HolidayDate{
-				HolidayDate: payload.HolidayDate,
+				HolidayDate: holidayDate,
 				HolidayType: payload.HolidayType,
 				HolidayName: payload.HolidayName,
 				UpdatedAt:   time.Now(),
@@ -218,10 +227,6 @@ func (config *ConfigDB) putHolidayDate(w http.ResponseWriter, r *http.Request) {
 			}
 			utils.ResponseOk(w, result)
 		} else {
-			location, err := time.LoadLocation("Asia/Jakarta")
-			if err != nil {
-				log.Fatal(err)
-			}
 			matchStage := bson.M{
 				"holiday_date": bson.M{
 					"$gte": payload.HolidayDate.In(location),
@@ -241,7 +246,7 @@ func (config *ConfigDB) putHolidayDate(w http.ResponseWriter, r *http.Request) {
 				return
 			} else {
 				holidayData := models.HolidayDate{
-					HolidayDate: payload.HolidayDate,
+					HolidayDate: holidayDate,
 					HolidayType: payload.HolidayType,
 					HolidayName: payload.HolidayName,
 					UpdatedAt:   time.Now(),
