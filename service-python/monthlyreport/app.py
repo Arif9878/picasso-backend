@@ -5,7 +5,9 @@ from dotenv import load_dotenv
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from pymongo import MongoClient
-from utils import getCountHours, getCountLogbook, convertFunc, queryAccount
+from flask_opentracing import FlaskTracing
+
+from utils import getCountHours, getCountLogbook, convertFunc, queryAccount, config_jaeger
 app = Flask(__name__)
 
 dotenv_path = ''
@@ -15,6 +17,9 @@ else:
     dotenv_path = join(dirname(__file__), '../.env')
 
 load_dotenv(dotenv_path)
+
+jaeger_host = os.environ.get('JAEGER_HOST')
+jaeger_port = os.environ.get('JAEGER_PORT')
 
 mongoURI = 'mongodb://{dbhost}:{dbport}/'.format(
     dbhost=os.environ.get('DB_MONGO_HOST'),
@@ -37,7 +42,11 @@ app.config.update(
 
 db = SQLAlchemy(app)
 
+jaeger_tracer = config_jaeger(jaeger_host, jaeger_port).initialize_tracer()
+tracing = FlaskTracing(jaeger_tracer)
+
 @app.route('/api/monthly-report/')
+@tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def listUserByUnit():
     search = request.args.get('search')
     divisi = request.args.get('divisi')

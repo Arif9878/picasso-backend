@@ -7,14 +7,30 @@ import (
 	"github.com/gorilla/mux"
 	auth "github.com/jabardigitalservice/picasso-backend/service-golang/middleware"
 	"github.com/jabardigitalservice/picasso-backend/service-golang/utils"
+	"github.com/opentracing-contrib/go-gorilla/gorilla"
 )
 
 func newRouter(config *ConfigDB) (router *mux.Router) {
 	router = mux.NewRouter()
+
+	JaegerHost := utils.GetEnv("GO_JAEGER_HOST_PORT")
+
+	tracer, _, err := utils.GetJaegerTracer(JaegerHost, "day-off-api")
+
+	if err != nil {
+		log.Fatal("cannot initialize Jaeger Tracer", err)
+	}
 	router.HandleFunc("/api/day-off/list", config.listDayOff).Methods("GET")
 	router.HandleFunc("/api/day-off/create", config.postDayOff).Methods("POST")
 	router.HandleFunc("/api/day-off/delete/{ID}", config.deleteDayOff).Methods("DELETE")
 	router.HandleFunc("/api/day-off/detail/{ID}", config.deleteDayOff).Methods("GET")
+
+	// Add tracing to all routes
+	_ = router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+		route.Handler(
+			gorilla.Middleware(tracer, route.GetHandler()))
+		return nil
+	})
 	return
 }
 

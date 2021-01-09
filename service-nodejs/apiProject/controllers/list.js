@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 const { errors, APIError } = require('../utils/exceptions')
+
 // Import Model
 const Project = require('../models/Project')
 
@@ -7,7 +8,6 @@ const Project = require('../models/Project')
 module.exports = async (req, res, next) => {
   try {
     // Get request params
-    const session = req.user
     let sort = {
       createdAt: - 1,
     }

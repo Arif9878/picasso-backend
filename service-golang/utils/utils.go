@@ -116,3 +116,20 @@ func DateEqual(date1, date2 time.Time) bool {
 	y2, m2, d2 := date2.Date()
 	return y1 == y2 && m1 == m2 && d1 == d2
 }
+
+// func GetTracer(jaegerHostPort string, serviceName string) (opentracing.Tracer, io.Closer, error) {
+
+// 	// cfg := config.Configuration{
+// 	// 	ServiceName: serviceName,
+// 	// 	Sampler: &config.SamplerConfig{
+// 	// 		Type:  "const",
+// 	// 		Param: 1,
+// 	// 	},
+// 	// 	Reporter: &config.ReporterConfig{
+// 	// 		LogSpans:            false,
+// 	// 		BufferFlushInterval: 1 * time.Second,
+// 	// 		LocalAgentHostPort:  jaegerHostPort,
+// 	// 	},
+// 	// }
+// 	return cfg.NewTracer()
+// }

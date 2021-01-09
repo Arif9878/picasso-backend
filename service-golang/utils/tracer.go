@@ -9,9 +9,10 @@ import (
 	"github.com/uber/jaeger-client-go/config"
 )
 
-func getTracer(jaegerHostPort string, serviceName string) (opentracing.Tracer, io.Closer, error) {
+func GetJaegerTracer(JaegerHostPort string, ServiceName string) (opentracing.Tracer, io.Closer, error) {
 
 	cfg := config.Configuration{
+		ServiceName: ServiceName,
 		Sampler: &config.SamplerConfig{
 			Type:  "const",
 			Param: 1,
@@ -19,10 +20,9 @@ func getTracer(jaegerHostPort string, serviceName string) (opentracing.Tracer, i
 		Reporter: &config.ReporterConfig{
 			LogSpans:            false,
 			BufferFlushInterval: 1 * time.Second,
-			LocalAgentHostPort:  jaegerHostPort,
+			LocalAgentHostPort:  JaegerHostPort,
 		},
 	}
-	return cfg.New(
-		serviceName,
-	)
+	tracer, closer, err := cfg.NewTracer()
+	return tracer, closer, err
 }

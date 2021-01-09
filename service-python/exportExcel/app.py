@@ -6,8 +6,9 @@ from dotenv import load_dotenv
 from flask import Flask, send_file, request
 from flask_sqlalchemy import SQLAlchemy
 from pymongo import MongoClient
-from utils import monthlist_short, queryAccount
+from flask_opentracing import FlaskTracing
 
+from utils import monthlist_short, queryAccount, config_jaeger
 from worksheet_format import exportExcelFormatHorizontal, exportExcelFormatVertical
 
 app = Flask(__name__)
@@ -19,6 +20,9 @@ else:
     dotenv_path = join(dirname(__file__), '../.env')
 
 load_dotenv(dotenv_path)
+
+jaeger_host = os.environ.get('JAEGER_HOST')
+jaeger_port = os.environ.get('JAEGER_PORT')
 
 mongoURI = 'mongodb://{dbhost}:{dbport}/'.format(
     dbhost=os.environ.get('DB_MONGO_HOST'),
@@ -41,7 +45,11 @@ app.config.update(
 
 db = SQLAlchemy(app)
 
+jaeger_tracer = config_jaeger(jaeger_host, jaeger_port).initialize_tracer()
+tracing = FlaskTracing(jaeger_tracer)
+
 @app.route('/api/export-excel/divisi/')
+@tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def exportExcelByDivisi():
     divisi = request.args.get('divisi')
     search = request.args.get('search')
@@ -61,6 +69,7 @@ def exportExcelByDivisi():
     return send_file(output, attachment_filename="%s.xlsx" % nameFile, as_attachment=True)
 
 @app.route('/api/export-excel/category/')
+@tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def exportExcelByCategory():
     divisi = request.args.get('divisi')
     manager_category = request.args.get('manager_category')

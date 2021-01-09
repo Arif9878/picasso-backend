@@ -5,7 +5,9 @@ const helmet = require('helmet')
 const cors = require('cors')
 const path = require('path')
 const Raven = require('raven')
-const fileUpload = require('express-fileupload')
+
+const { tracer } = require('./utils/tracer')
+const zipkinMiddleware = require('zipkin-instrumentation-express').expressMiddleware
 
 // Import middleware
 const env = process.env.NODE_ENV
@@ -36,19 +38,22 @@ app.use(cors())
 app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(fileUpload())
+
+// tracing middleware
+app.use(zipkinMiddleware({ tracer }))
 
 const connectWithRetry = function() {
     return mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true }, function(err) {
         if (err) {
-            console.error('Failed to connect to mongo on startup - retrying in 5 sec', err);
-            setTimeout(connectWithRetry, 5000);
+            console.error('Failed to connect to mongo on startup - retrying in 5 sec', err)
+            setTimeout(connectWithRetry, 5000)
         } else {
             console.log("mongoDB Connected")
         }
-    });
-};
-connectWithRetry();
+    })
+}
+
+connectWithRetry()
 
 mongoose.Promise = global.Promise
 
@@ -64,7 +69,7 @@ const route = require('./routes')
 //routes
 app.use('/api/attendance', route)
 
-Raven.config(process.env.SENTRY_URI).install()
+Raven.config(process.env.SENTRY_DSN).install()
 
 const host = process.env.HOST || "0.0.0.0"
 const port = process.env.ATTENDANCE_PORT || 80

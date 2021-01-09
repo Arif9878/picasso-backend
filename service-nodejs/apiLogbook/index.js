@@ -8,6 +8,9 @@ const Raven = require('raven')
 const fileUpload = require('express-fileupload')
 const timeout = require('connect-timeout')
 
+const { tracer } = require('./utils/tracer')
+const zipkinMiddleware = require('zipkin-instrumentation-express').expressMiddleware
+
 // Import middleware
 const env = process.env.NODE_ENV
 try {
@@ -39,6 +42,9 @@ app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(fileUpload())
 
+// tracing middleware
+app.use(zipkinMiddleware({ tracer }))
+
 function haltOnTimedout (req, res, next) {
     req.clearTimeout()
     req.setTimeout(300000)
@@ -61,7 +67,7 @@ const route = require('./routes')
 //routes
 app.use('/api/logbook', route)
 
-Raven.config(process.env.SENTRY_URI).install()
+Raven.config(process.env.SENTRY_DSN).install()
 
 const host = process.env.HOST || "0.0.0.0"
 const port = process.env.LOGBOOK_PORT || 80

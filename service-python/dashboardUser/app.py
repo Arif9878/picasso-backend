@@ -7,6 +7,8 @@ from os.path import join, dirname, exists
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
+from flask_opentracing import FlaskTracing
+
 from utils import (
         arrayPresence,
         arrayPermit,
@@ -16,7 +18,8 @@ from utils import (
         decode_auth_token,
         busmask_names,
         last_day_of_month,
-        weekmask_names
+        weekmask_names,
+        config_jaeger
     )
 from attendance_query import (
         getPresence,
@@ -40,13 +43,20 @@ else:
 
 load_dotenv(dotenv_path)
 
+jaeger_host = os.environ.get('JAEGER_HOST')
+jaeger_port = os.environ.get('JAEGER_PORT')
+
 mongoURI = 'mongodb://{dbhost}:{dbport}/'.format(
     dbhost=os.environ.get('DB_MONGO_HOST'),
     dbport=os.environ.get('DB_MONGO_PORT')
 )
 mongoClient = MongoClient(mongoURI)
 
+jaeger_tracer = config_jaeger(jaeger_host, jaeger_port).initialize_tracer()
+tracing = FlaskTracing(jaeger_tracer)
+
 @app.route('/api/dashboard/attendance-user')
+@tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def dashboardAttendanceUser():
     month = request.args.get('month')
     auth_header = request.headers.get('Authorization')
@@ -125,6 +135,7 @@ def dashboardAttendanceUser():
     return response
 
 @app.route('/api/dashboard/report-user')
+@tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def dashboardReportUser():
     month = request.args.get('month')
     auth_header = request.headers.get('Authorization')
