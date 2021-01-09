@@ -40,6 +40,11 @@ DB_PASSWORD_AUTH = os.environ.get("DB_PASSWORD_AUTH")
 DATABASE_HOST = os.environ.get("POSTGRESQL_HOST")
 DATABASE_PORT = os.environ.get("POSTGRESQL_PORT")
 
+KEYCLOAK_URL = os.environ.get("KEYCLOAK_URL")
+KEYCLOAK_CLIENT_ID = os.environ.get("KEYCLOAK_CLIENT_ID")
+KEYCLOAK_REALM_NAME = os.environ.get("KEYCLOAK_REALM_NAME")
+KEYCLOAK_CLIENT_SECRET_KEY = os.environ.get("KEYCLOAK_CLIENT_SECRET_KEY")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 CSRF_USE_SESSIONS = False
