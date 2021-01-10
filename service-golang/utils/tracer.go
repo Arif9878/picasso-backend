@@ -4,8 +4,8 @@ import (
 	"io"
 	"time"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/opentracing/opentracing-go"
-
 	"github.com/uber/jaeger-client-go/config"
 )
 
@@ -25,4 +25,11 @@ func GetJaegerTracer(JaegerHostPort string, ServiceName string) (opentracing.Tra
 	}
 	tracer, closer, err := cfg.NewTracer()
 	return tracer, closer, err
+}
+
+func SentryTracer(SentryDsn string) error {
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn: SentryDsn,
+	})
+	return err
 }

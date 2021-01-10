@@ -56,17 +56,23 @@ connectWithRetry()
 mongoose.Promise = global.Promise
 
 // Authentications
-app.use(authenticate)
+// app.use(authenticate)
 
 // Import models
 app.set('models', mongoose.models)
+
+// Configure raven setup
+Raven.config(process.env.SENTRY_DSN_NODEJS).install()
+app.use(Raven.requestHandler())
 
 // Import modules
 const route = require('./routes')
 
 //routes
 app.use('/api/project', route)
-Raven.config(process.env.SENTRY_DSN).install()
+
+// The error handler middleware
+app.use(Raven.errorHandler())
 
 const host = process.env.HOST || "0.0.0.0"
 const port = process.env.PROJECT_PORT || 80

@@ -1,4 +1,4 @@
-import os, io
+import os, io, sentry_sdk
 from datetime import datetime, timedelta
 
 from os.path import join, dirname, exists
@@ -7,11 +7,10 @@ from flask import Flask, send_file, request
 from flask_sqlalchemy import SQLAlchemy
 from pymongo import MongoClient
 from flask_opentracing import FlaskTracing
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from utils import monthlist_short, queryAccount, config_jaeger
 from worksheet_format import exportExcelFormatHorizontal, exportExcelFormatVertical
-
-app = Flask(__name__)
 
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../.env')):
@@ -20,6 +19,14 @@ else:
     dotenv_path = join(dirname(__file__), '../.env')
 
 load_dotenv(dotenv_path)
+
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_DSN_FLASK'),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0
+)
+
+app = Flask(__name__)
 
 jaeger_host = os.environ.get('JAEGER_HOST')
 jaeger_port = os.environ.get('JAEGER_PORT')

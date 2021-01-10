@@ -41,8 +41,16 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
+
+	// Sentry
+	err = utils.SentryTracer(utils.GetEnv("SENTRY_DSN_GOLANG"))
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+
 	// Run HTTP server
 	router := newRouter(configuration)
+
 	var port string
 	port = ":" + utils.GetEnv("DEVICE_TOKEN_PORT")
 	if len(port) < 2 {

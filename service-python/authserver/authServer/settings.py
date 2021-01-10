@@ -14,6 +14,8 @@ import os
 from os.path import join, dirname, exists
 from dotenv import load_dotenv
 from datetime import timedelta
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../../.env')):
@@ -257,7 +259,6 @@ LOGINAS_REDIRECT_URL = '/admin'
 LOGIN_REDIRECT_URL = '/admin'
 
 # OpenTracing settings
-
 # default tracer is opentracing.Tracer(), which does nothing
 OPENTRACING_TRACER_CALLABLE = __name__ + '.tracer'
 
@@ -285,3 +286,9 @@ OPENTRACING_TRACE_ALL = True
 
 # default is []
 OPENTRACING_TRACED_ATTRIBUTES = ['path', 'method', 'META', 'path_info', 'content_type', 'content_params', 'headers']
+
+# Sentry settings
+sentry_sdk.init(
+    os.environ.get("SENTRY_DSN_DJANGO"),
+    integrations=[DjangoIntegration()]
+)

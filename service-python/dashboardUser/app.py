@@ -1,6 +1,4 @@
-import numpy as np
-import os, io, math
-import datetime as dt
+import os, io, math, numpy as np, datetime as dt, sentry_sdk
 from datetime import timedelta
 
 from os.path import join, dirname, exists
@@ -8,6 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from flask_opentracing import FlaskTracing
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 from utils import (
         arrayPresence,
@@ -32,9 +31,6 @@ from attendance_query import (
 from report_query import countReportUserYear, countReportUserMonthly
 from holiday_query import getListHoliday
 
-app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
-
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../.env')):
     dotenv_path = join(dirname(__file__), '../../.env')
@@ -42,6 +38,15 @@ else:
     dotenv_path = join(dirname(__file__), '../.env')
 
 load_dotenv(dotenv_path)
+
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_DSN_FLASK'),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0
+)
+
+app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 jaeger_host = os.environ.get('JAEGER_HOST')
 jaeger_port = os.environ.get('JAEGER_PORT')

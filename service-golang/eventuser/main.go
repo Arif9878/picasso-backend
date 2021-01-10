@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 	"time"
 
@@ -31,6 +32,12 @@ func main() {
 		}
 		conn.Publish(msg.Reply, msgResp)
 	})
+
+	// Sentry
+	err = utils.SentryTracer(utils.GetEnv("SENTRY_DSN_GOLANG"))
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
 
 	runtime.Goexit()
 }
