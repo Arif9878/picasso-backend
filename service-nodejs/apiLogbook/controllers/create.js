@@ -1,27 +1,20 @@
-const {
-    errors,
-    APIError
-} = require('../utils/exceptions')
-const {
-    validationResult
-} = require('express-validator')
-const {
-    onCreated,
-    filePath
-} = require('../utils/session')
-const {
-    postFile
-} = require('../utils/requestFile')
-const {
-    encode,
-    imageResize,
-} = require('../utils/functions')
+const { errors, APIError } = require('../utils/exceptions')
+const { validationResult } = require('express-validator')
+const { onCreated, filePath } = require('../utils/session')
+const { postFile } = require('../utils/requestFile')
+const { encode, imageResize } = require('../utils/functions')
+const { tracer } = require('../utils/tracer')
+const opentracing = require('opentracing')
 
 // Import Model
 const LogBook = require('../models/LogBook')
 const BlobsFile = require('../models/BlobsFile')
 
 module.exports = async (req, res) => { // eslint-disable-line
+    const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
+    const span = tracer.startSpan(req.originalUrl, {
+        childOf: parentSpan,
+    })
     try {
         const session = req.user
         const errorsValidate = validationResult(req)
@@ -95,18 +88,17 @@ module.exports = async (req, res) => { // eslint-disable-line
             data: results,
         })
 
+        tracer.inject(span, "http_headers", req.headers)
+        span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
     } catch (error) {
-      console.log(error)
-      const { code, message, data } = error
+        const { code, message, data } = error
 
-      if (code && message) {
-          res.status(code).send({
-              code,
-              message,
-              data,
-          })
-      } else {
-          res.status(500).send(errors.serverError)
-      }
+        span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
+        if (code && message) {
+            res.status(code).send({ code, message, data })
+        } else {
+            res.status(500).send(errors.serverError)
+        }
     }
+    span.finish()
 }

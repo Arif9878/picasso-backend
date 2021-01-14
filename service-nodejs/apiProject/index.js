@@ -6,9 +6,6 @@ const cors = require('cors')
 const path = require('path')
 const Raven = require('raven')
 
-const { tracer } = require('./utils/tracer')
-const zipkinMiddleware = require('zipkin-instrumentation-express').expressMiddleware
-
 const env = process.env.NODE_ENV
 try {
     switch(env) {
@@ -38,9 +35,6 @@ app.use(helmet());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-// tracing middleware
-app.use(zipkinMiddleware({ tracer }))
-
 const connectWithRetry = function() {
     return mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true }, function(err) {
         if (err) {
@@ -55,8 +49,10 @@ connectWithRetry()
 
 mongoose.Promise = global.Promise
 
+// app.use(tracer)
+
 // Authentications
-// app.use(authenticate)
+app.use(authenticate)
 
 // Import models
 app.set('models', mongoose.models)
@@ -68,7 +64,7 @@ app.use(Raven.requestHandler())
 // Import modules
 const route = require('./routes')
 
-//routes
+// Routes
 app.use('/api/project', route)
 
 // The error handler middleware

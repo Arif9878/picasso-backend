@@ -1,19 +1,24 @@
-const ZIPKIN_URL = process.env.ZIPKIN_URL || 'http://127.0.0.1:9411/api/v2/spans'
-const { Tracer, BatchRecorder, jsonEncoder: { JSON_V2 } } = require('zipkin')
-const CLSContext = require('zipkin-context-cls');  
-const { HttpLogger } = require('zipkin-transport-http');
+const { initTracer } = require('jaeger-client')
 
-// tracing
-const ctxImpl = new CLSContext('zipkin')
-const recorder = new  BatchRecorder({
-  logger: new HttpLogger({
-    endpoint: ZIPKIN_URL,
-    jsonEncoder: JSON_V2
-  })
-})
-const localServiceName = 'logbook-api'
-const tracer = new Tracer({ctxImpl, recorder, localServiceName})
+//set up our tracer
+const config = {
+  serviceName: 'logbook-api',
+  reporter: {
+    logSpans: true,
+    collectorEndpoint: process.env.JAEGER_COLLECTTOR_END_POINT,
+  },
+  sampler: {
+    type: 'const',
+    param: 1
+  }
+}
+const options = {
+  tags: {
+    'logbook-api': '1.0.0'
+  }
+}
+const tracer = initTracer(config, options);
 
-module.exports = {
-    tracer
+module.exports = { 
+  tracer
 }

@@ -14,7 +14,13 @@ services:
       - 14250:14250
       - 9411:9411
     environment:
+      - BADGER_EPHEMERAL=false
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_DIRECTORY_VALUE=/badger/data
+      - BADGER_DIRECTORY_KEY=/badger/key
       - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+      - QUERY_BASE_PATH=/jaeger 
+      - BADGER_SPAN_STORE_TTL=5m
     networks:
       - jaeger
 

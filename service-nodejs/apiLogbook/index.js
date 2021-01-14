@@ -8,9 +8,6 @@ const Raven = require('raven')
 const fileUpload = require('express-fileupload')
 const timeout = require('connect-timeout')
 
-const { tracer } = require('./utils/tracer')
-const zipkinMiddleware = require('zipkin-instrumentation-express').expressMiddleware
-
 // Import middleware
 const env = process.env.NODE_ENV
 try {
@@ -41,9 +38,6 @@ app.use(timeout('5m'))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(fileUpload())
-
-// tracing middleware
-app.use(zipkinMiddleware({ tracer }))
 
 function haltOnTimedout (req, res, next) {
     req.clearTimeout()
