@@ -1,12 +1,14 @@
-import os, json
+import os, json, sentry_sdk
 
 from os.path import join, dirname, exists
 from dotenv import load_dotenv
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from pymongo import MongoClient
-from utils import getCountHours, getCountLogbook, convertFunc, queryAccount
-app = Flask(__name__)
+from flask_opentracing import FlaskTracing
+from sentry_sdk.integrations.flask import FlaskIntegration
+
+from utils import getCountHours, getCountLogbook, convertFunc, queryAccount, config_jaeger
 
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../.env')):
@@ -15,6 +17,17 @@ else:
     dotenv_path = join(dirname(__file__), '../.env')
 
 load_dotenv(dotenv_path)
+
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_DSN_FLASK'),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0
+)
+
+app = Flask(__name__)
+
+jaeger_host = os.environ.get('JAEGER_HOST')
+jaeger_port = os.environ.get('JAEGER_PORT')
 
 mongoURI = 'mongodb://{dbhost}:{dbport}/'.format(
     dbhost=os.environ.get('DB_MONGO_HOST'),
@@ -37,7 +50,11 @@ app.config.update(
 
 db = SQLAlchemy(app)
 
+jaeger_tracer = config_jaeger(jaeger_host, jaeger_port).initialize_tracer()
+tracing = FlaskTracing(jaeger_tracer)
+
 @app.route('/api/monthly-report/')
+@tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def listUserByUnit():
     search = request.args.get('search')
     divisi = request.args.get('divisi')

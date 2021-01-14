@@ -10,5 +10,8 @@ six==1.10.0
 pymongo==3.11.0
 python-dotenv==0.10.3
 numpy==1.16.6
+Flask-OpenTracing==1.1.0
+jaeger-client==4.4.0
+sentry-sdk==0.19.5
 pytz
 pyjwt

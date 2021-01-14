@@ -52,6 +52,10 @@ mongoose.Promise = global.Promise
 // Authentications
 app.use(authenticate)
 
+// Configure raven setup
+Raven.config(process.env.SENTRY_DSN_NODEJS).install()
+app.use(Raven.requestHandler())
+
 // Import models
 app.set('models', mongoose.models)
 
@@ -61,7 +65,8 @@ const route = require('./routes')
 //routes
 app.use('/api/logbook', route)
 
-Raven.config(process.env.SENTRY_URI).install()
+// The error handler middleware
+app.use(Raven.errorHandler())
 
 const host = process.env.HOST || "0.0.0.0"
 const port = process.env.LOGBOOK_PORT || 80
