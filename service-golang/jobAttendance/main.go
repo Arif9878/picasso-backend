@@ -14,6 +14,12 @@ func main() {
 	// release purpose:
 	c.AddFunc("@daily", func() { checkoutAttendance() })
 
+	// Sentry
+	err = utils.SentryTracer(utils.GetEnv("SENTRY_DSN_GOLANG"))
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+
 	// debug purpose:
 	// checkoutAttendance()
 

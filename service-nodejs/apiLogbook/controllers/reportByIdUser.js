@@ -1,20 +1,11 @@
-const {
-    errors,
-    APIError
-} = require('../utils/exceptions')
+const { errors, APIError } = require('../utils/exceptions')
 const mongoose = require('mongoose')
-const { 
-    generateReport,
-    reportForm ,
-    holidayType
-} = require('../utils/generateReport')
-const {
-    getListWeekend,
-} = require('../utils/functions')
-const {
-    listAttendance,
-    listHolidayDate
-} = require('../utils/listOtherReport')
+const {  generateReport, reportForm , holidayType } = require('../utils/generateReport')
+const { getListWeekend } = require('../utils/functions')
+const { listAttendance, listHolidayDate } = require('../utils/listOtherReport')
+const { tracer } = require('../utils/tracer')
+const opentracing = require('opentracing')
+
 const LogBook = require('../models/LogBook')
 const BlobsFile = require('../models/BlobsFile')
 const moment = require('moment')
@@ -23,7 +14,11 @@ const nats = require('nats').connect({
     'servers': servers_nats
 })
 // eslint-disable-next-line
-module.exports = async (req, res, next) => {
+module.exports = async (req, res) => {
+    const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
+    const span = tracer.startSpan(req.originalUrl, {
+        childOf: parentSpan,
+    })
     try {
         let sort = {
             dateTask: 1,
@@ -174,7 +169,17 @@ module.exports = async (req, res, next) => {
                 res.status(200).send(pdfBlob)
             }
         }, 500)
+        tracer.inject(span, "http_headers", req.headers)
+        span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
     } catch (error) {
-        next(error)
+        const { code, message, data } = error
+
+        span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
+        if (code && message) {
+            res.status(code).send({ code, message, data })
+        } else {
+            res.status(500).send(errors.serverError)
+        }
     }
+    span.finish()
 }
