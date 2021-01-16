@@ -1,5 +1,5 @@
 const Attendance = require('../models/Attendance')
-const HolidayDate = require('../models/HolidayDate')
+const HolidayDate = require('../../apiExportPDF/models/HolidayDate')
 
 const listAttendance = async (userId, startDate, dueDate) => {
         const sort = {
