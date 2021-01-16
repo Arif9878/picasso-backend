@@ -4,10 +4,10 @@ const {  generateReport, reportForm , holidayType } = require('../utils/generate
 const { getListWeekend } = require('../utils/functions')
 const { listAttendance, listHolidayDate } = require('../utils/listOtherReport')
 const { tracer } = require('../utils/tracer')
+const axios = require('axios')
 const opentracing = require('opentracing')
 
 const LogBook = require('../models/LogBook')
-const BlobsFile = require('../models/BlobsFile')
 const moment = require('moment')
 const servers_nats = [process.env.NATS_URI]
 const nats = require('nats').connect({
@@ -46,20 +46,6 @@ module.exports = async (req, res) => {
                     }
                 },
             },
-            // {
-            //     '$lookup': {
-            //         'from': 'blobsfiles',
-            //         'localField': '_id',
-            //         'foreignField': 'logBookId',
-            //         'as': 'blobsEvidence'
-            //     }
-            // },
-            // {
-            //     '$unwind': {
-            //         'path': '$blobsEvidence',
-            //         'includeArrayIndex': 'arrayIndex'
-            //     }
-            // },
             {
                 '$project': {
                     'dateTask': 1,
@@ -76,8 +62,8 @@ module.exports = async (req, res) => {
                     'evidenceTaskURL': '$evidenceTask.fileURL',
                     'evidenceBlob': '$evidenceTask.fileBlob',
                     'documentTaskPath': '$documentTask.filePath',
-                    'documentTaskURL': '$documentTask.fileURL'
-                    // 'blobsEvidence': '$blobsEvidence.blob'
+                    'documentTaskURL': '$documentTask.fileURL',
+                    'blobTaskURL': '$blobTask.fileURL'
                 }
             }
         ]
@@ -124,12 +110,12 @@ module.exports = async (req, res) => {
 
             for (const eachDay of logBookPerDay) {
                 for (const items of eachDay.items) {
-                    const results = await BlobsFile.findOne({ logBookId: mongoose.Types.ObjectId(items._id) }).lean()
-                    items['blobsEvidence'] = results.blob
+                    const results = await axios.get(items.blobTaskURL)
+                    items['blobsEvidence'] = results.data
                 }
             }
         } 
-             
+
         if (!logBook) throw new APIError(errors.serverError)       
 
         const report = []

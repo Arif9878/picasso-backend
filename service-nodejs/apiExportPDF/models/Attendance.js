@@ -43,7 +43,6 @@ Attendance.index({
     location: 1
 })
 
-// module.exports = mongoose.models.Attendance || mongoose.model('Attendance', Attendance)
 const attendanceModel = attendanceConnection.model('Attendance', Attendance)
 
 module.exports = attendanceModel
