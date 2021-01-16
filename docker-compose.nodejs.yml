@@ -69,7 +69,7 @@ services:
     build:
       context: ./service-nodejs
     command: npm start
-    cpus: 1
+    cpus: 0.75
     mem_limit: 800m
     memswap_limit: 200m
     restart: always
