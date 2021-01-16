@@ -1,5 +1,4 @@
 const { errors, APIError } = require('../utils/exceptions')
-const mongoose = require('mongoose')
 const {  generateReport, reportForm , holidayType } = require('../utils/generateReport')
 const { getListWeekend } = require('../utils/functions')
 const { listAttendance, listHolidayDate } = require('../utils/listOtherReport')
