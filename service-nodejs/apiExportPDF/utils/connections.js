@@ -15,9 +15,6 @@ function makeNewConnection(uri) {
     })
 
     db.on('connected', function () {
-        // mongoose.set('debug', function (col, method, query, doc) {
-        //     console.log(`MongoDB :: ${this.conn.name} ${col}.${method}(${JSON.stringify(query)},${JSON.stringify(doc)})`)
-        // })
         console.log(`MongoDB :: connected ${this.name}`)
     })
 

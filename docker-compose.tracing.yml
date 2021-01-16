@@ -20,7 +20,7 @@ services:
       - BADGER_DIRECTORY_KEY=/badger/key
       - COLLECTOR_ZIPKIN_HTTP_PORT=9411
       - QUERY_BASE_PATH=/jaeger 
-      - BADGER_SPAN_STORE_TTL=5m
+      - BADGER_SPAN_STORE_TTL=8h
     networks:
       - jaeger
 

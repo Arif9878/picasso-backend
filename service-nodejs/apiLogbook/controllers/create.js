@@ -1,14 +1,13 @@
 const { errors, APIError } = require('../utils/exceptions')
 const { validationResult } = require('express-validator')
 const { onCreated, filePath } = require('../utils/session')
-const { postFile } = require('../utils/requestFile')
+const { postFile, postBlobsFile } = require('../utils/requestFile')
 const { encode, imageResize } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 
 // Import Model
 const LogBook = require('../models/LogBook')
-const BlobsFile = require('../models/BlobsFile')
 
 module.exports = async (req, res) => { // eslint-disable-line
     const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
@@ -25,12 +24,7 @@ module.exports = async (req, res) => { // eslint-disable-line
             })
             return
         }
-        if (!req.files || Object.keys(req.files).length === 0) throw new APIError(errors.validationError)
-        const evidenceResponse = await postFile('image', req.files.evidenceTask)
-        const miniBuffer = await imageResize(req.files.evidenceTask.data)
-        const bytes = new Uint8Array(miniBuffer)
-        const dataBlobEvidence = 'data:image/png;base64,' + encode(bytes)
-        let documentResponse = {}
+
         const {
             dateTask = null,
             projectId = null,
@@ -44,6 +38,13 @@ module.exports = async (req, res) => { // eslint-disable-line
             isDocumentLink = null
         } = req.body
 
+        if (!req.files || Object.keys(req.files).length === 0) throw new APIError(errors.validationError)
+        const miniBuffer = await imageResize(req.files.evidenceTask.data)
+        const bytes = new Uint8Array(miniBuffer)
+        const dataBlobEvidence = 'data:image/png;base64,' + encode(bytes)
+        const blobResponse = await postBlobsFile('gzip', dataBlobEvidence)
+        const evidenceResponse = await postFile('image', req.files.evidenceTask.name, miniBuffer)
+        let documentResponse = {}
         const isTask = String(isMainTask) === 'true'
         const isLink = String(isDocumentLink) === 'true'
         if (isLink) {
@@ -57,7 +58,8 @@ module.exports = async (req, res) => { // eslint-disable-line
                 fileURL: pathURL
             }
         } else {
-            documentResponse = await postFile('document', req.files.documentTask)
+            const miniBuffer = await imageResize(req.files.documentTask.data)
+            documentResponse = await postFile('document', req.files.documentTask.name, miniBuffer)
         }
 
         const data = {
@@ -70,6 +72,7 @@ module.exports = async (req, res) => { // eslint-disable-line
           difficultyTask,
           evidenceTask: filePath(evidenceResponse),
           documentTask: filePath(documentResponse),
+          blobTask: filePath(blobResponse),
           workPlace,
           organizerTask,
           otherInformation,
@@ -77,11 +80,6 @@ module.exports = async (req, res) => { // eslint-disable-line
         }
 
         const results = await LogBook.create(data)
-        await BlobsFile.create({
-            logBookId: results._id,
-            dateTask: results.dateTask,
-            blob: dataBlobEvidence
-        })
 
         await res.status(201).send({
             message: 'Input data successfull',

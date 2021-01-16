@@ -1,6 +1,9 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const attributes = require('./Attributes')
+const {
+    logBookConnection
+} = require('../utils/connections')
 
 const LogBook = new Schema({
     dateTask: {
@@ -99,4 +102,6 @@ LogBook.index({
     projectName: 1
 })
 
-module.exports = mongoose.models.LogBook || mongoose.model('LogBook', LogBook)
+const logBookModel = logBookConnection.model('LogBook', LogBook)
+
+module.exports = logBookModel

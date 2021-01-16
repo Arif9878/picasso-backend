@@ -47,6 +47,11 @@ apiEndpoints:
     paths: /logbook/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
 
+  exportpdf:
+    host: '*'
+    paths: /export-pdf/*
+    methods: ["GET","OPTIONS"]
+  
   monthlyreport:
     host: '*'
     paths: /monthly-report/*
@@ -109,6 +114,9 @@ serviceEndpoints:
 
   logbook:
     url: '${LOGBOOK_NODEJS_SERVICE_URI}/api/'
+
+  exportpdf:
+    url: '${EXPORT_PDF_NODEJS_SERVICE_URI}/api/'
 
   monthlyreport:
     url: '${MONTHLY_REPORT_PY_SERVICE_URI}/api/'
@@ -329,7 +337,27 @@ pipelines:
               serviceEndpoint: logbook
               changeOrigin: true
               timeout: 600000
+  exportpdf:
+    apiEndpoints:
+      - exportpdf
+    policies:
+      - jaeger:
+          - action:
+              serviceName: 'api-gateway'
+              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+        - action:
+            secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+            checkCredentialExistence: false
 
+      - proxy:
+          - action:
+              serviceEndpoint: exportpdf
+              changeOrigin: true
+              timeout: 600000
   monthlyreport:
     apiEndpoints:
       - monthlyreport
