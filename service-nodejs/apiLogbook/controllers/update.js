@@ -84,7 +84,7 @@ module.exports = async (req, res) => { // eslint-disable-line
             try {
                 if (req.files.documentTask) {
                     const miniBuffer = await imageResize(req.files.documentTask.data)
-                    if (resultLogBook.documentTask.filePath === null) {
+                    if (resultLogBook.documentTask && resultLogBook.documentTask.filePath.length === 0) {
                         documentResponse = await postFile('document', req.files.documentTask.name, miniBuffer)
                     } else {
                         documentResponse = await updateFile(
