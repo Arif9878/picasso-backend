@@ -23,10 +23,10 @@ func newRouter(config *ConfigDB) (router *mux.Router) {
 	}
 
 	router.HandleFunc("/api/tupoksi-jabatan/list", config.listTupoksiJabatan).Methods("GET")
+	router.HandleFunc("/api/tupoksi-jabatan/by-user", config.listTupoksiJabatanByUser).Methods("GET")
 	router.HandleFunc("/api/tupoksi-jabatan/create", config.postTupoksiJabatan).Methods("POST")
-	// router.HandleFunc("/api/jabatan/list/by-satuan-kerja/{id}", config.listJabatanBySatuanKerja).Methods("GET")
-	// router.HandleFunc("/api/jabatan/update/{id}", config.putJabatan).Methods("PUT")
-	// router.HandleFunc("/api/jabatan/detail/{id}", config.detailJabatan).Methods("GET")
+	router.HandleFunc("/api/tupoksi-jabatan/update/{id}", config.putTupoksiJabatan).Methods("PUT")
+	router.HandleFunc("/api/tupoksi-jabatan/detail/{id}", config.detailTupoksiJabatan).Methods("GET")
 	router.HandleFunc("/api/tupoksi-jabatan/delete/{id}", config.deleteTupoksiJabatan).Methods("DELETE")
 
 	// Add tracing to all routes

@@ -120,23 +120,21 @@ module.exports = async (req, res) => {
         const report = []
         // `NATS` is the library.
         const sid = nats.request('userDetail', String(userId), (response) => {
-            report.push(JSON.parse(response)[0])
-            report.push(JSON.parse(response)[1])
+            report.push(JSON.parse(response))
         })
         setTimeout(async () => {
             nats.unsubscribe(sid)
             if (!report[0]) {
                 res.status(500).send(errors.serverError)
             }
-            const responseParseUser = report[0]
-            const responseParseJabatan = report[1]
+            const responseParseUser = report[0].user
+            const tupoksiJabatan = report[0].tupoksi
             const user = JSON.parse(responseParseUser)
-            const jabatan = JSON.parse(responseParseJabatan)
             const reporting_date = end_date ? end_date : moment().format('YYYY-MM-DD')
             const layout = reportForm({
                 user: user,
                 reporting_date: reporting_date,
-                jabatan: jabatan,
+                jabatan: tupoksiJabatan,
                 logBook: logBook,
                 logBookPerDay: logBookPerDay
             })

@@ -166,3 +166,35 @@ func (config *ConfigDB) deleteTupoksiJabatan(w http.ResponseWriter, r *http.Requ
 	response := "Data Berhasil Di Hapus"
 	utils.ResponseOk(w, response)
 }
+
+func (config *ConfigDB) listTupoksiJabatanByUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context().Value("user")
+	sessionUser := ctx.(*jwt.Token).Claims.(jwt.MapClaims)
+	idJabatan := sessionUser["id_jabatan"]
+
+	var results []models.ResultListTupoksiJabatan
+
+	if err := config.db.Table("tupoksi_jabatans").
+		Where("jabatan_id = $1", idJabatan.(string)).
+		Find(&results).Error; err != nil {
+		utils.ResponseError(w, http.StatusBadRequest, "Invalid body")
+		return
+	}
+
+	// if err := config.db.Model(&models.TupoksiJabatan{}).
+	// 	Where("jabatan_id = $1", idJabatan.(string)).
+	// 	Order("created_at DESC").
+	// 	Count(&total).
+	// 	Find(&results).Error; err != nil {
+	// 	utils.ResponseError(w, http.StatusBadRequest, "Invalid body")
+	// 	return
+	// }
+
+	result := models.ResultsData{
+		Status:  http.StatusOK,
+		Success: true,
+		Results: results,
+	}
+
+	utils.ResponseOk(w, result)
+}
