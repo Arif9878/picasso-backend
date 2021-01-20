@@ -33,7 +33,7 @@ try {
   Error('Error trying to run file')
 }
 
-Raven.config(process.env.SENTRY_URI).install()
+Raven.config(process.env.SENTRY_DSN_NODEJS).install()
 
 gateway(cors)
   .load(path.join(process.cwd(), 'config'))

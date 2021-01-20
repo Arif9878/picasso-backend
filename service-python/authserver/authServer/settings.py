@@ -14,6 +14,8 @@ import os
 from os.path import join, dirname, exists
 from dotenv import load_dotenv
 from datetime import timedelta
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../../.env')):
@@ -45,6 +47,9 @@ KEYCLOAK_CLIENT_ID = os.environ.get("KEYCLOAK_CLIENT_ID")
 KEYCLOAK_REALM_NAME = os.environ.get("KEYCLOAK_REALM_NAME")
 KEYCLOAK_CLIENT_SECRET_KEY = os.environ.get("KEYCLOAK_CLIENT_SECRET_KEY")
 
+JAEGER_HOST = os.environ.get("JAEGER_HOST")
+JAEGER_PORT = os.environ.get("JAEGER_PORT")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 CSRF_USE_SESSIONS = False
@@ -60,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_opentracing',
     'oauth2_provider',
     'corsheaders',
     'social_django',
@@ -72,6 +78,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'django_opentracing.OpenTracingMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -255,3 +262,38 @@ LOGIN_URL = '/admin/login/'
 LOGINAS_REDIRECT_URL = '/admin'
 
 LOGIN_REDIRECT_URL = '/admin'
+
+# OpenTracing settings
+# default tracer is opentracing.Tracer(), which does nothing
+OPENTRACING_TRACER_CALLABLE = __name__ + '.tracer'
+
+def tracer():
+    from jaeger_client import Config
+    config = Config(
+        config={ # usually read from some yaml config
+            'sampler': {
+                'type': 'const',
+                'param': 1,
+            },
+            'local_agent': {
+                'reporting_host': JAEGER_HOST,
+                'reporting_port': JAEGER_PORT,
+            },
+            'logging': True,
+        },
+        service_name='user-api',
+        validate=True,
+    )
+    return config.initialize_tracer()
+
+# default is False
+OPENTRACING_TRACE_ALL = True
+
+# default is []
+OPENTRACING_TRACED_ATTRIBUTES = ['path', 'method', 'META', 'path_info', 'content_type', 'content_params', 'headers']
+
+# Sentry settings
+sentry_sdk.init(
+    os.environ.get("SENTRY_DSN_DJANGO"),
+    integrations=[DjangoIntegration()]
+)

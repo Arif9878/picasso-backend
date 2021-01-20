@@ -27,6 +27,8 @@ try {
     Error('Error trying to run file')
 }
 
+const db = require("./utils/database").mongoURI
+
 const authenticate = require('./controllers/authenticate')
 
 const app = express()
@@ -47,10 +49,26 @@ function haltOnTimedout (req, res, next) {
 
 app.use(haltOnTimedout)
 
+const connectWithRetry = function() {
+    return mongoose.connect(db, { useNewUrlParser: true, useUnifiedTopology: true }, function(err) {
+        if (err) {
+            console.error('Failed to connect to mongo on startup - retrying in 5 sec', err)
+            setTimeout(connectWithRetry, 5000)
+        } else {
+            console.log("mongoDB Connected")
+        }
+    })
+}
+connectWithRetry()
+
 mongoose.Promise = global.Promise
 
 // Authentications
 app.use(authenticate)
+
+// Configure raven setup
+Raven.config(process.env.SENTRY_DSN_NODEJS).install()
+app.use(Raven.requestHandler())
 
 // Import models
 app.set('models', mongoose.models)
@@ -61,7 +79,8 @@ const route = require('./routes')
 //routes
 app.use('/api/logbook', route)
 
-Raven.config(process.env.SENTRY_URI).install()
+// The error handler middleware
+app.use(Raven.errorHandler())
 
 const host = process.env.HOST || "0.0.0.0"
 const port = process.env.LOGBOOK_PORT || 80

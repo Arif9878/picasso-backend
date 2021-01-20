@@ -1,12 +1,13 @@
-import numpy as np
-import os, io, math
-import datetime as dt
+import os, io, math, numpy as np, datetime as dt, sentry_sdk
 from datetime import timedelta
 
 from os.path import join, dirname, exists
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
+from flask_opentracing import FlaskTracing
+from sentry_sdk.integrations.flask import FlaskIntegration
+
 from utils import (
         arrayPresence,
         arrayPermit,
@@ -16,7 +17,8 @@ from utils import (
         decode_auth_token,
         busmask_names,
         last_day_of_month,
-        weekmask_names
+        weekmask_names,
+        config_jaeger
     )
 from attendance_query import (
         getPresence,
@@ -29,9 +31,6 @@ from attendance_query import (
 from report_query import countReportUserYear, countReportUserMonthly
 from holiday_query import getListHoliday
 
-app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
-
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../.env')):
     dotenv_path = join(dirname(__file__), '../../.env')
@@ -40,13 +39,29 @@ else:
 
 load_dotenv(dotenv_path)
 
+sentry_sdk.init(
+    dsn=os.environ.get('SENTRY_DSN_FLASK'),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0
+)
+
+app = Flask(__name__)
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
+
+jaeger_host = os.environ.get('JAEGER_HOST')
+jaeger_port = os.environ.get('JAEGER_PORT')
+
 mongoURI = 'mongodb://{dbhost}:{dbport}/'.format(
     dbhost=os.environ.get('DB_MONGO_HOST'),
     dbport=os.environ.get('DB_MONGO_PORT')
 )
 mongoClient = MongoClient(mongoURI)
 
+jaeger_tracer = config_jaeger(jaeger_host, jaeger_port).initialize_tracer()
+tracing = FlaskTracing(jaeger_tracer)
+
 @app.route('/api/dashboard/attendance-user')
+@tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def dashboardAttendanceUser():
     month = request.args.get('month')
     auth_header = request.headers.get('Authorization')
@@ -125,6 +140,7 @@ def dashboardAttendanceUser():
     return response
 
 @app.route('/api/dashboard/report-user')
+@tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def dashboardReportUser():
     month = request.args.get('month')
     auth_header = request.headers.get('Authorization')
