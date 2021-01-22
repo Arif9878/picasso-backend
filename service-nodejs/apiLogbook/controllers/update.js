@@ -2,7 +2,7 @@ const { errors, APIError } = require('../utils/exceptions')
 const { onUpdated, filePath } = require('../utils/session')
 const { validationResult } = require('express-validator')
 const { postFile, updateFile, updateBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 
@@ -36,6 +36,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const {
             dateTask = null,
+            tuposkiJabatanId = null,
             projectId = null,
             projectName = null,
             nameTask = null,
@@ -99,8 +100,21 @@ module.exports = async (req, res) => { // eslint-disable-line
             }
         }
 
+        // get tupoksi jabatan
+        let tuposkiJabatanName = null
+        if (tuposkiJabatanId) {
+            const detail = await getTupoksiJabatanDetail(tuposkiJabatanId)
+            if (detail) {
+                tuposkiJabatanName = detail.Value.name_tupoksi
+            } else {
+                res.status(500).send(errors.tupoksiNotFound)
+            }
+        }
+
         const data = {
             dateTask,
+            tuposkiJabatanId,
+            tuposkiJabatanName: tuposkiJabatanName,
             projectId,
             projectName,
             nameTask,

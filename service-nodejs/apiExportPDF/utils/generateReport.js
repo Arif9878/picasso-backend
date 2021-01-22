@@ -288,7 +288,9 @@ const reportForm = (data) => {
                         { text: 'URAIAN TUGAS\n(DESKRIPSI JABATAN)' },
                         { text: '' },
                         { text: ':' },
-                        { text: `${jabatan.description}` }
+                        jabatan.map(function(item, index) {
+                            return { text: index+1 +". "+ item }
+                        })
                     ],
                 ]
             }

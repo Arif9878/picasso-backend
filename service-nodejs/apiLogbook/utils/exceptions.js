@@ -27,6 +27,10 @@ const errors = {
         code: 422,
         message: "Input validation error",
     },
+    tupoksiNotFound: {
+        code: 422,
+        message: "Tupoksi Jabatan tidak ada",
+    },
 }
 
 const success = {

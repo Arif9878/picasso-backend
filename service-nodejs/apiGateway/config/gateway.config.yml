@@ -42,6 +42,11 @@ apiEndpoints:
     paths: /jabatan/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
 
+  tupoksijabatan:
+    host: '*'
+    paths: /tupoksi-jabatan/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
   logbook:
     host: '*'
     paths: /logbook/*
@@ -111,6 +116,9 @@ serviceEndpoints:
 
   jabatan:
     url: '${JABATAN_GO_SERVICE_URI}/api/'
+
+  tupoksijabatan:
+    url: '${TUPOKSI_JABATAN_GO_SERVICE_URI}/api/'
 
   logbook:
     url: '${LOGBOOK_NODEJS_SERVICE_URI}/api/'
@@ -314,6 +322,26 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: jabatan
+              changeOrigin: true
+
+  tupoksijabatan:
+    apiEndpoints:
+      - tupoksijabatan
+    policies:
+      - jaeger:
+          - action:
+              serviceName: 'api-gateway'
+              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: tupoksijabatan
               changeOrigin: true
 
   logbook:
