@@ -60,9 +60,6 @@ func (config *ConfigDB) listTupoksiJabatanByUser(w http.ResponseWriter, r *http.
 	ctx := r.Context().Value("user")
 	sessionUser := ctx.(*jwt.Token).Claims.(jwt.MapClaims)
 	idJabatan := sessionUser["id_jabatan"].(string)
-	if idJabatan == "" {
-		idJabatan = ""
-	}
 
 	var results []models.TupoksiJabatanResultList
 
