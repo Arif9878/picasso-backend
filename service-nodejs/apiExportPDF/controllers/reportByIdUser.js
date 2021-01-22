@@ -1,6 +1,6 @@
 const { errors, APIError } = require('../utils/exceptions')
 const {  generateReport, reportForm , holidayType } = require('../utils/generateReport')
-const { getListWeekend } = require('../utils/functions')
+const { getListWeekend, getUserDetail } = require('../utils/functions')
 const { listAttendance, listHolidayDate } = require('../utils/listOtherReport')
 const { tracer } = require('../utils/tracer')
 const axios = require('axios')
@@ -8,10 +8,7 @@ const opentracing = require('opentracing')
 
 const LogBook = require('../models/LogBook')
 const moment = require('moment')
-const servers_nats = [process.env.NATS_URI]
-const nats = require('nats').connect({
-    'servers': servers_nats
-})
+
 // eslint-disable-next-line
 module.exports = async (req, res) => {
     const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
@@ -117,41 +114,37 @@ module.exports = async (req, res) => {
 
         if (!logBook) throw new APIError(errors.serverError)       
 
-        const report = []
-        // `NATS` is the library.
-        const sid = nats.request('userDetail', String(userId), (response) => {
-            report.push(JSON.parse(response))
+
+        const detailUser = await getUserDetail(userId)
+
+        if (!detailUser) {
+            res.status(500).send(errors.serverError)
+        }
+
+        const responseParseUser = detailUser.user
+        const tupoksiJabatan = detailUser.tupoksi
+        const user = JSON.parse(responseParseUser)
+        const reporting_date = end_date ? end_date : moment().format('YYYY-MM-DD')
+        const layout = reportForm({
+            user: user,
+            reporting_date: reporting_date,
+            jabatan: tupoksiJabatan,
+            logBook: logBook,
+            logBookPerDay: logBookPerDay
         })
-        setTimeout(async () => {
-            nats.unsubscribe(sid)
-            if (!report[0]) {
-                res.status(500).send(errors.serverError)
-            }
-            const responseParseUser = report[0].user
-            const tupoksiJabatan = report[0].tupoksi
-            const user = JSON.parse(responseParseUser)
-            const reporting_date = end_date ? end_date : moment().format('YYYY-MM-DD')
-            const layout = reportForm({
-                user: user,
-                reporting_date: reporting_date,
-                jabatan: tupoksiJabatan,
-                logBook: logBook,
-                logBookPerDay: logBookPerDay
-            })
-            const fullName = `${user.first_name}_${user.last_name}`.replace(/[^\w\s]/gi, '')
-            const month = req.query.date || moment().format('YYYY')
-            const fileName = `LaporanPLD_${month}_${fullName}.pdf`.replace(/[-\s]/g, '_')
-            const pdfFile = await generateReport(layout, fileName)
-            if (state != 'view') {
-                res.set('Content-disposition', 'attachment; filename=' + fileName)
-                res.set('Content-Type', 'attachment')
-                res.status(200).send(pdfFile)
-            } else {
-                const pdfBlob = 'data:application/pdf;base64,' + pdfFile.toString('base64')
-                res.set('content-type', 'application/pdf')
-                res.status(200).send(pdfBlob)
-            }
-        }, 500)
+        const fullName = `${user.first_name}_${user.last_name}`.replace(/[^\w\s]/gi, '')
+        const month = req.query.date || moment().format('YYYY')
+        const fileName = `LaporanPLD_${month}_${fullName}.pdf`.replace(/[-\s]/g, '_')
+        const pdfFile = await generateReport(layout, fileName)
+        if (state != 'view') {
+            res.set('Content-disposition', 'attachment; filename=' + fileName)
+            res.set('Content-Type', 'attachment')
+            res.status(200).send(pdfFile)
+        } else {
+            const pdfBlob = 'data:application/pdf;base64,' + pdfFile.toString('base64')
+            res.set('content-type', 'application/pdf')
+            res.status(200).send(pdfBlob)
+        }
         tracer.inject(span, "http_headers", req.headers)
         span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
     } catch (error) {

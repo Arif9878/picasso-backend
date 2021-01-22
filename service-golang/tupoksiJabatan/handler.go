@@ -26,10 +26,10 @@ func (config *ConfigDB) listTupoksiJabatan(w http.ResponseWriter, r *http.Reques
 	}
 	var total int
 
-	var results []models.ResultList
+	var results []models.TupoksiJabatanResultList
 
 	if err := config.db.Table("tupoksi_jabatans").
-		Where("name_tupoksi ILIKE ?", "%"+search+"%").
+		Where("deleted_at IS NULL AND name_tupoksi ILIKE ?", "%"+search+"%").
 		Order("created_at DESC").
 		Count(&total).
 		Offset(page).
@@ -59,15 +59,18 @@ func (config *ConfigDB) listTupoksiJabatan(w http.ResponseWriter, r *http.Reques
 func (config *ConfigDB) listTupoksiJabatanByUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context().Value("user")
 	sessionUser := ctx.(*jwt.Token).Claims.(jwt.MapClaims)
-	idJabatan := sessionUser["id_jabatan"]
+	idJabatan := sessionUser["id_jabatan"].(string)
+	if idJabatan == "" {
+		idJabatan = ""
+	}
 
-	var results []models.ResultList
+	var results []models.TupoksiJabatanResultList
 
 	if err := config.db.Table("tupoksi_jabatans").
-		Where("jabatan_id = $1", idJabatan.(string)).
+		Where("jabatan_id = $1 AND deleted_at IS NULL", idJabatan).
 		Order("sequence ASC").
 		Find(&results).Error; err != nil {
-		utils.ResponseError(w, http.StatusBadRequest, "Invalid body")
+		utils.ResponseError(w, http.StatusNotFound, "Tupoksi Jabatan belum ada pada Jabatan User")
 		return
 	}
 
@@ -184,4 +187,14 @@ func (config *ConfigDB) deleteTupoksiJabatan(w http.ResponseWriter, r *http.Requ
 	}
 	response := "Data Berhasil Di Hapus"
 	utils.ResponseOk(w, response)
+}
+
+func getDetailTupoksiByte(config *ConfigDB, id string) ([]byte, error) {
+	var response models.TupoksiJabatan
+	result := config.db.Where("ID = ?", id).Find(&response)
+	if result.Error != nil {
+		result = nil
+	}
+	bytes, _ := json.Marshal(result)
+	return bytes, nil
 }

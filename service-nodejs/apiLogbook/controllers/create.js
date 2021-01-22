@@ -2,10 +2,9 @@ const { errors, APIError } = require('../utils/exceptions')
 const { validationResult } = require('express-validator')
 const { onCreated, filePath } = require('../utils/session')
 const { postFile, postBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
-
 // Import Model
 const LogBook = require('../models/LogBook')
 
@@ -27,6 +26,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const {
             dateTask = null,
+            tuposkiJabatanId = null,
             projectId = null,
             projectName= null,
             nameTask = null,
@@ -44,6 +44,18 @@ module.exports = async (req, res) => { // eslint-disable-line
         const dataBlobEvidence = 'data:image/png;base64,' + encode(bytes)
         const blobResponse = await postBlobsFile('gzip', dataBlobEvidence)
         const evidenceResponse = await postFile('image', req.files.evidenceTask.name, miniBuffer)
+
+        // get tupoksi jabatan
+        let tuposkiJabatanName = null
+        if (tuposkiJabatanId) {
+            const detail = await getTupoksiJabatanDetail(tuposkiJabatanId)
+            if (detail) {
+                tuposkiJabatanName = detail.Value.name_tupoksi
+            } else {
+                res.status(500).send(errors.tupoksiNotFound)
+            }
+        }
+        
         let documentResponse = {}
         const isTask = String(isMainTask) === 'true'
         const isLink = String(isDocumentLink) === 'true'
@@ -64,6 +76,8 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const data = {
           dateTask,
+          tuposkiJabatanId,
+          tuposkiJabatanName: tuposkiJabatanName,
           projectId,
           projectName,
           nameTask,

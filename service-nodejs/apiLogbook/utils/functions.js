@@ -1,4 +1,8 @@
 const sharp = require('sharp')
+const servers_nats = [process.env.NATS_URI]
+const nats = require('nats').connect({
+    'servers': servers_nats
+})
 
 function encode(input) {
     const keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
@@ -44,7 +48,17 @@ function imageResize(input) {
         .toBuffer()
 }
 
+function getTupoksiJabatanDetail(Id) {
+    return new Promise(resolve => {
+        nats.request('TupoksiJabatanDetail',String(Id), function(resp) {
+            resolve(JSON.parse(resp))
+            nats.unsubscribe(this._sid)
+        })
+    })
+}
+
 module.exports = {
     encode,
-    imageResize
+    imageResize,
+    getTupoksiJabatanDetail
 }

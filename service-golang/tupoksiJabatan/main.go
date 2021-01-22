@@ -1,10 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/nats-io/go-nats"
 
 	auth "github.com/jabardigitalservice/picasso-backend/service-golang/middleware"
 	"github.com/jabardigitalservice/picasso-backend/service-golang/utils"
@@ -44,6 +47,27 @@ func main() {
 	if err != nil {
 		log.Println(err)
 	}
+
+	subject := "TupoksiJabatanDetail"
+	natsUri := utils.GetEnv("NATS_URI")
+	opts := nats.Options{
+		AllowReconnect: true,
+		MaxReconnect:   5,
+		ReconnectWait:  5 * time.Second,
+		Timeout:        3 * time.Second,
+		Url:            natsUri,
+	}
+	conn, _ := opts.Connect()
+	fmt.Println("Subscriber connected to NATS server")
+
+	fmt.Printf("Subscribing to subject %s\n", subject)
+	conn.Subscribe(subject, func(msg *nats.Msg) {
+		msgResp, err := getDetailTupoksiByte(configuration, string(msg.Data))
+		if err != nil {
+			fmt.Println(err)
+		}
+		conn.Publish(msg.Reply, msgResp)
+	})
 
 	// Sentry
 	errSentry := utils.SentryTracer(utils.GetEnv("SENTRY_DSN_GOLANG"))

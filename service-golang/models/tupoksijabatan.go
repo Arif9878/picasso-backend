@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/jinzhu/gorm"
 	uuid "github.com/satori/go.uuid"
 )
@@ -26,12 +24,11 @@ func (base *TupoksiJabatan) BeforeCreate(scope *gorm.Scope) error {
 	return scope.SetColumn("ID", uuid)
 }
 
-type ResultList struct {
+type TupoksiJabatanResultList struct {
 	ID            uuid.UUID `json:"id"`
 	JabatanID     string    `json:"jabatan_id"`
 	NameTupoksi   string    `json:"name_tupoksi"`
 	TargetTupoksi int       `json:"target_tupoksi, omitempty"`
 	Sequence      int       `json:"sequence"`
 	Description   string    `json:"description"`
-	DeletedAt     *time.Time
 }
