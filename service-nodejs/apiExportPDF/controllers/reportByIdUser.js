@@ -69,7 +69,6 @@ module.exports = async (req, res) => {
             .aggregate(rules)
             .hint({ nameTask:1 })
             .sort(sort)
-
         const attendance = await listAttendance(userId, start_date, dueDate)
         const holiday = await listHolidayDate(start_date, dueDate)
         logBook.push(...attendance)
@@ -122,7 +121,7 @@ module.exports = async (req, res) => {
         }
 
         const responseParseUser = detailUser.user
-        const tupoksiJabatan = detailUser.tupoksi
+        const tupoksiJabatan = detailUser.tupoksi || []
         const user = JSON.parse(responseParseUser)
         const reporting_date = end_date ? end_date : moment().format('YYYY-MM-DD')
         const layout = reportForm({
