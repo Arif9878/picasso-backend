@@ -77,7 +77,7 @@ services:
       - ./service-nodejs/apiExportPDF:/usr/src/app
       - /usr/src/app/node_modules
     networks:
-      - logbook
+      - exportpdf
     env_file: 
       - .env-nodejs
 
