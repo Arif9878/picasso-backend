@@ -14,6 +14,7 @@ import (
 
 func (config *ConfigDB) listTupoksiJabatan(w http.ResponseWriter, r *http.Request) {
 	search := string(r.URL.Query().Get("search"))
+	JabatanID := string(r.URL.Query().Get("jabatan_id"))
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil {
 		page = 0
@@ -28,9 +29,13 @@ func (config *ConfigDB) listTupoksiJabatan(w http.ResponseWriter, r *http.Reques
 
 	var results []models.TupoksiJabatanResultList
 
+	sqlStatement := "deleted_at IS NULL AND name_tupoksi ILIKE " + "'%" + search + "%'"
+	if JabatanID != "" {
+		sqlStatement += " AND jabatan_id = " + "'" + JabatanID + "'"
+	}
 	if err := config.db.Table("tupoksi_jabatans").
-		Where("deleted_at IS NULL AND name_tupoksi ILIKE ?", "%"+search+"%").
-		Order("created_at DESC").
+		Where(sqlStatement).
+		Order("sequence ASC, created_at DESC").
 		Count(&total).
 		Offset(page).
 		Limit(limit).
@@ -177,13 +182,19 @@ func (config *ConfigDB) detailTupoksiJabatan(w http.ResponseWriter, r *http.Requ
 func (config *ConfigDB) deleteTupoksiJabatan(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	payload := models.TupoksiJabatan{}
-	if err := config.db.Model(&payload).Where("ID = ?", params["id"]).Delete(&payload).Error; err != nil {
+	if err := config.db.Exec("DELETE FROM tupoksi_jabatans WHERE id = ?", params["id"]).Error; err != nil {
 		utils.ResponseError(w, http.StatusBadRequest, "Data Not Found")
 		return
 	}
+
+	// config.db.Model(&payload).Where("ID = ?", params["id"]).Delete(&payload)
 	response := "Data Berhasil Di Hapus"
-	utils.ResponseOk(w, response)
+	result := models.ResultsData{
+		Status:  http.StatusOK,
+		Success: true,
+		Results: response,
+	}
+	utils.ResponseOk(w, result)
 }
 
 func getDetailTupoksiByte(config *ConfigDB, id string) ([]byte, error) {
