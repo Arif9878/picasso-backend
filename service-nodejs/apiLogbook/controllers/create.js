@@ -17,11 +17,7 @@ module.exports = async (req, res) => { // eslint-disable-line
         const session = req.user
         const errorsValidate = validationResult(req)
         if (!errorsValidate.isEmpty()) {
-            res.status(422).json({
-                code: 422,
-                errors: errorsValidate.array(),
-            })
-            return
+            return res.status(422).json({ code: 422, errors: errorsValidate.array() })
         }
 
         const {
@@ -52,7 +48,7 @@ module.exports = async (req, res) => { // eslint-disable-line
             if (detail) {
                 tupoksiJabatanName = detail.Value.name_tupoksi
             } else {
-                res.status(500).send(errors.tupoksiNotFound)
+                return res.status(500).send(errors.tupoksiNotFound)
             }
         }
         
