@@ -8,12 +8,12 @@ const LogBook = new Schema({
         required: false,
         default: null
     },
-    tuposkiJabatanId: {
+    tupoksiJabatanId: {
       type: String,
       required: false,
       default: null
     },
-    tuposkiJabatanName: {
+    tupoksiJabatanName: {
       type: String,
       required: false,
       default: null

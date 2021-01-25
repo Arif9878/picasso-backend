@@ -37,8 +37,8 @@ module.exports = async (req, res) => {
       {
         '$project': {
           'dateTask': 1,
-          'tuposkiJabatanId': { '$ifNull': ['$tuposkiJabatanId', ''] },
-          'tuposkiJabatanName': { '$ifNull': ['$tuposkiJabatanName', ''] },
+          'tupoksiJabatanId': { '$ifNull': ['$tupoksiJabatanId', ''] },
+          'tupoksiJabatanName': { '$ifNull': ['$tupoksiJabatanName', ''] },
           'projectId': 1,
           'projectName': 1,
           'nameTask': 1,
