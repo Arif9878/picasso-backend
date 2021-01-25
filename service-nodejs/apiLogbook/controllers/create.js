@@ -26,7 +26,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const {
             dateTask = null,
-            tuposkiJabatanId = null,
+            tupoksiJabatanId = null,
             projectId = null,
             projectName= null,
             nameTask = null,
@@ -46,11 +46,11 @@ module.exports = async (req, res) => { // eslint-disable-line
         const evidenceResponse = await postFile('image', req.files.evidenceTask.name, miniBuffer)
 
         // get tupoksi jabatan
-        let tuposkiJabatanName = null
-        if (tuposkiJabatanId) {
-            const detail = await getTupoksiJabatanDetail(tuposkiJabatanId)
+        let tupoksiJabatanName = null
+        if (tupoksiJabatanId) {
+            const detail = await getTupoksiJabatanDetail(tupoksiJabatanId)
             if (detail) {
-                tuposkiJabatanName = detail.Value.name_tupoksi
+                tupoksiJabatanName = detail.Value.name_tupoksi
             } else {
                 res.status(500).send(errors.tupoksiNotFound)
             }
@@ -76,8 +76,8 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const data = {
           dateTask,
-          tuposkiJabatanId,
-          tuposkiJabatanName: tuposkiJabatanName,
+          tupoksiJabatanId,
+          tupoksiJabatanName: tupoksiJabatanName,
           projectId,
           projectName,
           nameTask,
