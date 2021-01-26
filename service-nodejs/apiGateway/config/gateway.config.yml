@@ -164,9 +164,6 @@ serviceEndpoints:
   settings:
     url: '${SETTINGS_GO_SERVICE_URI}/api/'
 
-  healthcheck:
-    url: '${EXPORT_PDF_NODEJS_SERVICE_URI}/api/'
-
 policies:
   - cors
   - basic-auth
@@ -606,5 +603,5 @@ pipelines:
               allowedHeaders: '*'
       - proxy:
           - action:
-              serviceEndpoint: healthcheck
+              serviceEndpoint: exportpdf
               changeOrigin: true
