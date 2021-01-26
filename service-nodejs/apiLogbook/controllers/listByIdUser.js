@@ -1,12 +1,15 @@
-const mongoose = require('mongoose')
-const {
-    errors,
-    APIError
-} = require('../utils/exceptions')
+const { errors, APIError } = require('../utils/exceptions')
+const { tracer } = require('../utils/tracer')
+const opentracing = require('opentracing')
+
 const LogBook = require('../models/LogBook')
 
 // eslint-disable-next-line
-module.exports = async (req, res, next) => {
+module.exports = async (req, res) => {
+    const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
+    const span = tracer.startSpan(req.originalUrl, {
+        childOf: parentSpan,
+    })
     try {
         // Get request params
         const session = req.user
@@ -105,21 +108,17 @@ module.exports = async (req, res, next) => {
                 perPage: pageSize
             }
         })
+        tracer.inject(span, "http_headers", req.headers)
+        span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
     } catch (error) {
-        const {
-            code,
-            message,
-            data
-        } = error
+        const { code, message, data } = error
 
+        span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
         if (code && message) {
-            res.status(code).send({
-                code,
-                message,
-                data,
-            })
+            res.status(code).send({ code, message, data })
         } else {
-            res.status(404).send(errors.notFound)
+            res.status(500).send(errors.serverError)
         }
     }
+    span.finish()
 }

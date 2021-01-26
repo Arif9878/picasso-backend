@@ -1,9 +1,6 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const attributes = require('./Attributes')
-const {
-    logBookConnection
-} = require('../utils/connections')
 
 const LogBook = new Schema({
     dateTask: {
@@ -55,6 +52,18 @@ const LogBook = new Schema({
             default: null,
         },
     },
+    blobTask: {
+        filePath: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        fileURL: {
+            type: String,
+            required: false,
+            default: null,
+        },
+    },
     isDocumentLink: {
         type: Boolean,
         required: false,
@@ -83,10 +92,11 @@ const LogBook = new Schema({
     ...attributes
 })
 
-LogBook.index({ nameTask: 1 })
+LogBook.index({
+    dateTask: 1,
+    nameTask: 1,
+    projectId: 1,
+    projectName: 1
+})
 
-// module.exports = mongoose.models.LogBook || mongoose.model('LogBook', LogBook)
-
-const logBookModel = logBookConnection.model('LogBook', LogBook)
-
-module.exports = logBookModel
+module.exports = mongoose.models.LogBook || mongoose.model('LogBook', LogBook)

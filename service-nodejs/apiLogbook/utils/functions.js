@@ -46,5 +46,5 @@ function imageResize(input) {
 
 module.exports = {
     encode,
-    imageResize,
+    imageResize
 }

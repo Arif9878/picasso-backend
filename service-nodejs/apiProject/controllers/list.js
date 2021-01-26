@@ -1,13 +1,20 @@
 const mongoose = require('mongoose')
 const { errors, APIError } = require('../utils/exceptions')
+const { tracer } = require('../utils/tracer')
+const opentracing = require('opentracing')
+
 // Import Model
 const Project = require('../models/Project')
 
 // eslint-disable-next-line
-module.exports = async (req, res, next) => {
+module.exports = async (req, res) => {
+  const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
+  const span = tracer.startSpan(req.originalUrl, {
+      childOf: parentSpan,
+  })
   try {
     // Get request params
-    const session = req.user
+
     let sort = {
       createdAt: - 1,
     }
@@ -47,7 +54,7 @@ module.exports = async (req, res, next) => {
     }
 
     // Get page count
-    const count = await Project.countDocuments({'createdBy.email': session.email})
+    const count = await Project.countDocuments(rules)
     const filtered = await Project.aggregate([
       ...rules,
       {
@@ -80,9 +87,11 @@ module.exports = async (req, res, next) => {
         perPage: pageSize
       }
     })
+    tracer.inject(span, "http_headers", req.headers)
+    span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
   } catch (error) {
     const { code, message, data } = error
-
+    span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
     if (code && message) {
         res.status(code).send({
             code,
@@ -93,4 +102,5 @@ module.exports = async (req, res, next) => {
         res.status(404).send(errors.notFound)
     }
   }
+  span.finish()
 }

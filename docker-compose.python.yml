@@ -5,9 +5,9 @@ services:
     build:
       context: ./service-python/authserver
     command: /usr/local/bin/gunicorn authServer.wsgi:application -w 2 -b :80
-    cpus: 0.5
-    mem_limit: 250m
-    memswap_limit: 50m
+    cpus: 0.75
+    mem_limit: 550m
+    memswap_limit: 150m
     restart: always
     networks:
       - authserver
@@ -30,13 +30,26 @@ services:
   exportexcel:
     build:
       context: ./service-python/exportExcel
-    command: /usr/local/bin/gunicorn wsgi:app -w 2 -b :80
+    command: /usr/local/bin/gunicorn wsgi:app -w 2 --timeout 200 -b :80
     cpus: 0.5
     mem_limit: 550m
     memswap_limit: 150m
     restart: always
     networks:
       - exportexcel
+    env_file: 
+      - .env-python
+
+  dashboarduser:
+    build:
+      context: ./service-python/dashboardUser
+    command: /usr/local/bin/gunicorn wsgi:app -w 2 --timeout 200 -b :80
+    cpus: 0.5
+    mem_limit: 550m
+    memswap_limit: 150m
+    restart: always
+    networks:
+      - dashboarduser
     env_file: 
       - .env-python
 
@@ -50,5 +63,9 @@ networks:
       name: gateway
 
   exportexcel:
+    external:
+      name: gateway
+
+  dashboarduser:
     external:
       name: gateway

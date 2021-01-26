@@ -50,5 +50,11 @@ func main() {
 	c.Start()
 	wg.Wait()
 
+	// Sentry
+	errSentry := utils.SentryTracer(utils.GetEnv("SENTRY_DSN_GOLANG"))
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", errSentry)
+	}
+
 	runtime.Goexit()
 }

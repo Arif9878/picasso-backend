@@ -3,6 +3,8 @@ from rest_framework.views import APIView
 from rest_framework import status, viewsets, permissions
 from rest_framework.decorators import action
 from django.db.models import Q
+from django.db.models import Value as V
+from django.db.models.functions import Concat
 # pagination, generics
 from rest_framework.decorators import (
     api_view, permission_classes)
@@ -29,17 +31,26 @@ class AccountViewSet(viewsets.ModelViewSet):
         the user as determined by the username portion of the URL.
         """
         search = self.request.query_params.get('search', None)
-        idDivisi = self.request.query_params.get('idDivisi', None)
+        struktural = self.request.query_params.get('struktural', None)
+        id_divisi = self.request.query_params.get('id_divisi', None)
+        is_active = self.request.query_params.get('is_active', None)
         blank = ""
+        if struktural is not None and struktural is not blank:
+            self.queryset = self.queryset.filter(
+            (Q(divisi="Struktural")))
+        # else:
+        #     self.queryset = self.queryset.filter(~Q(divisi="Struktural"))
         if search is not None and search is not blank:
-            self.queryset = self.queryset.filter(
+            self.queryset = self.queryset.annotate(fullname=Concat('first_name', V(' '), 'last_name')).\
+                filter((Q(fullname__icontains=search))|
                 (Q(username=search))|
-                (Q(email=search))|
-                (Q(first_name__icontains=search))|
-                (Q(last_name__icontains=search)))
-        if idDivisi is not None and idDivisi is not blank:
+                (Q(email=search)))
+        if id_divisi is not None and id_divisi is not blank:
             self.queryset = self.queryset.filter(
-                (Q(id_divisi=idDivisi)))
+                (Q(id_divisi=id_divisi)))
+        if is_active is not None and is_active is not blank:
+            self.queryset = self.queryset.filter(
+                (Q(is_active=is_active.title())))
         return self.queryset
 
     def post(self, request, format=None):
