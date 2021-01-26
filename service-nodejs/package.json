@@ -39,7 +39,7 @@
     "express-fileupload": "^1.2.0",
     "express-gateway": "^1.16.4",
     "express-gateway-plugin-example": "^1.0.1",
-    "express-session": "1.16.2",
+    "express-session": "1.17.1",
     "express-validator": "^6.6.0",
     "firebase": "^7.23.0",
     "firebase-admin": "^9.0.0",
