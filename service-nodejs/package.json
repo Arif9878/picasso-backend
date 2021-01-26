@@ -42,7 +42,7 @@
     "express-session": "1.16.2",
     "express-validator": "^6.6.0",
     "firebase": "^7.23.0",
-    "firebase-admin": "^9.0.0",
+    "firebase-admin": "^9.4.2",
     "helmet": "^3.21.1",
     "http": "^0.0.0",
     "jaeger-client": "^3.18.1",
