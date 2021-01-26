@@ -65,6 +65,22 @@ services:
     env_file: 
       - .env-nodejs
 
+  exportpdf:
+    build:
+      context: ./service-nodejs
+    command: npm start
+    cpus: 0.75
+    mem_limit: 800m
+    memswap_limit: 200m
+    restart: always
+    volumes:
+      - ./service-nodejs/apiExportPDF:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - logbook
+    env_file: 
+      - .env-nodejs
+
 networks:
   apigateway:
     external:
@@ -79,5 +95,9 @@ networks:
       name: gateway
 
   attendance:
+    external:
+      name: gateway
+
+  exportpdf:
     external:
       name: gateway
