@@ -1,5 +1,6 @@
 import datetime, math, pytz
 local = pytz.timezone ("Asia/Jakarta")
+from jaeger_client import Config
 
 def getCountHours(mongoClient, idUser, start_date, end_date):
     dbMongo = mongoClient.attendance
@@ -121,3 +122,21 @@ def queryAccount(search='%', divisi=None, is_active=True):
     """ % (divisi, is_active, search)
 
     return query
+
+def config_jaeger(jaeger_host, jaeger_port):
+    config = Config(
+        config={ # usually read from some yaml config
+            'sampler': {
+                'type': 'const',
+                'param': 1,
+            },
+            'local_agent': {
+                'reporting_host': jaeger_host,
+                'reporting_port': jaeger_port,
+            },
+            'logging': True,
+        },
+        service_name='monthly-report-user-api',
+        validate=True,
+    )
+    return config
