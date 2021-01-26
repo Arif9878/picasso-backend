@@ -1,6 +1,8 @@
 import math, pytz
 from datetime import datetime, timedelta
 from collections import OrderedDict
+from jaeger_client import Config
+
 try:
     # Python 2
     xrange
@@ -139,3 +141,21 @@ def queryAccount(divisi=None, manager_category=None, search='%', is_active=True)
     """ % (divisi, manager_category, search, is_active)
 
     return query
+
+def config_jaeger(jaeger_host, jaeger_port):
+    config = Config(
+        config={ # usually read from some yaml config
+            'sampler': {
+                'type': 'const',
+                'param': 1,
+            },
+            'local_agent': {
+                'reporting_host': jaeger_host,
+                'reporting_port': jaeger_port,
+            },
+            'logging': True,
+        },
+        service_name='export-excel-api',
+        validate=True,
+    )
+    return config

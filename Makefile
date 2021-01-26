@@ -55,6 +55,12 @@ start-service-traefik:
 stop-service-traefik:
 	@$(compose-service-traefik) stop
 
+# ==================================== SERVICE TRAEFIK =========================================
+compose-service-tracing=docker-compose -f docker-compose.tracing.yml -p service_tracing
+start-service-tracing:
+	@$(compose-service-tracing) up -d --build
+stop-service-tracing:
+	@$(compose-service-tracing) stop
 
 start-all: start-service-database start-service-python start-service-golang start-service-nodejs start-service-monitoring
 
