@@ -41,16 +41,22 @@ func (config *ConfigDB) postDeviceToken(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	count, _ := collection.CountDocuments(ctx, models.DeviceToken{UserID: payload.UserID})
+	var result interface{}
 	if count == 1 {
-		utils.ResponseError(w, http.StatusBadRequest, "userID is exist")
-		return
-	} else {
-		result, err := collection.InsertOne(ctx, payload)
+		update := bson.M{
+			"$set": payload,
+		}
+		result, err = collection.UpdateOne(ctx, models.DeviceToken{UserID: payload.UserID}, update)
 		if err != nil {
 			log.Fatal(err)
 		}
-		utils.ResponseOk(w, result)
+	} else {
+		result, err = collection.InsertOne(ctx, payload)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
+	utils.ResponseOk(w, result)
 }
 
 func (config *ConfigDB) putDeviceToken(w http.ResponseWriter, r *http.Request) {

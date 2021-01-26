@@ -130,16 +130,18 @@ def queryAccount(divisi=None, manager_category=None, search='%', is_active=True)
             accounts_account.manager_category
         FROM
             accounts_account
-        WHERE
-            accounts_account.id_divisi = '%s'
-        OR
-            LOWER(accounts_account.manager_category) LIKE LOWER('%s')
-        AND
-            LOWER(CONCAT(first_name,' ',last_name)) LIKE LOWER('%s')
-        AND
-            accounts_account.is_active = '%s'
-    """ % (divisi, manager_category, search, is_active)
+        WHERE accounts_account.id_divisi = '%s'
+    """ % (divisi)
 
+    if manager_category:
+        queryCategory = " OR LOWER(accounts_account.manager_category) LIKE LOWER('%s')" % (manager_category)
+        query = query + queryCategory
+    if search:
+        querySearch = " AND LOWER(CONCAT(first_name,' ',last_name)) LIKE LOWER('%s')" % (search)
+        query = query + querySearch
+    if is_active:
+        queryActiveUser = " AND accounts_account.is_active = '%s'" % (is_active)
+        query = query + queryActiveUser
     return query
 
 def config_jaeger(jaeger_host, jaeger_port):
