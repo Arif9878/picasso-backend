@@ -1,6 +1,7 @@
 import pytz, jwt
 from datetime import datetime
 from calendar import monthrange
+from jaeger_client import Config
 
 busmask_names = 'Mon Tue Wed Thu Fri'
 weekmask_names = 'Sat Sun'
@@ -50,8 +51,8 @@ def arrayReportUser(totalReportYear=0, totalReportMonth=0):
 
 def arrayOfficeHourUser(totalOfficeHourYear=0, totalOfficeHourMonth=0):
     data = {
-        'total_office_hour_year': totalOfficeHourYear,
-        'total_office_hour_month': totalOfficeHourMonth,
+        'total_office_hour_year': round(totalOfficeHourYear, 2),
+        'total_office_hour_month': round(totalOfficeHourMonth, 2),
     }
     return data
 
@@ -63,3 +64,22 @@ def decode_auth_token(secret_key, auth_token):
         return 401
     except jwt.InvalidTokenError:
         return 401
+
+def config_jaeger(jaeger_host, jaeger_port):
+    config = Config(
+        config={ # usually read from some yaml config
+            'sampler': {
+                'type': 'const',
+                'param': 1,
+            },
+            'local_agent': {
+                'reporting_host': jaeger_host,
+                'reporting_port': jaeger_port,
+            },
+            'logging': True,
+        },
+        service_name='dashboard-attendance-user-api',
+        validate=True,
+    )
+    return config
+    
