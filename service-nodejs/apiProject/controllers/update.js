@@ -1,5 +1,7 @@
 const { errors, APIError } = require('../utils/exceptions')
 const { onUpdated } = require('../utils/session')
+const { tracer } = require('../utils/tracer')
+const opentracing = require('opentracing')
 const {
     validationResult
 } = require('express-validator')
@@ -7,6 +9,10 @@ const {
 const Project = require('../models/Project')
 
 module.exports = async (req, res) => { // eslint-disable-line
+    const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
+    const span = tracer.startSpan(req.originalUrl, {
+        childOf: parentSpan,
+    })
     try {
         const session = req.user
         const errors = validationResult(req)
@@ -38,8 +44,11 @@ module.exports = async (req, res) => { // eslint-disable-line
             data: results,
         })
 
+        tracer.inject(span, "http_headers", req.headers)
+        span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
     } catch (error) {
       const { code, message, data } = error
+      span.setTag(opentracing.Tags.HTTP_STATUS_CODE, code)
 
       if (code && message) {
           res.status(code).send({
@@ -51,4 +60,5 @@ module.exports = async (req, res) => { // eslint-disable-line
           res.status(500).send(errors.serverError)
       }
     }
+    span.finish()
 }

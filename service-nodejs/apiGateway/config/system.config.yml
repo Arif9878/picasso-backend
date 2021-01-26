@@ -7,6 +7,10 @@ db:
     name: mymaster
     namespace: EG
 
+plugins:
+  express-gateway-plugin-jaeger:
+    package: './plugin/jaeger.js'
+
 # plugins:
   # express-gateway-plugin-example:
   #   param1: 'param from system.config'
