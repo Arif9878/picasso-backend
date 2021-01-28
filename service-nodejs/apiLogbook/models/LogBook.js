@@ -35,7 +35,7 @@ const LogBook = new Schema({
     },
     difficultyTask: {
         type: Number,
-        required: true,
+        required: false,
         default: null
     },
     evidenceTask: {
