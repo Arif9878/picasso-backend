@@ -102,6 +102,7 @@ module.exports = async (req, res) => { // eslint-disable-line
         const { code, message, data } = error
 
         span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
+
         if (code && message) {
             res.status(code).send({ code, message, data })
         } else {
