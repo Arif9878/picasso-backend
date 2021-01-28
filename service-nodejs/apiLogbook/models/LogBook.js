@@ -8,6 +8,16 @@ const LogBook = new Schema({
         required: false,
         default: null
     },
+    tupoksiJabatanId: {
+      type: String,
+      required: false,
+      default: null
+    },
+    tupoksiJabatanName: {
+      type: String,
+      required: false,
+      default: null
+    },
     projectId: {
       type: String,
       required: true,

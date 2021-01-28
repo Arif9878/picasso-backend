@@ -2,10 +2,9 @@ const { errors, APIError } = require('../utils/exceptions')
 const { validationResult } = require('express-validator')
 const { onCreated, filePath } = require('../utils/session')
 const { postFile, postBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
-
 // Import Model
 const LogBook = require('../models/LogBook')
 
@@ -18,15 +17,12 @@ module.exports = async (req, res) => { // eslint-disable-line
         const session = req.user
         const errorsValidate = validationResult(req)
         if (!errorsValidate.isEmpty()) {
-            res.status(422).json({
-                code: 422,
-                errors: errorsValidate.array(),
-            })
-            return
+            return res.status(422).json({ code: 422, errors: errorsValidate.array() })
         }
 
         const {
             dateTask = null,
+            tupoksiJabatanId = null,
             projectId = null,
             projectName= null,
             nameTask = null,
@@ -44,6 +40,18 @@ module.exports = async (req, res) => { // eslint-disable-line
         const dataBlobEvidence = 'data:image/png;base64,' + encode(bytes)
         const blobResponse = await postBlobsFile('gzip', dataBlobEvidence)
         const evidenceResponse = await postFile('image', req.files.evidenceTask.name, miniBuffer)
+
+        // get tupoksi jabatan
+        let tupoksiJabatanName = null
+        if (tupoksiJabatanId) {
+            const detail = await getTupoksiJabatanDetail(tupoksiJabatanId)
+            if (detail) {
+                tupoksiJabatanName = detail.Value.name_tupoksi
+            } else {
+                return res.status(500).send(errors.tupoksiNotFound)
+            }
+        }
+        
         let documentResponse = {}
         const isTask = String(isMainTask) === 'true'
         const isLink = String(isDocumentLink) === 'true'
@@ -64,6 +72,8 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const data = {
           dateTask,
+          tupoksiJabatanId,
+          tupoksiJabatanName: tupoksiJabatanName,
           projectId,
           projectName,
           nameTask,

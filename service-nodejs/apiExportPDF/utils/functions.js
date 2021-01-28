@@ -1,5 +1,18 @@
 const sharp = require('sharp')
 const moment = require('moment')
+const servers_nats = [process.env.NATS_URI]
+const nats = require('nats').connect({
+    'servers': servers_nats
+})
+
+function getUserDetail(Id) {
+    return new Promise(resolve => {
+        nats.request('userDetail',String(Id), function(resp) {
+            resolve(JSON.parse(resp))
+            nats.unsubscribe(this._sid)
+        })
+    })
+}
 
 function getListWeekend(start_date, end_date) {
     let list_weekend = []
@@ -15,5 +28,6 @@ function getListWeekend(start_date, end_date) {
 }
 
 module.exports = {
-    getListWeekend
+    getListWeekend,
+    getUserDetail
 }

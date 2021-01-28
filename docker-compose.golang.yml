@@ -27,6 +27,19 @@ services:
     env_file: 
       - .env-golang
 
+  tupoksijabatan:
+    build:
+      context: ./service-golang
+    command: "tupoksiJabatan"
+    cpus: 0.5
+    mem_limit: 100m
+    memswap_limit: 150m
+    restart: always
+    networks:
+      - tupoksijabatan
+    env_file: 
+      - .env-golang
+
   eventuser:
     build:
       context: ./service-golang
@@ -150,6 +163,10 @@ networks:
       name: gateway
 
   jabatan:
+    external:
+      name: gateway
+
+  tupoksijabatan:
     external:
       name: gateway
 

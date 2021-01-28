@@ -2,7 +2,7 @@ const { errors, APIError } = require('../utils/exceptions')
 const { onUpdated, filePath } = require('../utils/session')
 const { validationResult } = require('express-validator')
 const { postFile, updateFile, updateBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 
@@ -18,11 +18,7 @@ module.exports = async (req, res) => { // eslint-disable-line
         const session = req.user
         const errorsValidate = validationResult(req)
         if (!errorsValidate.isEmpty()) {
-            res.status(422).json({
-                code: 422,
-                errors: errorsValidate.array(),
-            })
-            return
+            return res.status(422).json({ code: 422, errors: errorsValidate.array() })
         }
         const {
             _id
@@ -36,6 +32,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const {
             dateTask = null,
+            tupoksiJabatanId = null,
             projectId = null,
             projectName = null,
             nameTask = null,
@@ -69,7 +66,6 @@ module.exports = async (req, res) => { // eslint-disable-line
         } catch(err) {
             //
         }
-
         if (isLink) {
             if (req.body.documentTask.length < 0) throw new APIError(errors.serverError)
             let pathURL = req.body.documentTask
@@ -84,7 +80,7 @@ module.exports = async (req, res) => { // eslint-disable-line
             try {
                 if (req.files.documentTask) {
                     const miniBuffer = await imageResize(req.files.documentTask.data)
-                    if (resultLogBook.documentTask.filePath === null) {
+                    if (resultLogBook.documentTask && resultLogBook.documentTask.filePath === null || resultLogBook.documentTask.filePath.length === 0) {
                         documentResponse = await postFile('document', req.files.documentTask.name, miniBuffer)
                     } else {
                         documentResponse = await updateFile(
@@ -100,8 +96,21 @@ module.exports = async (req, res) => { // eslint-disable-line
             }
         }
 
+        // get tupoksi jabatan
+        let tupoksiJabatanName = null
+        if (tupoksiJabatanId) {
+            const detail = await getTupoksiJabatanDetail(tupoksiJabatanId)
+            if (detail) {
+                tupoksiJabatanName = detail.Value.name_tupoksi
+            } else {
+                return res.status(500).send(errors.tupoksiNotFound)
+            }
+        }
+
         const data = {
             dateTask,
+            tupoksiJabatanId,
+            tupoksiJabatanName: tupoksiJabatanName,
             projectId,
             projectName,
             nameTask,
