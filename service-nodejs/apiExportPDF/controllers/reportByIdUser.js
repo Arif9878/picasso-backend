@@ -1,5 +1,5 @@
 const { errors, APIError } = require('../utils/exceptions')
-const {  generateReport, reportForm , holidayType } = require('../utils/generateReport')
+const { generateReport, reportForm , holidayType } = require('../utils/generateReport')
 const { getListWeekend, getUserDetail } = require('../utils/functions')
 const { listAttendance, listHolidayDate } = require('../utils/listOtherReport')
 const { tracer } = require('../utils/tracer')
