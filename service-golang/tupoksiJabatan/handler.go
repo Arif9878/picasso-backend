@@ -66,23 +66,27 @@ func (config *ConfigDB) listTupoksiJabatanByUser(w http.ResponseWriter, r *http.
 	sessionUser := ctx.(*jwt.Token).Claims.(jwt.MapClaims)
 	idJabatan := sessionUser["id_jabatan"].(string)
 
-	var results []models.TupoksiJabatanResultList
-
+	var listTupoksi []models.TupoksiJabatanResultList
+	var tupoksiDiluarTugas models.TupoksiJabatanResultList
+	if err := config.db.Table("tupoksi_jabatans").Where("ID = ?", utils.GetEnv("TUPOKSI_DILUAR_TUGAS")).First(&tupoksiDiluarTugas).Error; err != nil {
+		utils.ResponseError(w, http.StatusBadRequest, "Data Not Found")
+		return
+	}
 	if err := config.db.Table("tupoksi_jabatans").
 		Where("jabatan_id = $1 AND deleted_at IS NULL", idJabatan).
 		Order("sequence ASC").
-		Find(&results).Error; err != nil {
+		Find(&listTupoksi).Error; err != nil {
 		utils.ResponseError(w, http.StatusNotFound, "Tupoksi Jabatan belum ada pada Jabatan User")
 		return
 	}
-
-	result := models.ResultsData{
+	result := append(listTupoksi, tupoksiDiluarTugas)
+	results := models.ResultsData{
 		Status:  http.StatusOK,
 		Success: true,
-		Results: results,
+		Results: result,
 	}
 
-	utils.ResponseOk(w, result)
+	utils.ResponseOk(w, results)
 }
 
 func (config *ConfigDB) postTupoksiJabatan(w http.ResponseWriter, r *http.Request) {
