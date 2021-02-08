@@ -4,6 +4,8 @@ const moment = require('moment')
 moment.locale('id')
 const dayOffType = ['CUTI', 'SAKIT', 'IZIN']
 const holidayType = ['Libur Nasional', 'Cuti Bersama']
+const { BAB1 } = require('./templateReportBAB1')
+
 const generateReport = (docDefinition, filePath) => {
   return new Promise((resolve, reject) => {
       try {
@@ -164,30 +166,25 @@ const reportForm = (data) => {
   } = data
   const docDefinition = {
       compress: true,
+      pageMargins: [ 90, 60, 40, 60 ],
       content: [
+          {
+            text: 'LAPORAN KINERJA INDIVIDU',
+            alignment: 'center',
+            bold: true,
+            fontSize: 16
+          },
+          {
+            text: `BULAN ${month.toUpperCase()} ${year}`,
+            alignment: 'center',
+            margin: [0, 15, 0, 85],
+            style: 'boldNormal'
+          },
           {
               image: 'static/images/logo_jabarprov.png',
               alignment: 'center',
               margin: [0, 15, 0, 0],
               width: 150
-          },
-          {
-            text: 'LAPORAN',
-            alignment: 'center',
-            margin: [0, 85, 0, 0],
-            bold: true,
-            fontSize: 16
-          },
-          {
-            text: `Bulan ${month} ${year}`,
-            alignment: 'center',
-            style: 'boldNormal'
-          },
-          {
-            text: 'IMPLEMENTASI DAN PEMELIHARAAN INFRASTRUKTUR COMMAND CENTER',
-            alignment: 'center',
-            margin: [0, 85, 0, 0],
-            style: 'boldNormal'
           },
           {
             text: `${user.first_name} ${user.last_name}`,
@@ -196,8 +193,19 @@ const reportForm = (data) => {
             style: 'boldNormal'
           },
           {
+            text: `${user.jabatan}`,
+            alignment: 'center',
+            style: 'boldNormal'
+          },
+          {
             text: `${user.divisi}`,
             alignment: 'center',
+            style: 'boldNormal'
+          },
+          {
+            text: 'IMPLEMENTASI DAN PEMELIHARAAN INFRASTRUKTUR COMMAND CENTER',
+            alignment: 'center',
+            margin: [0, 85, 0, 0],
             style: 'boldNormal'
           },
           {
@@ -219,8 +227,10 @@ const reportForm = (data) => {
           {
             text: `${year}`,
             alignment: 'center',
-            style: 'boldNormal'
+            style: 'boldNormal',
+            pageBreak: 'after'
           },
+          ...BAB1,
           // BODY   
           {
               alignment: 'center',
