@@ -1,4 +1,4 @@
-const BAB1 = [
+const BAB_1 = [
     {
         alignment: 'center',
         bold: true,
@@ -207,10 +207,11 @@ const BAB1 = [
                     '500 warga mengalami peningkatan kualitas hidup'
                 ]
             }
-        ]
+        ],
+        pageBreak: 'after'
     }
 ]
 
 module.exports = {
-    BAB1
+    BAB_1
 }
