@@ -119,6 +119,11 @@ module.exports = async (req, res) => {
         const resultsTupoksi = await LogBook
                 .aggregate(rulesTupoksi)
                 .sort({ _id: 1 })
+        const indexDiluarTupoksi = resultsTupoksi.findIndex((element, index) => {
+            if (element._id === process.env.TUPOKSI_DILUAR_TUGAS) {
+                return true
+            }
+        })
         let logBookByTupoksi = []
         for (const tupoksi of tupoksiJabatan) {
             for (const item of resultsTupoksi) {
@@ -127,7 +132,10 @@ module.exports = async (req, res) => {
                 }
             }
         }
-        logBookByTupoksi.push(resultsTupoksi[resultsTupoksi.length - 1])
+        // Di luar tupoksi
+        if (indexDiluarTupoksi != -1) {
+            logBookByTupoksi.push(resultsTupoksi[indexDiluarTupoksi])
+        }
 
         // Get logbook per Day
         rules.push({
