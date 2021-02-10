@@ -6,7 +6,7 @@ const logBookPerTupoksi = (data) => {
         data['logBookTupoksi'].forEach((item, index) => {
             records.push(
                     {
-                        text: `3.1.${index+1}	${item.name}`
+                        text: `3.${index+1}	${item.name}`
                     },
                     {
                         
@@ -120,8 +120,7 @@ const BAB_3 = (data) => {
             alignment: 'justify',
             preserveLeadingSpaces: true,
             text: [
-                {text: '3.1 Laporan Hasil Kerja Tugas Pokok dan Diluar Tugas Pokok  \n',},
-                `        Berikut daftar laporan hasil kerja sesuai tugas pokok dan diluar tugas pokok serta, fungsi disertai dengan bukti output pekerjaan pelaksanaan pekerjaan bulan ${month} ${year}: \n\n`    
+                `        Berikut daftar laporan hasil kerja disertai dengan bukti output pekerjaan pelaksanaan pekerjaan bulan ${month} ${year}: \n\n`    
             ]
         },
         ...logBookPerTupoksi(data)
