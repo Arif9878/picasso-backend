@@ -25,46 +25,79 @@ const logBookPerTupoksi = (data) => {
                 )
             item['items'].forEach(async (itemB, indexB) => {
                 const isDocumentTaskURL = String(itemB.documentTaskURL) === 'null'
-                records.push(
-                    {
-                        alignment: 'center',
-                        margin: [0, 5, 0, 0],
-                        style: 'boldNormal',
-                        table: {
-                            headerRows: 1,
-                            widths: [ 20, 150, '*' ],
-                            body: [
-                                [
-                                    { text: 'No', style: 'tableHeader',},
-                                    { text: 'Judul', style: 'tableHeader',},
-                                    { text: 'Evidence Output Pekerjaan', style: 'tableHeader',}
-                                ],
-                                [
-                                    { text: indexB+1,  rowSpan: 5 }, 'Nama Projek', `${itemB.projectName}`
-                                ],
-                                [
-                                    "", "Nama Task", `${itemB.nameTask}`
-                                ],
-                                [
-                                    "", "Tanggal Pengerjaan",  moment(item.dateTask).format('dddd, DD MMMM YYYY')
-                                ],
-                                [
-                                    "", "Link (URL) Hasil Kerja", isDocumentTaskURL ? '' : itemB.documentTaskURL
-                                ],
-                                [ 
-                                    "", 
-                                    { 
-                                        image: itemB.blobsEvidence,
-                                        width: 350,
-                                        colSpan: 2, 
-                                        alignment: 'left' 
-                                    },
-                                    ""
-                                ],
-                            ]
-                        },
-                    }
-                )
+                if (itemB.blobsEvidence) {
+                    records.push(
+                        {
+                            alignment: 'center',
+                            margin: [0, 5, 0, 0],
+                            style: 'boldNormal',
+                            table: {
+                                headerRows: 1,
+                                widths: [ 20, 150, '*' ],
+                                body: [
+                                    [
+                                        { text: 'No', style: 'tableHeader',},
+                                        { text: 'Judul', style: 'tableHeader',},
+                                        { text: 'Evidence Output Pekerjaan', style: 'tableHeader',}
+                                    ],
+                                    [
+                                        { text: indexB+1,  rowSpan: 5 }, 'Nama Projek', `${itemB.projectName}`
+                                    ],
+                                    [
+                                        "", "Nama Task", `${itemB.nameTask}`
+                                    ],
+                                    [
+                                        "", "Tanggal Pengerjaan",  moment(item.dateTask).format('dddd, DD MMMM YYYY')
+                                    ],
+                                    [
+                                        "", "Link (URL) Hasil Kerja", isDocumentTaskURL ? '' : itemB.documentTaskURL
+                                    ],
+                                    [ 
+                                        "",
+                                        { 
+                                            image: itemB.blobsEvidence ,
+                                            width: 350,
+                                            colSpan: 2, 
+                                            alignment: 'left' 
+                                        },
+                                        ""
+                                    ],
+                                ]
+                            },
+                        }
+                    )
+                } else {
+                    records.push(
+                        {
+                            alignment: 'center',
+                            margin: [0, 5, 0, 0],
+                            style: 'boldNormal',
+                            table: {
+                                headerRows: 1,
+                                widths: [ 20, 150, '*' ],
+                                body: [
+                                    [
+                                        { text: 'No', style: 'tableHeader',},
+                                        { text: 'Judul', style: 'tableHeader',},
+                                        { text: 'Evidence Output Pekerjaan', style: 'tableHeader',}
+                                    ],
+                                    [
+                                        { text: indexB+1,  rowSpan: 4 }, 'Nama Projek', `${itemB.projectName}`
+                                    ],
+                                    [
+                                        "", "Nama Task", `${itemB.nameTask}`
+                                    ],
+                                    [
+                                        "", "Tanggal Pengerjaan",  moment(item.dateTask).format('dddd, DD MMMM YYYY')
+                                    ],
+                                    [
+                                        "", "Link (URL) Hasil Kerja", isDocumentTaskURL ? '' : itemB.documentTaskURL
+                                    ]
+                                ]
+                            },
+                        }
+                    )
+                }
             })
         })
     }
