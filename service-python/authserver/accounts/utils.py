@@ -6,7 +6,9 @@ def create_token(user):
     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
     payload = jwt_payload_handler(user)
+    payload['id_divisi'] = user.id_divisi
     payload['divisi'] = user.divisi
+    payload['id_jabatan'] = user.id_jabatan
     payload['jabatan'] = user.jabatan
     token = jwt_encode_handler(payload)
 
@@ -50,7 +52,9 @@ def generate_access_token(user):
         'fullname': user.get_full_name(),
         'email': user.email,
         'username': user.username,
+        'id_divisi': user.id_divisi,
         'divisi': user.divisi,
+        'id_jabatan': user.id_jabatan,
         'jabatan': user.jabatan,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(days=0, minutes=0, seconds=14420),
         'iat': datetime.datetime.utcnow(),
@@ -66,7 +70,9 @@ def generate_refresh_token(user):
         'fullname': user.get_full_name(),
         'email': user.email,
         'username': user.username,
+        'id_divisi': user.id_divisi,
         'divisi': user.divisi,
+        'id_jabatan': user.id_jabatan,
         'jabatan': user.jabatan,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
         'iat': datetime.datetime.utcnow()

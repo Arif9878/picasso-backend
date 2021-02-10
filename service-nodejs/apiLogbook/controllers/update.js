@@ -2,7 +2,7 @@ const { errors, APIError } = require('../utils/exceptions')
 const { onUpdated, filePath } = require('../utils/session')
 const { validationResult } = require('express-validator')
 const { postFile, updateFile, updateBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 
@@ -18,11 +18,7 @@ module.exports = async (req, res) => { // eslint-disable-line
         const session = req.user
         const errorsValidate = validationResult(req)
         if (!errorsValidate.isEmpty()) {
-            res.status(422).json({
-                code: 422,
-                errors: errorsValidate.array(),
-            })
-            return
+            return res.status(422).json({ code: 422, errors: errorsValidate.array() })
         }
         const {
             _id
@@ -36,6 +32,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const {
             dateTask = null,
+            tupoksiJabatanId = null,
             projectId = null,
             projectName = null,
             nameTask = null,
@@ -99,8 +96,21 @@ module.exports = async (req, res) => { // eslint-disable-line
             }
         }
 
+        // get tupoksi jabatan
+        let tupoksiJabatanName = null
+        if (tupoksiJabatanId) {
+            const detail = await getTupoksiJabatanDetail(tupoksiJabatanId)
+            if (detail) {
+                tupoksiJabatanName = detail.Value.name_tupoksi
+            } else {
+                return res.status(500).send(errors.tupoksiNotFound)
+            }
+        }
+
         const data = {
             dateTask,
+            tupoksiJabatanId,
+            tupoksiJabatanName: tupoksiJabatanName,
             projectId,
             projectName,
             nameTask,

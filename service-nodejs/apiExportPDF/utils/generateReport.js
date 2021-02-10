@@ -4,6 +4,12 @@ const moment = require('moment')
 moment.locale('id')
 const dayOffType = ['CUTI', 'SAKIT', 'IZIN']
 const holidayType = ['Libur Nasional', 'Cuti Bersama']
+const { Cover } = require('./templateReport/Cover')
+const { BAB_1 } = require('./templateReport/Bab-1')
+const { BAB_2 } = require('./templateReport/Bab-2')
+const { BAB_3 } = require('./templateReport/Bab-3')
+const { penutup } = require('./templateReport/Penutup')
+
 const generateReport = (docDefinition, filePath) => {
   return new Promise((resolve, reject) => {
       try {
@@ -32,7 +38,8 @@ const generateReport = (docDefinition, filePath) => {
 
 const logBook = (data) => {
     let records = []
-    data.forEach((item, index) => {
+    const { jabatan } = data
+    data['logBook'].forEach((item, index) => {
         if (dayOffType.includes(item.nameTask)) {
             records.push([{
                     text: index + 1
@@ -87,10 +94,10 @@ const logBook = (data) => {
                     text: 'PLD'
                 },
                 {
-                    text: item.isMainTask ? '√' : ''
+                    text: jabatan.includes(item.tupoksiJabatanName) ? '√' : ''
                 },
                 {
-                    text: !item.isMainTask ? '√' : ''
+                    text: !jabatan.includes(item.tupoksiJabatanName) ? '√' : ''
                 }
             ])
         }
@@ -104,15 +111,14 @@ const logBookPerDay = (data) => {
         records.push(
         // EVIDENCE   
         {
-            alignment: 'center',
-            style: 'boldNormal',
             pageBreak: 'before',
             pageOrientation: 'landscape',
-            text: 'LAMPIRAN'
+            text: 'B. Evidence Foto Kegiatan Kinerja Harian'
         },
         {
             fontSize: 11,
-            text: 'Berikut adalah evidence daftar uraian kegiatan harian yang didetailkan setiap harinya dibulan ini.'
+            preserveLeadingSpaces: true,
+            text: '         Berikut adalah evidence daftar uraian kegiatan harian yang didetailkan setiap harinya dibulan ini.'
         })
         data['logBookPerDay'].forEach((item, index) => {
             records.push({
@@ -162,65 +168,16 @@ const reportForm = (data) => {
       user,
       jabatan
   } = data
+
   const docDefinition = {
       compress: true,
+      pageMargins: [ 90, 60, 40, 60 ],
       content: [
-          {
-              image: 'static/images/logo_jabarprov.png',
-              alignment: 'center',
-              margin: [0, 15, 0, 0],
-              width: 150
-          },
-          {
-            text: 'LAPORAN',
-            alignment: 'center',
-            margin: [0, 85, 0, 0],
-            bold: true,
-            fontSize: 16
-          },
-          {
-            text: `Bulan ${month} ${year}`,
-            alignment: 'center',
-            style: 'boldNormal'
-          },
-          {
-            text: 'IMPLEMENTASI DAN PEMELIHARAAN INFRASTRUKTUR COMMAND CENTER',
-            alignment: 'center',
-            margin: [0, 85, 0, 0],
-            style: 'boldNormal'
-          },
-          {
-            text: `${user.first_name} ${user.last_name}`,
-            margin: [0, 85, 0, 0],
-            alignment: 'center',
-            style: 'boldNormal'
-          },
-          {
-            text: `${user.divisi}`,
-            alignment: 'center',
-            style: 'boldNormal'
-          },
-          {
-            text: 'TENAGA AHLI PENGELOLA LAYANAN DIGITAL',
-            alignment: 'center',
-            margin: [0, 105, 0, 0],
-            style: 'boldNormal'
-          },
-          {
-            text: 'DINAS KOMUNIKASI INFORMATIKA',
-            alignment: 'center',
-            style: 'boldNormal'
-          },
-          {
-            text: 'PROVINSI JAWA BARAT',
-            alignment: 'center',
-            style: 'boldNormal'
-          },
-          {
-            text: `${year}`,
-            alignment: 'center',
-            style: 'boldNormal'
-          },
+          ...Cover(data),
+          ...BAB_1,
+          ...BAB_2(data),
+          ...BAB_3(data),
+          ...penutup,
           // BODY   
           {
               alignment: 'center',
@@ -229,74 +186,15 @@ const reportForm = (data) => {
               pageBreak: 'before',
               pageOrientation: 'landscape',
               color: 'black',
-              fillColor: '#1aa3ff',
-              table: {
-                headerRows: 1,
-                widths: [ '*' ],
-                body: [
-                  [ { text: 'LAPORAN HARIAN', border: [] } ],
-                  [ { text: 'JABAR DIGITAL SERVICE', border: [] } ]
-                ]
-              }
+              text: 'LAMPIRAN',
           },
-          {
-            margin: [0, 25, 0, 0],
-            style: 'boldNormal',
-            table: {
-                headerRows: 1,
-                widths: [ 70, 120, '*' ],
-                body: [
-                    [ 
-                        { text: `Bulan: ${month}`, border: [] },
-                        { text: `Tahun: ${year}`, border: [] },
-                        { 
-                            text: 'Instansi: Dinas Komunikasi dan Informatika Jawa Barat',
-                            alignment: 'right',
-                            border: []
-                        },
-
-                    ],
-                ]
-            }
-         },
          {
-            margin: [0, 5, 0, 0],
-            style: 'boldNormal',
-            table: {
-                headerRows: 1,
-                widths: [ 120, 10, 10, '*' ],
-                body: [
-                    [ 
-                        { text: 'Nama' },
-                        { text: '' },
-                        { text: ':' },
-                        { text: `${user.first_name} ${user.last_name}` }
-                    ],
-                    [ 
-                        { text: 'Divisi' },
-                        { text: '' },
-                        { text: ':' },
-                        { text: `${user.divisi}` }
-                    ],
-                    [ 
-                        { text: 'Jabatan' },
-                        { text: '' },
-                        { text: ':' },
-                        { text: `${user.jabatan}` }
-                    ],
-                    [ 
-                        { text: 'URAIAN TUGAS\n(DESKRIPSI JABATAN)' },
-                        { text: '' },
-                        { text: ':' },
-                        { text: `${jabatan.description}` }
-                    ],
-                ]
-            }
+            margin: [0, 10, 0, 0],
+            text: `A. Laporan Kerja Harian ${month.toUpperCase()}`,
          },
          {
             margin: [0, 10, 0, 0],
-            text: `RINCIAN HASIL KERJA SELAMA BULAN ${month.toUpperCase()}`,
-            style: 'boldNormal'
+            text: `Berikut daftar laporan kerja harian  ${month.toUpperCase()}`,
          },
          // RINCIAN TABEL LAPORAN
          {
@@ -321,7 +219,7 @@ const reportForm = (data) => {
                         { text: 'Tugas Pokok', style: 'tableHeader' },
                         { text: 'Tugas Tambahan', style: 'tableHeader', },
                     ],
-                    ...logBook(data.logBook)
+                    ...logBook(data)
                 ]
             }
          },
