@@ -57,16 +57,17 @@ app.set('models', mongoose.models)
 const route = require('./routes')
 
 async function onHealthCheckDB () {
-  const client = await MongoClient.connect(`mongodb://${process.env.DB_MONGO_HOST}:${process.env.DB_MONGO_PORT}`)
-  const db1 = await client.db(process.env.MONGO_DB_LOGBOOK).admin().ping()
-  const db2 = await client.db(`${process.env.MONGO_DB_ATTENDANCE}`).admin().ping()
-  const db3 = await client.db(`${process.env.MONGO_DB_HOLIDAY_DATE}`).admin().ping()
-  const results = {
-      logbookDB : db1,
-      attendaceDB : db2,
-      holidayDateDB : db3
-  }
-  return results
+    const client = await MongoClient.connect(`mongodb://${process.env.DB_MONGO_HOST}:${process.env.DB_MONGO_PORT}`)
+    const db1 = client.db(process.env.MONGO_DB_LOGBOOK).admin().ping()
+    const db2 = client.db(`${process.env.MONGO_DB_ATTENDANCE}`).admin().ping()
+    const db3 = client.db(`${process.env.MONGO_DB_HOLIDAY_DATE}`).admin().ping()
+    const resp = await Promise.all([db1, db2, db3])
+    const results = {
+        logbookDB : resp[0],
+        attendaceDB : resp[1],
+        holidayDateDB : resp[2]
+    }
+    return results
 }
 
 //routes
