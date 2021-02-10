@@ -26,10 +26,12 @@
   },
   "dependencies": {
     "helmet": "^3.21.1",
+    "axios": "^0.21.1",
     "raven": "^2.6.4",
     "moment": "^2.27.0",
+    "pdfmake": "^0.1.66",
+    "sharp": "^0.26.2",
     "connect-timeout": "^1.9.0",
-    "sharp": "^0.25.4",
     "express-validator": "^6.6.0",
     "jaeger-client": "^3.18.1",
     "opentracing": "^0.14.5"
