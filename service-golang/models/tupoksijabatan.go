@@ -10,7 +10,7 @@ type TupoksiJabatan struct {
 	BaseModel
 	Jabatan       Jabatan   `gorm:"foreignkey:JabatanID,constraint:OnUpdate:CASCADE,OnDelete:SET NULL;,unique" json:"jabatan"`
 	JabatanID     uuid.UUID `grom:"index" json:"jabatan_id"`
-	NameTupoksi   string    `gorm:"size:200" json:"name_tupoksi"`
+	NameTupoksi   string    `gorm:"size:350" json:"name_tupoksi"`
 	TargetTupoksi int       `gorm:"type:integer" json:"target_tupoksi, omitempty"`
 	Sequence      int       `gorm:"type:integer" json:"sequence"`
 	Description   string    `gorm:"type:text" json:"description"`
