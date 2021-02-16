@@ -1,6 +1,7 @@
 const BAB_1 = [
     {
         alignment: 'center',
+        pageBreak: 'before',
         bold: true,
         text: [
                 'BAB I \n',

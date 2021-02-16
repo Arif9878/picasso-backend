@@ -66,7 +66,6 @@ const Cover = (data) => {
             text: `${year}`,
             alignment: 'center',
             style: 'boldNormal',
-            pageBreak: 'after'
         },
     ]
 }
