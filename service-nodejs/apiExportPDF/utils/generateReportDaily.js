@@ -73,7 +73,7 @@ const logBook = (data) => {
 }
 
 const logBookPerDay = (data) => {
-    let records = []
+    const records = []
     if (data['logBookPerDay'].length > 0 ) {
         records.push(
         // EVIDENCE   

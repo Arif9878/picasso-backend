@@ -30,7 +30,6 @@ module.exports = async (req, res) => {
         } = req.query
 
         const dueDate = moment(end_date).add(1,'days').format('YYYY-MM-DD')
-        const list_weekend = getListWeekend(start_date, dueDate)
         if (!userId) throw new APIError(errors.serverError)
 
         const rules = [{
@@ -66,16 +65,17 @@ module.exports = async (req, res) => {
             }
         ]
 
-        // Get logbook
-        const logBook = await LogBook
-            .aggregate(rules)
-            .hint({ nameTask:1 })
-            .sort(sort)
-        const attendance = await listAttendance(userId, start_date, dueDate)
-        const holiday = await listHolidayDate(start_date, dueDate)
-        logBook.push(...attendance)
-        logBook.push(...list_weekend)
-        logBook.push(...holiday)
+        // Get logbook, list_weekend, attendance, holiday, detailUser
+
+        const [logBook, list_weekend, attendance, holiday, detailUser] = await Promise.all([
+            LogBook.aggregate(rules).hint({ nameTask:1 }).sort(sort),
+            getListWeekend(start_date, dueDate),
+            listAttendance(userId, start_date, dueDate),
+            listHolidayDate(start_date, dueDate),
+            getUserDetail(userId),
+        ])
+
+        logBook.push(...attendance, ...list_weekend, ...holiday)
         logBook.sort(function (a, b) {
             return new Date(a.dateTask) - new Date(b.dateTask)
         })
@@ -90,8 +90,6 @@ module.exports = async (req, res) => {
                 }
             }
         })
-
-        const detailUser = await getUserDetail(userId)
 
         if (!detailUser) {
             res.status(500).send(errors.serverError)
