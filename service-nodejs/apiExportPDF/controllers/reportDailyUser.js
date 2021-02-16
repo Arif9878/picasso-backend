@@ -1,5 +1,6 @@
 const { errors, APIError } = require('../utils/exceptions')
-const { generateReport, reportForm , holidayType } = require('../utils/generateReport')
+const { generateReport, holidayType } = require('../utils/generateReport')
+const { reportFormDaily } = require('../utils/generateReportDaily')
 const { getListWeekend, getUserDetail } = require('../utils/functions')
 const { listAttendance, listHolidayDate } = require('../utils/listOtherReport')
 const { tracer } = require('../utils/tracer')
@@ -99,42 +100,6 @@ module.exports = async (req, res) => {
         const tupoksiJabatan = detailUser.tupoksi || []
         const user = JSON.parse(responseParseUser)
 
-        const rulesTupoksi = [
-            ...rules,
-            {
-                $group: {
-                    _id: "$tupoksiJabatanId",
-                    name : { $first: '$tupoksiJabatanName' },
-                    items: {
-                        $push: '$$ROOT'
-                    },
-                    count: { $sum: 1 }
-                }
-            }
-        ]
-
-        // Get logbook per tupoksi
-        const resultsTupoksi = await LogBook
-                .aggregate(rulesTupoksi)
-                .sort({ _id: 1 })
-        const indexDiluarTupoksi = resultsTupoksi.findIndex((element, index) => {
-            if (element._id === process.env.TUPOKSI_DILUAR_TUGAS) {
-                return true
-            }
-        })
-        let logBookByTupoksi = []
-        for (const tupoksi of tupoksiJabatan) {
-            for (const item of resultsTupoksi) {
-                if (tupoksi === item.name) {
-                    logBookByTupoksi.push(item)
-                }
-            }
-        }
-        // Di luar tupoksi
-        if (indexDiluarTupoksi != -1) {
-            logBookByTupoksi.push(resultsTupoksi[indexDiluarTupoksi])
-        }
-
         // Get logbook per Day
         rules.push({
             $group: {
@@ -144,7 +109,6 @@ module.exports = async (req, res) => {
                 }
             }
         })
-
         let logBookPerDay = []
         if (state != 'view') {
             logBookPerDay = await LogBook
@@ -157,24 +121,17 @@ module.exports = async (req, res) => {
                     items['blobsEvidence'] = results.data
                 }
             }
-            for (const eachDay of logBookByTupoksi) {
-                for (const items of eachDay.items) {
-                    const results = await axios.get(items.blobTaskURL)
-                    items['blobsEvidence'] = results.data
-                }
-            }
         } 
 
         if (!logBook) throw new APIError(errors.serverError)       
 
         const reporting_date = end_date ? end_date : moment().format('YYYY-MM-DD')
-        const layout = reportForm({
+        const layout = reportFormDaily({
             user: user,
             reporting_date: reporting_date,
             jabatan: tupoksiJabatan,
             logBook: logBook,
-            logBookPerDay: logBookPerDay,
-            logBookTupoksi: logBookByTupoksi
+            logBookPerDay: logBookPerDay
         })
         const fullName = `${user.first_name}_${user.last_name}`.replace(/[^\w\s]/gi, '')
         const month = req.query.date || moment().format('YYYY')

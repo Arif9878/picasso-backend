@@ -64,6 +64,7 @@ tracing = FlaskTracing(jaeger_tracer)
 @tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def dashboardAttendanceUser():
     month = request.args.get('month')
+    year = request.args.get('year')
     auth_header = request.headers.get('Authorization')
     if auth_header:
         auth_token = auth_header.split(" ")[1]
@@ -76,9 +77,12 @@ def dashboardAttendanceUser():
         data = {}
         if user != 401:
             today = dt.datetime.today().date()
-            start = dt.datetime(year=today.year, month=today.month, day=1).date()
+            if year is None:
+                year = today.year
             if month: 
-                start = dt.datetime(year=today.year, month=int(month), day=1).date()
+                start = dt.datetime(year=int(year), month=int(month), day=1).date()
+            else:
+                start = dt.datetime(year=int(year), month=today.month, day=1).date()
             end = last_day_of_month(start)+timedelta(days=1)
             dateRange = np.arange(np.datetime64(start), np.datetime64(end), dtype='datetime64[D]')
             dateRangeFromNow = np.arange(np.datetime64(start), np.datetime64(today+timedelta(days=1)), dtype='datetime64[D]')
@@ -143,6 +147,7 @@ def dashboardAttendanceUser():
 @tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def dashboardReportUser():
     month = request.args.get('month')
+    year = request.args.get('year')
     auth_header = request.headers.get('Authorization')
     if auth_header:
         auth_token = auth_header.split(" ")[1]
@@ -153,11 +158,14 @@ def dashboardReportUser():
         secret_key = os.environ.get('SECRET_KEY', '')
         user = decode_auth_token(secret_key, auth_token)
         data = {}
+        today = dt.datetime.today().date()
         if user != 401:
-            today = dt.datetime.today().date()
-            start = dt.datetime(year=today.year, month=today.month, day=1).date()
+            if year is None:
+                year = today.year
             if month: 
-                start = dt.datetime(year=today.year, month=int(month), day=1).date()
+                start = dt.datetime(year=int(year), month=int(month), day=1).date()
+            else:
+                start = dt.datetime(year=int(year), month=today.month, day=1).date()
             end = last_day_of_month(start)+timedelta(days=1)
 
             totalOfficeHourUserYear = countOfficeHourUserYear(mongoClient, user['user_id'], today.year)
