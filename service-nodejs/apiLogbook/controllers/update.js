@@ -51,17 +51,12 @@ module.exports = async (req, res) => { // eslint-disable-line
                 const miniBuffer = await imageResize(req.files.evidenceTask.data)
                 const bytes = new Uint8Array(miniBuffer)
                 dataBlobEvidence = 'data:image/png;base64,' + encode(bytes)
-                evidenceResponse = await updateFile(
-                    resultLogBook.evidenceTask.filePath,
-                    'image',
-                    req.files.evidenceTask.name,
-                    miniBuffer
-                )
-                blobResponse = updateBlobsFile(
-                    resultLogBook.blobTask.filePath,
-                    'gzip',
-                    dataBlobEvidence
-                )
+                const resp = await Promise.all([
+                    updateFile(resultLogBook.evidenceTask.filePath, 'image', req.files.evidenceTask.name, miniBuffer),
+                    updateBlobsFile(resultLogBook.blobTask.filePath, 'gzip', dataBlobEvidence)
+                ])
+                evidenceResponse = resp[0]
+                blobResponse = resp[1]
             }
         } catch(err) {
             //

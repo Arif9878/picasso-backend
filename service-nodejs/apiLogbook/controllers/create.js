@@ -38,8 +38,10 @@ module.exports = async (req, res) => { // eslint-disable-line
         const miniBuffer = await imageResize(req.files.evidenceTask.data)
         const bytes = new Uint8Array(miniBuffer)
         const dataBlobEvidence = 'data:image/png;base64,' + encode(bytes)
-        const blobResponse = await postBlobsFile('gzip', dataBlobEvidence)
-        const evidenceResponse = await postFile('image', req.files.evidenceTask.name, miniBuffer)
+        const [evidenceResponse, blobResponse] = await Promise.all([
+            postFile('image', req.files.evidenceTask.name, miniBuffer),
+            postBlobsFile('gzip', dataBlobEvidence)
+        ])
 
         // get tupoksi jabatan
         let tupoksiJabatanName = null
