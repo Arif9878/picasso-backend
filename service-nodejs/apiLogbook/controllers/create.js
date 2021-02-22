@@ -39,8 +39,8 @@ module.exports = async (req, res) => { // eslint-disable-line
         const bytes = new Uint8Array(miniBuffer)
         const dataBlobEvidence = 'data:image/png;base64,' + encode(bytes)
         const [evidenceResponse, blobResponse] = await Promise.all([
-            postFile('image', req.files.evidenceTask.name, miniBuffer),
-            postBlobsFile('gzip', dataBlobEvidence)
+            postFile(dateTask, 'image', req.files.evidenceTask.name, miniBuffer),
+            postBlobsFile(dateTask, 'gzip', dataBlobEvidence)
         ])
 
         // get tupoksi jabatan
@@ -69,7 +69,7 @@ module.exports = async (req, res) => { // eslint-disable-line
             }
         } else {
             const miniBuffer = await imageResize(req.files.documentTask.data)
-            documentResponse = await postFile('document', req.files.documentTask.name, miniBuffer)
+            documentResponse = await postFile(dateTask, 'document', req.files.documentTask.name, miniBuffer)
         }
 
         const data = {

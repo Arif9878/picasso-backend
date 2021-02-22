@@ -67,9 +67,8 @@ module.exports = async (req, res) => {
         ]
 
         // Get logbook, list_weekend, attendance, holiday, detailUser
-
         const [logBook, list_weekend, attendance, holiday, detailUser] = await Promise.all([
-            LogBook.aggregate(rules).hint({ nameTask:1 }).sort(sort),
+            LogBook.aggregate(rules).sort(sort),
             getListWeekend(start_date, dueDate),
             listAttendance(userId, start_date, dueDate),
             listHolidayDate(start_date, dueDate),

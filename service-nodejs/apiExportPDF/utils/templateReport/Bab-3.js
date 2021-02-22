@@ -47,7 +47,7 @@ const logBookPerTupoksi = (data) => {
                                         "", "Nama Task", `${itemB.nameTask}`
                                     ],
                                     [
-                                        "", "Tanggal Pengerjaan",  moment(item.dateTask).format('dddd, DD MMMM YYYY')
+                                        "", "Tanggal Pengerjaan",  moment(itemB.dateTask).format('dddd, DD MMMM YYYY')
                                     ],
                                     [
                                         "", "Link (URL) Hasil Kerja", isDocumentTaskURL ? '' : itemB.documentTaskURL
@@ -88,7 +88,7 @@ const logBookPerTupoksi = (data) => {
                                         "", "Nama Task", `${itemB.nameTask}`
                                     ],
                                     [
-                                        "", "Tanggal Pengerjaan",  moment(item.dateTask).format('dddd, DD MMMM YYYY')
+                                        "", "Tanggal Pengerjaan",  moment(itemB.dateTask).format('dddd, DD MMMM YYYY')
                                     ],
                                     [
                                         "", "Link (URL) Hasil Kerja", isDocumentTaskURL ? '' : itemB.documentTaskURL

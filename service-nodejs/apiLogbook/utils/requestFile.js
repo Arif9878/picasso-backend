@@ -5,8 +5,11 @@ const {
     getRandomString
 } = require('../utils/randomString')
 const zlib = require('zlib')
+const moment = require('moment')
 
-async function postFile(fileType, nameFile, buffer) {
+async function postFile(dateTask, fileType, nameFile, buffer) {
+    const date = moment(dateTask).format('YYYY-MM-DD')
+
     let fileName = getRandomString(32)
     if (nameFile) {
         fileName = nameFile
@@ -17,7 +20,7 @@ async function postFile(fileType, nameFile, buffer) {
     const params = {
         Bucket: process.env.AWS_S3_BUCKET,
         Body: buffer,
-        Key: `${fileType}/${newFileName}`
+        Key: `${fileType}/${date}/${newFileName}`
     }
     const response = {
         filePath: params.Key,
@@ -36,8 +39,9 @@ async function postFile(fileType, nameFile, buffer) {
     return response
 }
 
-async function updateFile(lastFilePath, fileType, nameFile, buffer) {
-
+async function updateFile(dateTask, lastFilePath, fileType, nameFile, buffer) {
+    const date = moment(dateTask).format('YYYY-MM-DD')
+    
     const deleteParam = {
         Bucket: process.env.AWS_S3_BUCKET,
         Delete: {
@@ -56,15 +60,16 @@ async function updateFile(lastFilePath, fileType, nameFile, buffer) {
     }
 
     let fileName = getRandomString(32)
-    if (file.name) {
+    if (nameFile) {
         fileName = nameFile
     }
+
     const fileExt = fileName.substr((Math.max(0, fileName.lastIndexOf(".")) || Infinity) + 1)
     const newFileName = getRandomString(32) + '.' + fileExt
     const params = {
         Bucket: process.env.AWS_S3_BUCKET,
         Body: buffer,
-        Key: `${fileType}/${newFileName}`
+        Key: `${fileType}/${date}/${newFileName}`
     }
 
     const response = {
@@ -84,14 +89,15 @@ async function updateFile(lastFilePath, fileType, nameFile, buffer) {
     return response
 }
 
-async function postBlobsFile(fileType, blobFile) {
+async function postBlobsFile(dateTask, fileType, blobFile) {
+    const date = moment(dateTask).format('YYYY-MM-DD')
     const compressedStringAsBuffer = zlib.gzipSync(blobFile)
 
     const newFileName = getRandomString(32) + '.gzip'
     const params = {
         Bucket: process.env.AWS_S3_BUCKET,
         Body: compressedStringAsBuffer,
-        Key: `${fileType}/${newFileName}`,
+        Key: `${fileType}/${date}/${newFileName}`,
         ContentType: 'text/plain', 
         ContentEncoding: 'gzip' // that's important
     }
@@ -113,7 +119,9 @@ async function postBlobsFile(fileType, blobFile) {
 
 }
 
-async function updateBlobsFile(lastFilePath, fileType, blobFile) {
+async function updateBlobsFile(dateTask, lastFilePath, fileType, blobFile) {
+    const date = moment(dateTask).format('YYYY-MM-DD')
+
     const deleteParam = {
         Bucket: process.env.AWS_S3_BUCKET,
         Delete: {
@@ -137,7 +145,7 @@ async function updateBlobsFile(lastFilePath, fileType, blobFile) {
     const params = {
         Bucket: process.env.AWS_S3_BUCKET,
         Body: compressedStringAsBuffer,
-        Key: `${fileType}/${newFileName}`,
+        Key: `${fileType}/${date}/${newFileName}`,
         ContentType: 'text/plain', 
         ContentEncoding: 'gzip' // that's important
     }
