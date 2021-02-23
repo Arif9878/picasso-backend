@@ -82,7 +82,7 @@ def oauth2_signin(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def detailUser(request):
+def detail_user(request):
     try:
         account = Account.objects.get(email=request.user)
         serializer = AccountSerializer(account)

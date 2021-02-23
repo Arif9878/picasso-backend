@@ -42,7 +42,7 @@ CREATE TABLE public.jabatans (
 );
 
 
-ALTER TABLE public.jabatans OWNER TO adminpostgre;
+-- ALTER TABLE public.jabatans OWNER TO adminpostgre;
 
 --
 -- TOC entry 202 (class 1259 OID 16387)
@@ -62,7 +62,7 @@ CREATE TABLE public.satuan_kerjas (
 );
 
 
-ALTER TABLE public.satuan_kerjas OWNER TO adminpostgre;
+-- ALTER TABLE public.satuan_kerjas OWNER TO adminpostgre;
 
 --
 -- TOC entry 2802 (class 2606 OID 16402)
@@ -113,7 +113,7 @@ CREATE INDEX idx_satuan_kerjas_parent_id ON public.satuan_kerjas USING btree (pa
 -- Data for Name: satuan_kerjas; Type: TABLE DATA; Schema: public; Owner: adminpostgre
 --
 
-INSERT INTO public.satuan_kerjas (id, parent_id, name_parent, name_satuan_kerja, description, created_at, created_by, updated_at, updated_by) VALUES ('862a42d6-0aaa-4a19-8999-2p20o946f68d', '', '', 'IT Dev', '', '2020-07-01 01:21:16.407537+07', 'admin@example.com', '2020-07-01 01:21:16.407537+07', '');
+INSERT INTO public.satuan_kerjas (id, parent_id, name_parent, name_satuan_kerja, description, created_at, created_by, updated_at, updated_by) VALUES ('54f161e9-fb61-4516-8999-5978ad39dd41', '', '', 'IT Dev', '', '2020-07-01 01:43:15.088458+07', 'admin@example.com', '2020-07-01 01:43:15.088458+07', '');
 
 --
 -- TOC entry 2930 (class 0 OID 16393)
@@ -121,7 +121,7 @@ INSERT INTO public.satuan_kerjas (id, parent_id, name_parent, name_satuan_kerja,
 -- Data for Name: jabatans; Type: TABLE DATA; Schema: public; Owner: adminpostgre
 --
 
-INSERT INTO public.jabatans (id, satuan_kerja_id, name_satuan_kerja, name_jabatan, description, created_at, created_by, updated_at, updated_by) VALUES ('54f161e9-fb61-4516-b173-5978ad39dd41', '862a42d6-0aaa-4a19-8999-2p20o946f68d', 'IT Dev', 'Software Programmer - Backend Engineer', '', '2020-07-01 01:43:15.088458+07', 'admin@example.com', '2020-07-01 01:43:15.088458+07', '');
+INSERT INTO public.jabatans (id, satuan_kerja_id, name_satuan_kerja, name_jabatan, description, created_at, created_by, updated_at, updated_by) VALUES ('54f161e9-fb61-4516-b173-5978ad39dd41', '54f161e9-fb61-4516-8999-5978ad39dd41', 'IT Dev', 'Software Programmer - Backend Engineer', '', '2020-07-01 01:43:15.088458+07', 'admin@example.com', '2020-07-01 01:43:15.088458+07', '');
 
 -- Completed on 2020-07-16 17:17:47 WIB
 
