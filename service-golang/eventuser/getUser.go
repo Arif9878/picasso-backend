@@ -36,8 +36,10 @@ func getUser(id string) ([]byte, error) {
 	}
 	defer dbAuth.Close()
 	defer dbMaster.Close()
-	userSql := "SELECT accounts_account.id, accounts_account.email, accounts_account.username, accounts_account.first_name, accounts_account.last_name, accounts_account.id_divisi, accounts_account.divisi, accounts_account.id_jabatan, accounts_account.jabatan FROM accounts_account WHERE accounts_account.id = $1"
-	jabatanSql := "SELECT description FROM jabatans WHERE id = $1"
+
+	userSql := "SELECT accounts_account.id, accounts_account.email, accounts_account.username, accounts_account.first_name, accounts_account.last_name, accounts_account.id_divisi, accounts_account.divisi, accounts_account.id_jabatan, accounts_account.jabatan, accounts_account.manager_category FROM accounts_account WHERE accounts_account.id = $1"
+	jabatanSql := "SELECT name_tupoksi FROM tupoksi_jabatans INNER JOIN jabatans ON jabatan_id=jabatans.id WHERE jabatan_id = $1 AND tupoksi_jabatans.deleted_at IS NULL;"
+
 	rowsUser, err := dbAuth.Query(userSql, id)
 	type notFound struct {
 		NotFound string
@@ -58,10 +60,21 @@ func getUser(id string) ([]byte, error) {
 
 	defer rowsJabatan.Close()
 	defer dbMaster.Close()
-	var responseJabatan = jsonify.Jsonify(rowsJabatan)
-	response := []string{}
-	response = append(response, responseUser[0])
-	response = append(response, responseJabatan[0])
-	usersBytes, _ := json.Marshal(response)
+	var TupoksiJabatans []string
+	for rowsJabatan.Next() {
+		var name_tupoksi string
+		err := rowsJabatan.Scan(&name_tupoksi)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		TupoksiJabatans = append(TupoksiJabatans, name_tupoksi)
+	}
+	data := map[string]interface{}{
+		"user":    responseUser[0],
+		"tupoksi": TupoksiJabatans,
+	}
+
+	usersBytes, _ := json.Marshal(data)
 	return usersBytes, nil
 }

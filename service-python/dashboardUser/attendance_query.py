@@ -91,53 +91,39 @@ def countLatePresence(mongoClient, idUser, start_date, end_date):
     start_date = datetime.strptime(start_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
     end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
     agr = [
-            {
-                '$addFields': {
-                    'date': {
-                        '$dateToString': {
-                            'format': '%Y-%m-%d %H:%M:%S', 
-                            'timezone': 'Asia/Jakarta', 
-                            'date': '$startDate'
+        {
+            '$project': {
+                'createdBy': 1, 
+                'startDate': 1, 
+                'hours': {
+                    '$add': [
+                        {
+                            '$hour': '$startDate'
                         }
-                    }, 
-                    'isLate': {
-                        '$and': [
-                            {
-                                '$gte': [
-                                    {
-                                        '$hour': '$startDate'
-                                    }, 1
-                                ]
-                            }, {
-                                '$gte': [
-                                    {
-                                        '$minute': '$startDate'
-                                    }, 1
-                                ]
-                            }, {
-                                '$gte': [
-                                    {
-                                        '$second': '$startDate'
-                                    }, 0
-                                ]
-                            }
-                        ]
-                    }
+                    ]
+                }, 
+                'minutes': {
+                    '$add': [
+                        {
+                            '$minute': '$startDate'
+                        }
+                    ]
                 }
-            }, {
-                '$match': {
-                    'isLate': True, 
-                    "createdBy._id": str(idUser),
-                    'startDate': {
-                        '$gte': local.localize(start_date, is_dst=None),
-                        '$lt': local.localize(end_date, is_dst=None)
-                    }
-                }
-            }, {
-                '$count': 'count'
             }
-        ]
-
+        }, {
+            '$match': {
+                'createdBy._id': str(idUser), 
+                'hours' : { '$gt' : 0  },
+                'minutes' : { '$lte' : 30  },
+                'startDate': {
+                    '$gte': local.localize(start_date, is_dst=None),
+                    '$lt': local.localize(end_date, is_dst=None)
+                }
+            }
+        }, {
+            '$count': 'count'
+        }
+    ]
     itm = list(dbMongo.attendances.aggregate(agr))
     if len(itm) < 1:
         count = 0

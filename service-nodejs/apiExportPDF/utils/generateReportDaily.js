@@ -1,44 +1,11 @@
-const fs = require('fs')
-const PdfPrinter = require('pdfmake')
 const moment = require('moment')
 moment.locale('id')
 const dayOffType = ['CUTI', 'SAKIT', 'IZIN']
-const holidayType = ['Libur Nasional', 'Cuti Bersama']
+const { holidayType } = require('./generateReport')
 const { Cover } = require('./templateReport/Cover')
-const { BAB_1 } = require('./templateReport/Bab-1')
-const { BAB_2 } = require('./templateReport/Bab-2')
-const { BAB_3 } = require('./templateReport/Bab-3')
-const { penutup } = require('./templateReport/Penutup')
-
-const generateReport = (docDefinition, filePath) => {
-  return new Promise((resolve, reject) => {
-      try {
-          const fonts = {
-            Roboto: {
-              normal: 'static/fonts/Roboto-Regular.ttf',
-              bold: 'static/fonts/Roboto-Medium.ttf',
-              italics: 'static/fonts/Roboto-Italic.ttf',
-              bolditalics: 'static/fonts/Roboto-MediumItalic.ttf'
-            }
-          }
-          const printer = new PdfPrinter(fonts)
-          const pdfDoc = printer.createPdfKitDocument(docDefinition)
-          const stream = pdfDoc.pipe(fs.createWriteStream(filePath))
-          stream.on('finish', function(){
-              const pdfFile = fs.readFileSync(filePath)
-              fs.unlinkSync(filePath)
-              resolve(pdfFile)
-          })
-          pdfDoc.end()
-      } catch (err) {
-          reject(err)
-      }
-  })
-}
 
 const logBook = (data) => {
     let records = []
-    const { jabatan } = data
     data['logBook'].forEach((item, index) => {
         if (dayOffType.includes(item.nameTask)) {
             records.push([{
@@ -94,10 +61,10 @@ const logBook = (data) => {
                     text: 'PLD'
                 },
                 {
-                    text: jabatan.includes(item.tupoksiJabatanName) ? '√' : ''
+                    text: item.isMainTask ? '√' : ''
                 },
                 {
-                    text: !jabatan.includes(item.tupoksiJabatanName) ? '√' : ''
+                    text: !item.isMainTask ? '√' : ''
                 }
             ])
         }
@@ -106,19 +73,20 @@ const logBook = (data) => {
 }
 
 const logBookPerDay = (data) => {
-    let records = []
+    const records = []
     if (data['logBookPerDay'].length > 0 ) {
         records.push(
         // EVIDENCE   
         {
+            alignment: 'center',
+            style: 'boldNormal',
             pageBreak: 'before',
             pageOrientation: 'landscape',
-            text: 'B. Evidence Foto Kegiatan Kinerja Harian'
+            text: 'LAMPIRAN'
         },
         {
             fontSize: 11,
-            preserveLeadingSpaces: true,
-            text: '         Berikut adalah evidence daftar uraian kegiatan harian yang didetailkan setiap harinya dibulan ini.'
+            text: 'Berikut adalah evidence daftar uraian kegiatan harian yang didetailkan setiap harinya dibulan ini.'
         })
         data['logBookPerDay'].forEach((item, index) => {
             records.push({
@@ -160,7 +128,7 @@ const logBookPerDay = (data) => {
     return records
 }
 
-const reportForm = (data) => {
+const reportFormDaily = (data) => {
   const month = moment(data.reporting_date).format('MMMM')
   const year = moment(data.reporting_date).format('YYYY')
   
@@ -174,10 +142,6 @@ const reportForm = (data) => {
       pageMargins: [ 90, 60, 40, 60 ],
       content: [
           ...Cover(data),
-          ...BAB_1,
-          ...BAB_2(data),
-          ...BAB_3(data),
-          ...penutup,
           // BODY   
           {
               alignment: 'center',
@@ -186,15 +150,76 @@ const reportForm = (data) => {
               pageBreak: 'before',
               pageOrientation: 'landscape',
               color: 'black',
-              text: 'LAMPIRAN',
+              fillColor: '#1aa3ff',
+              table: {
+                headerRows: 1,
+                widths: [ '*' ],
+                body: [
+                  [ { text: 'LAPORAN HARIAN', border: [] } ],
+                  [ { text: 'JABAR DIGITAL SERVICE', border: [] } ]
+                ]
+              }
           },
+          {
+            margin: [0, 25, 0, 0],
+            style: 'boldNormal',
+            table: {
+                headerRows: 1,
+                widths: [ 70, 120, '*' ],
+                body: [
+                    [ 
+                        { text: `Bulan: ${month}`, border: [] },
+                        { text: `Tahun: ${year}`, border: [] },
+                        { 
+                            text: 'Instansi: Dinas Komunikasi dan Informatika Jawa Barat',
+                            alignment: 'right',
+                            border: []
+                        },
+
+                    ],
+                ]
+            }
+         },
          {
-            margin: [0, 10, 0, 0],
-            text: `A. Laporan Kerja Harian ${month.toUpperCase()}`,
+            margin: [0, 5, 0, 0],
+            style: 'boldNormal',
+            table: {
+                headerRows: 1,
+                widths: [ 120, 10, 10, '*' ],
+                body: [
+                    [ 
+                        { text: 'Nama' },
+                        { text: '' },
+                        { text: ':' },
+                        { text: `${user.first_name} ${user.last_name}` }
+                    ],
+                    [ 
+                        { text: 'Divisi' },
+                        { text: '' },
+                        { text: ':' },
+                        { text: `${user.divisi}` }
+                    ],
+                    [ 
+                        { text: 'Jabatan' },
+                        { text: '' },
+                        { text: ':' },
+                        { text: `${user.jabatan}` }
+                    ],
+                    [ 
+                        { text: 'URAIAN TUGAS\n(DESKRIPSI JABATAN)' },
+                        { text: '' },
+                        { text: ':' },
+                        jabatan.map(function(item, index) {
+                            return { text: index+1 +". "+ item }
+                        })
+                    ],
+                ]
+            }
          },
          {
             margin: [0, 10, 0, 0],
-            text: `Berikut daftar laporan kerja harian  ${month.toUpperCase()}`,
+            text: `RINCIAN HASIL KERJA SELAMA BULAN ${month.toUpperCase()}`,
+            style: 'boldNormal'
          },
          // RINCIAN TABEL LAPORAN
          {
@@ -250,7 +275,5 @@ const reportForm = (data) => {
 }
 
 module.exports = {
-  reportForm,
-  generateReport,
-  holidayType
+  reportFormDaily
 }

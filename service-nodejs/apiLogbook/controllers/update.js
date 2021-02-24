@@ -2,7 +2,7 @@ const { errors, APIError } = require('../utils/exceptions')
 const { onUpdated, filePath } = require('../utils/session')
 const { validationResult } = require('express-validator')
 const { postFile, updateFile, updateBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 
@@ -18,11 +18,7 @@ module.exports = async (req, res) => { // eslint-disable-line
         const session = req.user
         const errorsValidate = validationResult(req)
         if (!errorsValidate.isEmpty()) {
-            res.status(422).json({
-                code: 422,
-                errors: errorsValidate.array(),
-            })
-            return
+            return res.status(422).json({ code: 422, errors: errorsValidate.array() })
         }
         const {
             _id
@@ -36,6 +32,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const {
             dateTask = null,
+            tupoksiJabatanId = null,
             projectId = null,
             projectName = null,
             nameTask = null,
@@ -54,17 +51,12 @@ module.exports = async (req, res) => { // eslint-disable-line
                 const miniBuffer = await imageResize(req.files.evidenceTask.data)
                 const bytes = new Uint8Array(miniBuffer)
                 dataBlobEvidence = 'data:image/png;base64,' + encode(bytes)
-                evidenceResponse = await updateFile(
-                    resultLogBook.evidenceTask.filePath,
-                    'image',
-                    req.files.evidenceTask.name,
-                    miniBuffer
-                )
-                blobResponse = updateBlobsFile(
-                    resultLogBook.blobTask.filePath,
-                    'gzip',
-                    dataBlobEvidence
-                )
+                const resp = await Promise.all([
+                    updateFile(dateTask, resultLogBook.evidenceTask.filePath, 'image', req.files.evidenceTask.name, miniBuffer),
+                    updateBlobsFile(dateTask, resultLogBook.blobTask.filePath, 'gzip', dataBlobEvidence)
+                ])
+                evidenceResponse = resp[0]
+                blobResponse = resp[1]
             }
         } catch(err) {
             //
@@ -84,14 +76,9 @@ module.exports = async (req, res) => { // eslint-disable-line
                 if (req.files.documentTask) {
                     const miniBuffer = await imageResize(req.files.documentTask.data)
                     if (resultLogBook.documentTask && resultLogBook.documentTask.filePath === null || resultLogBook.documentTask.filePath.length === 0) {
-                        documentResponse = await postFile('document', req.files.documentTask.name, miniBuffer)
+                        documentResponse = await postFile(dateTask, 'document', req.files.documentTask.name, miniBuffer)
                     } else {
-                        documentResponse = await updateFile(
-                            resultLogBook.documentTask.filePath,
-                            'document',
-                            req.files.documentTask.name,
-                            miniBuffer
-                        )
+                        documentResponse = await updateFile(dateTask, resultLogBook.documentTask.filePath, 'document', req.files.documentTask.name, miniBuffer)
                     }
                 }
             } catch(err) {
@@ -99,8 +86,21 @@ module.exports = async (req, res) => { // eslint-disable-line
             }
         }
 
+        // get tupoksi jabatan
+        let tupoksiJabatanName = null
+        if (tupoksiJabatanId) {
+            const detail = await getTupoksiJabatanDetail(tupoksiJabatanId)
+            if (detail) {
+                tupoksiJabatanName = detail.Value.name_tupoksi
+            } else {
+                return res.status(500).send(errors.tupoksiNotFound)
+            }
+        }
+
         const data = {
             dateTask,
+            tupoksiJabatanId,
+            tupoksiJabatanName: tupoksiJabatanName,
             projectId,
             projectName,
             nameTask,

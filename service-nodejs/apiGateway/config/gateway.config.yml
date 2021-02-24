@@ -42,6 +42,11 @@ apiEndpoints:
     paths: /jabatan/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
 
+  tupoksijabatan:
+    host: '*'
+    paths: /tupoksi-jabatan/*
+    methods: ["GET","POST","PUT","DELETE","OPTIONS"]
+
   logbook:
     host: '*'
     paths: /logbook/*
@@ -102,6 +107,11 @@ apiEndpoints:
     paths: /settings/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
 
+  healthcheck:
+    host: '*'
+    paths: /healthcheck/*
+    methods: ["GET","OPTIONS"]
+
 serviceEndpoints:
   authentication:
     url: '${AUTHENTICATION_PY_SERVICE_URI}/api/'
@@ -111,6 +121,9 @@ serviceEndpoints:
 
   jabatan:
     url: '${JABATAN_GO_SERVICE_URI}/api/'
+
+  tupoksijabatan:
+    url: '${TUPOKSI_JABATAN_GO_SERVICE_URI}/api/'
 
   logbook:
     url: '${LOGBOOK_NODEJS_SERVICE_URI}/api/'
@@ -134,22 +147,22 @@ serviceEndpoints:
     url: '${ATTENDANCE_NODEJS_SERVICE_URI}/api/'
 
   devicetoken:
-      url: '${DEVICE_TOKEN_GO_SERVICE_URI}/api/'
+    url: '${DEVICE_TOKEN_GO_SERVICE_URI}/api/'
       
   notificationservice:
-      url: '${NOTIFICATION_SERVICE_GO_SERVICE_URI}/api/'
+    url: '${NOTIFICATION_SERVICE_GO_SERVICE_URI}/api/'
 
   notificationmessage:
-      url: '${NOTIFICATION_MESSAGE_GO_SERVICE_URI}/api/'
+    url: '${NOTIFICATION_MESSAGE_GO_SERVICE_URI}/api/'
 
   dayoff:
-      url: '${DAY_OFF_GO_SERVICE_URI}/api/'
+    url: '${DAY_OFF_GO_SERVICE_URI}/api/'
 
   holidaydate:
-      url: '${HOLIDAY_DATE_GO_SERVICE_URI}/api/'
+    url: '${HOLIDAY_DATE_GO_SERVICE_URI}/api/'
 
   settings:
-      url: '${SETTINGS_GO_SERVICE_URI}/api/'
+    url: '${SETTINGS_GO_SERVICE_URI}/api/'
 
 policies:
   - cors
@@ -314,6 +327,26 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: jabatan
+              changeOrigin: true
+
+  tupoksijabatan:
+    apiEndpoints:
+      - tupoksijabatan
+    policies:
+      - jaeger:
+          - action:
+              serviceName: 'api-gateway'
+              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - jwt:
+          - action:
+              secretOrPublicKey: '${SECRET_KEY:-SECRET_KEY}'
+              checkCredentialExistence: false
+      - proxy:
+          - action:
+              serviceEndpoint: tupoksijabatan
               changeOrigin: true
 
   logbook:
@@ -555,4 +588,20 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: settings
+              changeOrigin: true
+
+  healthcheck:
+    apiEndpoints:
+      - healthcheck
+    policies:
+      - jaeger:
+          - action:
+              serviceName: 'api-gateway'
+              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: exportpdf
               changeOrigin: true

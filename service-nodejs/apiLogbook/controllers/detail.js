@@ -17,9 +17,7 @@ module.exports = async (req, res) => {
 
         if (!_id) throw new APIError(errors.serverError)
        
-        const results = await LogBook.findById({
-            _id: _id
-        }).lean()
+        const results = await LogBook.findById({ _id: _id }).lean()
 
         if (!results) throw new APIError(errors.serverError)
 

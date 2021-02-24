@@ -59,3 +59,18 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def change_password(request, user_id):
+    try:
+        user = Account.objects.get(id=user_id)
+        password = request.data.get('password')
+        if user_id and password:
+            user.set_password(password)
+            user.save()
+            resp = { 'message': 'Ganti password berhasil' }
+            return Response(resp, status=status.HTTP_201_CREATED)
+    except:
+        resp = { 'message': 'Ganti password gagal' }
+        return Response(resp, status=status.HTTP_400_BAD_REQUEST)

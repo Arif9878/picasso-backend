@@ -1,9 +1,10 @@
 import jwt, datetime
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import exceptions
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import get_token, ensure_csrf_cookie, csrf_protect
 from .serializers import AccountLoginSerializer

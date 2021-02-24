@@ -6,6 +6,7 @@ const cors = require('cors')
 const path = require('path')
 const Raven = require('raven')
 const timeout = require('connect-timeout')
+const { MongoClient } = require('mongodb')
 
 // Import middleware
 const env = process.env.NODE_ENV
@@ -55,9 +56,26 @@ app.set('models', mongoose.models)
 // Import modules
 const route = require('./routes')
 
+async function onHealthCheckDB () {
+    const client = await MongoClient.connect(`mongodb://${process.env.DB_MONGO_HOST}:${process.env.DB_MONGO_PORT}`)
+    const db1 = client.db(process.env.MONGO_DB_LOGBOOK).admin().ping()
+    const db2 = client.db(`${process.env.MONGO_DB_ATTENDANCE}`).admin().ping()
+    const db3 = client.db(`${process.env.MONGO_DB_HOLIDAY_DATE}`).admin().ping()
+    const resp = await Promise.all([db1, db2, db3])
+    const results = {
+        logbookDB : resp[0],
+        attendaceDB : resp[1],
+        holidayDateDB : resp[2]
+    }
+    return results
+}
+
 //routes
 app.use('/api/export-pdf', route)
-
+app.get('/api/healthcheck', async (req, res) => {
+  const healthChecks = await onHealthCheckDB()
+  res.send(healthChecks)
+})
 // The error handler middleware
 app.use(Raven.errorHandler())
 
