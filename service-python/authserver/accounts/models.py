@@ -67,9 +67,9 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	telephone = models.CharField(verbose_name='Telepon', max_length=50, null=True, blank=True)
 
 	id_divisi = models.CharField(verbose_name='ID Divisi', max_length=40, null=True, blank=True)
-	divisi = models.CharField(verbose_name='Divisi', max_length=50, null=True, blank=True)
+	divisi = models.CharField(verbose_name='Divisi', max_length=64, null=True, blank=True)
 	id_jabatan = models.CharField(verbose_name='ID Jabatan', max_length=40, null=True, blank=True)
-	jabatan = models.CharField(verbose_name='Jabatan', max_length=50, null=True, blank=True)
+	jabatan = models.CharField(verbose_name='Jabatan', max_length=64, null=True, blank=True)
 
 	marital_status = models.CharField(verbose_name='Status Pernikahan', max_length=50, null=True, blank=True)
 	number_children = models.CharField(verbose_name='Jumlah Anak', max_length=50, null=True, blank=True)
