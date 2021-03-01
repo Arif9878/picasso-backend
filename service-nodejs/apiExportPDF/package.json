@@ -9,7 +9,7 @@
     "babel-dev": "babel-node index.js",
     "dev": "nodemon --exec yarn babel-dev",
     "build": "rm -rf build && babel ./index.js --out-dir ./build --source-maps",
-    "start": "nodemon --max-old-space-size=1024 index.js"
+    "start": "nodemon --max-old-space-size=512 index.js"
   },
   "devDependencies": {
     "express": "^4.17.1",
