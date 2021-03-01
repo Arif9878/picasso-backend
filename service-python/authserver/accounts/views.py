@@ -1,21 +1,13 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
 from rest_framework import status, viewsets, permissions
-from rest_framework.decorators import action
 from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
-# pagination, generics
 from rest_framework.decorators import (
     api_view, permission_classes)
 from .models import Account
 from .serializers import AccountSerializer, AccountLoginSerializer
-from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.response import Response
-from authServer.settings import TOKEN_KEY
-from .utils import get_client_ip
-from datetime import datetime, timedelta
-import time
+from authServer.keycloak import get_keycloak_user_id, set_user_password
 
 class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
@@ -67,6 +59,8 @@ def change_password(request, user_id):
         user = Account.objects.get(id=user_id)
         password = request.data.get('password')
         if user_id and password:
+            keycloak_user_id = get_keycloak_user_id(user.email)
+            set_user_password(keycloak_user_id, password)
             user.set_password(password)
             user.save()
             resp = { 'message': 'Ganti password berhasil' }

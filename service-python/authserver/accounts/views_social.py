@@ -1,16 +1,15 @@
+import requests
 from django.db.models import Q
-from rest_framework import serializers
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from .models import Account
 from .serializers import AccountSerializer
-import requests
 from rest_framework.utils import json
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 from .utils import get_client_ip, generate_access_token, generate_refresh_token
-from authServer.settings import TOKEN_KEY, CLIENT_SECRETS
+from authServer.settings import CLIENT_SECRETS
 from authServer.keycloak import userinfo_keycloak
 from datetime import datetime, timedelta
 
@@ -44,13 +43,6 @@ def oauth2_signin(request):
                 if user.exists() and user.count() == 1:
                     user_obj = user.first()
                 else:
-                    # user_obj = Account.objects.create_user(
-                    #     data['email'],
-                    #     data['given_name'],
-                    #     data['given_name'],
-                    #     data['family_name'],
-                    #     data['picture']
-                    # )
                     return Response(
                         {'errors': {
                             'message': 'User belum terdaftar',
