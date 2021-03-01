@@ -7,7 +7,7 @@ services:
     command: "satuankerja"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - satuankerja
@@ -20,7 +20,7 @@ services:
     command: "jabatan"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - jabatan
@@ -33,7 +33,7 @@ services:
     command: "tupoksiJabatan"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - tupoksijabatan
@@ -46,7 +46,7 @@ services:
     command: "eventuser"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - eventuser
@@ -59,7 +59,7 @@ services:
     command: "jobAttendance"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - jobattendance
@@ -72,7 +72,7 @@ services:
     command: "deviceToken"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - devicetoken
@@ -85,7 +85,7 @@ services:
     command: "notificationWorker"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - notificationworker
@@ -98,7 +98,7 @@ services:
     command: "notificationService"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - notificationservice
@@ -111,7 +111,7 @@ services:
     command: "notificationMessage"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - notificationmessage
@@ -124,7 +124,7 @@ services:
     command: "dayOff"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - dayoff
@@ -137,7 +137,7 @@ services:
     command: "holidayDate"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - holidaydate
@@ -150,7 +150,7 @@ services:
     command: "settings"
     cpus: 0.5
     mem_limit: 100m
-    memswap_limit: 150m
+    memswap_limit: 100m
     restart: always
     networks:
       - settings

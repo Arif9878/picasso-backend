@@ -6,7 +6,7 @@ services:
       context: ./service-python/authserver
     command: /usr/local/bin/gunicorn authServer.wsgi:application -w 2 -b :80
     cpus: 0.75
-    mem_limit: 550m
+    mem_limit: 512m
     memswap_limit: 150m
     restart: always
     networks:
@@ -19,7 +19,7 @@ services:
       context: ./service-python/monthlyreport
     command: /usr/local/bin/gunicorn wsgi:app -w 2 -b :80
     cpus: 0.5
-    mem_limit: 550m
+    mem_limit: 400m
     memswap_limit: 150m
     restart: always
     networks:
@@ -32,7 +32,7 @@ services:
       context: ./service-python/exportExcel
     command: /usr/local/bin/gunicorn wsgi:app -w 2 --timeout 200 -b :80
     cpus: 0.5
-    mem_limit: 550m
+    mem_limit: 400m
     memswap_limit: 150m
     restart: always
     networks:
@@ -45,7 +45,7 @@ services:
       context: ./service-python/dashboardUser
     command: /usr/local/bin/gunicorn wsgi:app -w 2 --timeout 200 -b :80
     cpus: 0.5
-    mem_limit: 550m
+    mem_limit: 400m
     memswap_limit: 150m
     restart: always
     networks:
