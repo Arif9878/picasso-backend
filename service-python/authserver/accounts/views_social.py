@@ -62,7 +62,12 @@ def oauth2_signin(request):
                 }
                 return Response(response, status=status.HTTP_200_OK)
             except:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'errors': {
+                        'token': 'Invalid token',
+                    }},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except FlowExchangeError as e:
             return Response(
                 {'errors': {
@@ -105,7 +110,12 @@ def oauth_keycloak_signin(request):
                 }
                 return Response(response, status=status.HTTP_200_OK)
             except:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {'errors': {
+                        'token': 'Invalid token',
+                    }},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except FlowExchangeError as e:
             return Response(
                 {'errors': {

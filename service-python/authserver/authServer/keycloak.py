@@ -1,4 +1,4 @@
-from keycloak import KeycloakOpenID, KeycloakAdmin
+from keycloak import KeycloakOpenID, KeycloakAdmin, exceptions
 
 from .settings import (
         KEYCLOAK_URL,
@@ -27,8 +27,11 @@ keycloak_admin =  KeycloakAdmin(
 
 # Get Userinfo
 def userinfo_keycloak(access_token):
-    userinfo = keycloak_openid.userinfo(access_token)
-    return userinfo
+    try:
+        userinfo = keycloak_openid.userinfo(access_token)
+        return userinfo
+    except exceptions.KeycloakAuthenticationError as error:
+        return error
 
 # Get user ID from email
 def get_keycloak_user_id(email):
