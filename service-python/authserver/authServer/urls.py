@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path, include
 from accounts.views import AccountViewSet, change_password
 from menu.views import MenuViewSet, MenuTypeViewSet
-from accounts.views_social import oauth2_signin, detail_user
+from accounts.views_social import oauth2_signin, oauth_keycloak_signin, detail_user
 from accounts.views_login import login_view, login_admin_view, refresh_token_view
 from rest_framework_jwt.views import refresh_jwt_token
 from rest_framework import routers
@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/user/change-password/<slug:user_id>', change_password),
     path('api/token/refresh', refresh_jwt_token),
     path('api/social/google-oauth2/', oauth2_signin),
+    path('api/social/keycloak-oauth/', oauth_keycloak_signin),
     path('api/auth/login/', login_view),
     path('api/auth/admin/login/', login_admin_view),
     path('api/auth/refresh/', refresh_token_view),
