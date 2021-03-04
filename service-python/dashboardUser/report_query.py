@@ -5,7 +5,9 @@ def countReportUserYear(mongoClient, idUser, year):
     dbMongo = mongoClient.logbook
     agr = [
         {
-            "createdBy._id": str(idUser)
+            '$match': {
+                'createdBy._id': str(idUser)
+            }
         }, {
             '$project': {
                 '_id': 0, 

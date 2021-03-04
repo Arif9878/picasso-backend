@@ -8,7 +8,7 @@ def getPresence(mongoClient, idUser, date):
     agr = [
         {
             '$match': {
-                "createdBy._id": str(idUser),
+                'createdBy._id': str(idUser),
                 'startDate': {
                     '$gte': local.localize(start_date, is_dst=None),
                     '$lt': local.localize(end_date, is_dst=None)
@@ -193,7 +193,7 @@ def countOfficeHourUserMonthly(mongoClient, idUser, start_date, end_date):
     agr = [
         {
             '$match': {
-                "createdBy._id": str(idUser),
+                'createdBy._id': str(idUser),
                 'startDate': {
                     '$gte': local.localize(start_date, is_dst=None),
                     '$lt': local.localize(end_date, is_dst=None)
