@@ -128,7 +128,7 @@ def countLatePresence(mongoClient, idUser, start_date, end_date):
         }, {
             '$match': {
                 'hours' : { '$gte' : 7  },
-                'minutes' : { '$lte' : 31  },
+                'minutes' : { '$gte' : 31  },
             }
         }, {
             '$count': 'count'
