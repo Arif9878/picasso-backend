@@ -92,33 +92,43 @@ def countLatePresence(mongoClient, idUser, start_date, end_date):
     end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
     agr = [
         {
+            '$match': {
+                'createdBy._id': str(idUser), 
+                'startDate': {
+                    '$gte': local.localize(start_date, is_dst=None),
+                    '$lt': local.localize(end_date, is_dst=None)
+                }
+            }
+        },
+        {
             '$project': {
                 'createdBy': 1, 
                 'startDate': 1, 
                 'hours': {
                     '$add': [
                         {
-                            '$hour': '$startDate'
+                            '$hour': {
+                                'date': '$startDate', 
+                                'timezone': 'Asia/Jakarta'
+                            }
                         }
                     ]
                 }, 
                 'minutes': {
                     '$add': [
                         {
-                            '$minute': '$startDate'
+                            '$minute': {
+                                'date': '$startDate', 
+                                'timezone': 'Asia/Jakarta'
+                            }
                         }
                     ]
                 }
             }
         }, {
             '$match': {
-                'createdBy._id': str(idUser), 
-                'hours' : { '$gt' : 0  },
-                'minutes' : { '$lte' : 30  },
-                'startDate': {
-                    '$gte': local.localize(start_date, is_dst=None),
-                    '$lt': local.localize(end_date, is_dst=None)
-                }
+                'hours' : { '$gte' : 7  },
+                'minutes' : { '$lte' : 31  },
             }
         }, {
             '$count': 'count'
@@ -137,7 +147,11 @@ def countLatePresence(mongoClient, idUser, start_date, end_date):
 def countOfficeHourUserYear(mongoClient, idUser, year):
     dbMongo = mongoClient.attendance
     agr = [
-        {
+         {
+            '$match': {
+                "createdBy._id": str(idUser)
+            }
+        },{
             '$project': {
                 'year': {
                     '$year': {
@@ -150,7 +164,6 @@ def countOfficeHourUserYear(mongoClient, idUser, year):
             }
         }, {
             '$match': {
-                "createdBy._id": str(idUser),
                 'year': year
             }
         }, {
