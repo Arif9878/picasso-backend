@@ -42,7 +42,7 @@ module.exports = async (req, res) => { // eslint-disable-line
             postFile(dateTask, 'image', req.files.evidenceTask.name, miniBuffer),
             postBlobsFile(dateTask, 'gzip', dataBlobEvidence)
         ])
-
+        if (!evidenceResponse.filePath) throw new APIError(errors.evidenceError)
         // get tupoksi jabatan
         let tupoksiJabatanName = null
         if (tupoksiJabatanId) {
