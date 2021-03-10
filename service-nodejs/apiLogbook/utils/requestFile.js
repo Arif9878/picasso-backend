@@ -7,39 +7,40 @@ const {
 const zlib = require('zlib')
 const moment = require('moment')
 
-async function postFile(dateTask, fileType, nameFile, buffer) {
+function postFile(dateTask, fileType, nameFile, buffer) {
     const date = moment(dateTask).format('YYYY-MM-DD')
-
-    let fileName = getRandomString(32)
-    if (nameFile) {
-        fileName = nameFile
-    }
     
-    const fileExt = fileName.substr((Math.max(0, fileName.lastIndexOf(".")) || Infinity) + 1)
-    const newFileName = getRandomString(32) + '.' + fileExt
+    const fileExt = nameFile.substr((Math.max(0, nameFile.lastIndexOf(".")) || Infinity) + 1)
+    const newFileName = getRandomString(40) + '.' + fileExt
     const params = {
         Bucket: process.env.AWS_S3_BUCKET,
         Body: buffer,
         Key: `${fileType}/${date}/${newFileName}`
     }
-    const response = {
-        filePath: params.Key,
-        fileURL: process.env.AWS_S3_CLOUDFRONT + `/${params.Key}`
+
+    try {
+        return new Promise(resolve => {
+            s3.upload(params, function (err, data) {
+                //handle error
+                if (err) {
+                    console.error(err)
+                }
+                //success
+                if (data) {
+                    const response = {
+                        filePath: data.Key,
+                        fileURL: process.env.AWS_S3_CLOUDFRONT + `/${data.Key}`
+                    }
+                    resolve(response)
+                }
+            })
+        })
+    } catch (err) {
+        reject(err)
     }
-    await s3.upload(params, async function (err, data) {
-        //handle error
-        if (err) {
-            console.error(err)
-        }
-        //success
-        if (data) {
-            return data
-        }
-    })
-    return response
 }
 
-async function updateFile(dateTask, lastFilePath, fileType, nameFile, buffer) {
+function updateFile(dateTask, lastFilePath, fileType, nameFile, buffer) {
     const date = moment(dateTask).format('YYYY-MM-DD')
     
     const deleteParam = {
@@ -52,44 +53,47 @@ async function updateFile(dateTask, lastFilePath, fileType, nameFile, buffer) {
     }
 
     if (lastFilePath !== null) {
-        await s3.deleteObjects(deleteParam, function (err, data) {
-            if (err) {
-                console.error(err)
-            }
+        new Promise(resolve => {
+            s3.deleteObjects(deleteParam, function (err, data) {
+                if (err) {
+                    reject(err)
+                } 
+                resolve(data)
+            })
         })
     }
 
-    let fileName = getRandomString(32)
-    if (nameFile) {
-        fileName = nameFile
-    }
-
-    const fileExt = fileName.substr((Math.max(0, fileName.lastIndexOf(".")) || Infinity) + 1)
-    const newFileName = getRandomString(32) + '.' + fileExt
+    const fileExt = nameFile.substr((Math.max(0, nameFile.lastIndexOf(".")) || Infinity) + 1)
+    const newFileName = getRandomString(40) + '.' + fileExt
     const params = {
         Bucket: process.env.AWS_S3_BUCKET,
         Body: buffer,
         Key: `${fileType}/${date}/${newFileName}`
     }
 
-    const response = {
-        filePath: params.Key,
-        fileURL: process.env.AWS_S3_CLOUDFRONT + `/${params.Key}`
+    try {
+        return new Promise(resolve => {
+            s3.upload(params, function (err, data) {
+                //handle error
+                if (err) {
+                    console.error(err)
+                }
+                //success
+                if (data) {
+                    const response = {
+                        filePath: data.Key,
+                        fileURL: process.env.AWS_S3_CLOUDFRONT + `/${data.Key}`
+                    }
+                    resolve(response)
+                }
+            })
+        })
+    } catch (err) {
+        reject(err)
     }
-    await s3.upload(params, async function (err, data) {
-        //handle error
-        if (err) {
-            console.error(err)
-        }
-        //success
-        if (data) {
-            return data
-        }
-    })
-    return response
 }
 
-async function postBlobsFile(dateTask, fileType, blobFile) {
+function postBlobsFile(dateTask, fileType, blobFile) {
     const date = moment(dateTask).format('YYYY-MM-DD')
     const compressedStringAsBuffer = zlib.gzipSync(blobFile)
 
@@ -101,25 +105,29 @@ async function postBlobsFile(dateTask, fileType, blobFile) {
         ContentType: 'text/plain', 
         ContentEncoding: 'gzip' // that's important
     }
-    const response = {
-        filePath: params.Key,
-        fileURL: process.env.AWS_S3_CLOUDFRONT + `/${params.Key}`
+    try {
+        return new Promise(resolve => {
+            s3.upload(params, function (err, data) {
+                //handle error
+                if (err) {
+                    console.error(err)
+                }
+                //success
+                if (data) {
+                    const response = {
+                        filePath: data.Key,
+                        fileURL: process.env.AWS_S3_CLOUDFRONT + `/${data.Key}`
+                    }
+                    resolve(response)
+                }
+            })
+        })
+    } catch (err) {
+        reject(err)
     }
-    await s3.upload(params, async function (err, data) {
-        //handle error
-        if (err) {
-            console.error(err)
-        }
-        //success
-        if (data) {
-            return data
-        }
-    })
-    return response
-
 }
 
-async function updateBlobsFile(dateTask, lastFilePath, fileType, blobFile) {
+function updateBlobsFile(dateTask, lastFilePath, fileType, blobFile) {
     const date = moment(dateTask).format('YYYY-MM-DD')
 
     const deleteParam = {
@@ -132,10 +140,13 @@ async function updateBlobsFile(dateTask, lastFilePath, fileType, blobFile) {
     }
 
     if (lastFilePath !== null) {
-        await s3.deleteObjects(deleteParam, function (err, data) {
-            if (err) {
-                console.error(err)
-            }
+        new Promise(resolve => {
+            s3.deleteObjects(deleteParam, function (err, data) {
+                if (err) {
+                    reject(err)
+                } 
+                resolve(data)
+            })
         })
     }
 
@@ -149,21 +160,26 @@ async function updateBlobsFile(dateTask, lastFilePath, fileType, blobFile) {
         ContentType: 'text/plain', 
         ContentEncoding: 'gzip' // that's important
     }
-    const response = {
-        filePath: params.Key,
-        fileURL: process.env.AWS_S3_CLOUDFRONT + `/${params.Key}`
+    try {
+        return new Promise(resolve => {
+            s3.upload(params, function (err, data) {
+                //handle error
+                if (err) {
+                    console.error(err)
+                }
+                //success
+                if (data) {
+                    const response = {
+                        filePath: data.Key,
+                        fileURL: process.env.AWS_S3_CLOUDFRONT + `/${data.Key}`
+                    }
+                    resolve(response)
+                }
+            })
+        })
+    } catch (err) {
+        reject(err)
     }
-    await s3.upload(params, async function (err, data) {
-        //handle error
-        if (err) {
-            console.error(err)
-        }
-        //success
-        if (data) {
-            return data
-        }
-    })
-    return response
 }
 
 module.exports = {

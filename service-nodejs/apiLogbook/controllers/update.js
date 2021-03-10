@@ -58,8 +58,9 @@ module.exports = async (req, res) => { // eslint-disable-line
                 evidenceResponse = resp[0]
                 blobResponse = resp[1]
             }
+            if (!evidenceResponse.filePath) throw new APIError(errors.evidenceError)
         } catch(err) {
-            //
+            throw new APIError(errors.validationError)
         }
         if (isLink) {
             if (req.body.documentTask.length < 0) throw new APIError(errors.serverError)
@@ -82,7 +83,7 @@ module.exports = async (req, res) => { // eslint-disable-line
                     }
                 }
             } catch(err) {
-                //
+                throw new APIError(errors.validationError)
             }
         }
 

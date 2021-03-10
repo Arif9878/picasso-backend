@@ -27,6 +27,10 @@ const errors = {
         code: 422,
         message: "Input validation error",
     },
+    evidenceError: {
+        code: 422,
+        message: "Image evidence isn't uploaded",
+    },
     tupoksiNotFound: {
         code: 422,
         message: "Tupoksi Jabatan tidak ada",
