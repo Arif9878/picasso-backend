@@ -28,8 +28,8 @@ services:
   redis:
     image : redis:latest
     restart: always
-    cpus: 0.5
-    mem_limit: 250m
+    cpus: 0.2
+    mem_limit: 150m
     mem_reservation: 50m
     networks:
       - redis
@@ -39,7 +39,7 @@ services:
   nats:
     image : nats
     restart: always
-    mem_limit: 250m
+    mem_limit: 100m
     mem_reservation: 50m
     networks:
       - nats

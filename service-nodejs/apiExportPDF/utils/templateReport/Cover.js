@@ -42,7 +42,7 @@ const Cover = (data) => {
             style: 'boldNormal'
         },
         {
-            text: `${user.manager_category || '-'}`,
+            text: `${user.manager_category.toUpperCase() || '-'}`,
             alignment: 'center',
             margin: [0, 125, 0, 0],
             style: 'boldNormal'
