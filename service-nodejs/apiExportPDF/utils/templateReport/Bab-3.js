@@ -6,6 +6,7 @@ const logBookPerTupoksi = (data) => {
         data['logBookTupoksi'].forEach((item, index) => {
             records.push(
                     {
+                        bold: true,
                         text: `3.${index+1}	${item.name}`
                     },
                     {
