@@ -61,14 +61,16 @@ func getUser(id string) ([]byte, error) {
 	defer rowsJabatan.Close()
 	defer dbMaster.Close()
 	var TupoksiJabatans []string
-	for rowsJabatan.Next() {
-		var name_tupoksi string
-		err := rowsJabatan.Scan(&name_tupoksi)
-		if err != nil {
-			log.Fatal(err)
-		}
+	if rowsJabatan != nil {
+		for rowsJabatan.Next() {
+			var name_tupoksi string
+			err := rowsJabatan.Scan(&name_tupoksi)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		TupoksiJabatans = append(TupoksiJabatans, name_tupoksi)
+			TupoksiJabatans = append(TupoksiJabatans, name_tupoksi)
+		}
 	}
 	data := map[string]interface{}{
 		"user":    responseUser[0],
