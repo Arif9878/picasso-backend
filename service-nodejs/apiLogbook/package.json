@@ -9,7 +9,7 @@
     "babel-dev": "babel-node index.js",
     "dev": "nodemon --exec yarn babel-dev",
     "build": "rm -rf build && babel ./index.js --out-dir ./build --source-maps",
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "devDependencies": {
     "express": "^4.17.1",
