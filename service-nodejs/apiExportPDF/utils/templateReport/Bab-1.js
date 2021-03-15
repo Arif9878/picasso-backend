@@ -12,7 +12,7 @@ const BAB_1 = [
         alignment: 'justify',
         preserveLeadingSpaces: true,
         text: [
-            {text: '1.1 Latar Belakang \n\n',},
+            {text: '1.1 Latar Belakang \n\n', bold: true,},
             '        Salah satu cita-cita Gubernur Jawa Barat dalam pemerintahannya adalah mewujudkan Jawa Barat menjadi Provinsi Digital. Perhatian ini berasal dari masalah kesenjangan rural-urban di bidang teknologi. Kurangnya infrastruktur yang menunjang di daerah rural membuat warga desa kesulitan untuk menikmati manfaat yang ditawarkan oleh teknologi digital. Masalah inilah yang kemudian melahirkan gagasan pembentukan ', {text: 'Jabar Digital Service (JDS)', bold: true}, 'atau Unit Pelaksana Teknis Pengelola Layanan Digital, Data, dan Informasi Geospasial — sebuah unit di bawah Dinas Komunikasi dan Informatika Provinsi Jawa Barat yang dicita-citakan dapat mempersempit kesenjangan digital, membantu efisiensi dan akurasi pengambilan kebijakan berbasis data dan teknologi, serta merevolusi pemakaian teknologi dalam kehidupan masyarakat serta pemerintahan di Jawa Barat. Jabar Digital Service menjadi pengampu beberapa program strategis Gubernur Jawa Barat, diantaranya: \n\n'    
         ]
     },
@@ -88,12 +88,12 @@ const BAB_1 = [
         alignment: 'justify',
         preserveLeadingSpaces: true,
         text: [
-            {text: '1.2 Visi & Misi \n',},
-            {text: 'Visi \n\n',},
+            {text: '1.2 Visi & Misi \n\n', bold: true,},
+            {text: '    1. Visi \n\n'},
             {text: '        Menjadikan Jawa Barat sebagai provinsi terdepan dalam penggunaan data dan teknologi untuk mendukung layanan publik dan perumusan kebijakan yang lebih responsif, adaptif, dan inovatif.\n\n'}
         ]
     },
-    {text: 'Misi: \n\n',},
+    {preserveLeadingSpaces: true, text: '    2. Misi: \n\n'},
     {
         
         columns: [
@@ -112,8 +112,8 @@ const BAB_1 = [
         alignment: 'justify',
         preserveLeadingSpaces: true,
         text: [
-            {text: '1.3 Tugas Pokok & Fungsi UPTD  \n',},
-            {text: '        Berikut tugas pokok dan fungsi dari UPTD Pusat layanan digital data & geospasial, \n'}
+            {text: '1.3 Tugas Pokok & Fungsi UPTD  \n', bold: true,},
+            {text: '       Berikut tugas pokok dan fungsi dari UPTD Pusat layanan digital data & geospasial, \n'}
         ]
     },
     {
@@ -142,8 +142,8 @@ const BAB_1 = [
         alignment: 'justify',
         preserveLeadingSpaces: true,
         text: [
-            {text: '1.4 Target/Sasaran  \n',},
-            {text: '        Target/Sasaran yang dibuat mengacu pada misi yang telah dipaparkan sebagai berikut : \n'},
+            {text: '1.4 Target/Sasaran  \n', bold: true,},
+            {text: '       Target/Sasaran yang dibuat mengacu pada misi yang telah dipaparkan sebagai berikut : \n'},
             {text: '1. Data sebagai pendukung pengambilan keputusan dan perumusan kebijakan. \n'},
             {text: '        Target & Sasaran :'}
         ],
