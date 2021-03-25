@@ -1,0 +1,6 @@
+Flask==0.12.1
+apscheduler==3.7.0
+numpy==1.16.6
+pymongo==3.11.0
+python-dotenv==0.10.3
+boto3==1.17.18
