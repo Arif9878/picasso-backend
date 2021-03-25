@@ -34,7 +34,7 @@ const logBookPerTupoksi = (data) => {
                             style: 'boldNormal',
                             table: {
                                 headerRows: 1,
-                                widths: [ 20, 150, '*' ],
+                                widths: [ 20, 150, 270 ],
                                 body: [
                                     [
                                         { text: 'No', style: 'tableHeader',},
