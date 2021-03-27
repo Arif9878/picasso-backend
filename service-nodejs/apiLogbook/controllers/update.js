@@ -58,6 +58,7 @@ module.exports = async (req, res) => { // eslint-disable-line
                 evidenceResponse = resp[0]
                 blobResponse = resp[1]
             }
+            if (!evidenceResponse.filePath) throw new APIError(errors.evidenceError)
         } catch(err) {
             //
         }
