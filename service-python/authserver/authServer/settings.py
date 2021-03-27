@@ -46,7 +46,7 @@ JAEGER_HOST = os.environ.get("JAEGER_HOST")
 JAEGER_PORT = os.environ.get("JAEGER_PORT")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 CSRF_USE_SESSIONS = False
 ALLOWED_HOSTS = ['*']
 
