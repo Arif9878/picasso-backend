@@ -60,3 +60,16 @@ def getFromS3(s3, bucket, key):
     object = s3.get_object(Bucket=bucket, Key=key)
     return object['Body'].read()
 
+def queryAccount(is_active=True):
+    query = """
+        SELECT
+            accounts_account.id,
+            accounts_account.is_active
+        FROM
+            accounts_account
+        WHERE
+            accounts_account.is_active = '%s'
+        ORDER BY id ASC
+    """ % (is_active)
+
+    return query

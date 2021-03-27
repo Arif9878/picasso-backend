@@ -53,6 +53,19 @@ services:
     env_file: 
       - .env-python
 
+  cachingdata:
+    build:
+      context: ./service-python/cachingData
+    command: /usr/local/bin/gunicorn wsgi:app -w 2 -b :80
+    cpus: 0.3
+    mem_limit: 250m
+    memswap_limit: 150m
+    restart: always
+    networks:
+      - cachingdata
+    env_file: 
+      - .env-python
+
 networks:
   authserver:
     external:
@@ -67,5 +80,9 @@ networks:
       name: gateway
 
   dashboarduser:
+    external:
+      name: gateway
+  
+  cachingdata:
     external:
       name: gateway

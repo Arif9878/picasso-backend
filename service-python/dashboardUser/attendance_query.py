@@ -1,10 +1,10 @@
 from datetime import datetime
 from utils import local
 
-def getPresence(mongoClient, idUser, date):
+def getPresence(mongoClient, idUser, start_date, end_date):
     dbMongo = mongoClient.attendance
-    start_date = datetime.strptime(date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
-    end_date = datetime.strptime(date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
+    start_date = datetime.strptime(start_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
+    end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
     agr = [
         {
             '$match': {
@@ -17,122 +17,18 @@ def getPresence(mongoClient, idUser, date):
         }, {
             '$project': {
                 '_id': 1,
+                'startDate': { '$dateToString': { 'format': '%Y-%m-%dT%H:%M:%SZ', 'date': '$startDate', 'timezone': 'Asia/Jakarta' } },
+                'endDate': { '$dateToString': { 'format': '%Y-%m-%dT%H:%M:%SZ', 'date': '$endDate', 'timezone': 'Asia/Jakarta' } },
+                'officeHours': 1,
+                'location': 1,
+                'message': 1
             }
         }
     ]
     itm = list(dbMongo.attendances.aggregate(agr))
-    exist = False
-    if len(itm) > 0:
-        exist = True
-    return exist
-
-def countPermit(mongoClient, idUser, start_date, end_date):
-    dbMongo = mongoClient.attendance
-    start_date = datetime.strptime(start_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
-    end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
-    agr = [
-        {
-            '$match': {
-                'createdBy._id': idUser,
-                'message': {
-                    '$in': ['CUTI', 'SAKIT', 'IZIN']
-                },
-                'startDate': {
-                    '$gte': local.localize(start_date, is_dst=None),
-                    '$lt': local.localize(end_date, is_dst=None)
-                }
-            }
-        }, {
-            '$count': 'count'
-        }
-    ]
-
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if len(itm) < 1:
-        count = 0
-    else:
-        try:
-            count = itm[0]['count']
-        except KeyError:
-            count = 0
-    return count
-
-def countLocationPresence(mongoClient, idUser, location, start_date, end_date):
-    dbMongo = mongoClient.attendance
-    start_date = datetime.strptime(start_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
-    end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
-    agr = [
-        {
-            '$match': {
-                "createdBy._id": str(idUser),
-                "location": location,
-                'startDate': {
-                    '$gte': local.localize(start_date, is_dst=None),
-                    '$lt': local.localize(end_date, is_dst=None)
-                }
-            }
-        },  {
-            '$count': 'count'
-        }
-    ]
-
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if len(itm) < 1:
-        count = 0
-    else:
-        try:
-            count = itm[0]['count']
-        except KeyError:
-            count = 0
-    return count
-
-def countLatePresence(mongoClient, idUser, start_date, end_date):
-    dbMongo = mongoClient.attendance
-    start_date = datetime.strptime(start_date+' 00:00:00', '%Y-%m-%d %H:%M:%S')
-    end_date = datetime.strptime(end_date+' 23:59:59', '%Y-%m-%d %H:%M:%S')
-    agr = [
-        {
-            '$project': {
-                'createdBy': 1, 
-                'startDate': 1, 
-                'hours': {
-                    '$add': [
-                        {
-                            '$hour': '$startDate'
-                        }
-                    ]
-                }, 
-                'minutes': {
-                    '$add': [
-                        {
-                            '$minute': '$startDate'
-                        }
-                    ]
-                }
-            }
-        }, {
-            '$match': {
-                'createdBy._id': str(idUser), 
-                'hours' : { '$gt' : 0  },
-                'minutes' : { '$lte' : 30  },
-                'startDate': {
-                    '$gte': local.localize(start_date, is_dst=None),
-                    '$lt': local.localize(end_date, is_dst=None)
-                }
-            }
-        }, {
-            '$count': 'count'
-        }
-    ]
-    itm = list(dbMongo.attendances.aggregate(agr))
-    if len(itm) < 1:
-        count = 0
-    else:
-        try:
-            count = itm[0]['count']
-        except KeyError:
-            count = 0
-    return count
+    if len(itm) < 0:
+        itm = []
+    return itm
 
 def countOfficeHourUserYear(mongoClient, idUser, year):
     dbMongo = mongoClient.attendance
