@@ -1,4 +1,4 @@
-import os, io, math, numpy as np, datetime as dt, sentry_sdk
+import os, io, math, numpy as np, datetime as dt, sentry_sdk, redis, json
 from datetime import timedelta
 
 from os.path import join, dirname, exists
@@ -7,6 +7,8 @@ from flask import Flask, request, jsonify
 from pymongo import MongoClient
 from flask_opentracing import FlaskTracing
 from sentry_sdk.integrations.flask import FlaskIntegration
+
+redis_client = redis.Redis(host=os.environ.get('REDIS_HOST'), port=os.environ.get('REDIS_PORT'), db=0)
 
 from utils import (
         arrayPresence,
@@ -18,13 +20,13 @@ from utils import (
         busmask_names,
         last_day_of_month,
         weekmask_names,
-        config_jaeger
+        config_jaeger,
+        parse_datetime,
+        max_time_presence,
+        keys_redis
     )
 from attendance_query import (
         getPresence,
-        countPermit,
-        countLocationPresence,
-        countLatePresence,
         countOfficeHourUserYear,
         countOfficeHourUserMonthly
     )
@@ -83,7 +85,7 @@ def dashboardAttendanceUser():
                 start = dt.datetime(year=int(year), month=int(month), day=1).date()
             else:
                 start = dt.datetime(year=int(year), month=today.month, day=1).date()
-            end = last_day_of_month(start)+timedelta(days=1)
+            end = last_day_of_month(start)
             dateRange = np.arange(np.datetime64(start), np.datetime64(end), dtype='datetime64[D]')
             dateRangeFromNow = np.arange(np.datetime64(start), np.datetime64(today+timedelta(days=1)), dtype='datetime64[D]')
             listBusdayFromNow = np.busdaycalendar(holidays=dateRangeFromNow, weekmask=busmask_names)
@@ -91,38 +93,33 @@ def dashboardAttendanceUser():
             listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
             listHoliday = getListHoliday(mongoClient, np, start.year, start.month)
 
+            get_data_redis = redis_client.get(keys_redis(user['user_id'], 'attendances'))
+
+            parse_query_date = dt.datetime.strptime(year+'-'+month, '%Y-%m').date()
+
+            if get_data_redis and parse_query_date < dt.datetime.today().replace(day=1).date():
+                start_date = dt.datetime.strptime(str(start)+' 00:00:00', '%Y-%m-%d %H:%M:%S')
+                end_date = dt.datetime.strptime(str(end)+' 23:59:59', '%Y-%m-%d %H:%M:%S')
+                list_presence = [data for data in json.loads(get_data_redis) if start_date <= parse_datetime(data['startDate']) <= end_date]
+            else:
+                list_presence = getPresence(mongoClient, user['user_id'], str(start), str(end))
+
             # Delete working days if there are holidays
             listBusdayFromNow = np.array(list(filter(lambda x: x not in listHoliday, listBusdayFromNow.holidays)))
             listBusday = np.array(list(filter(lambda x: x not in listHoliday, listBusday.holidays)))
 
-            presence = 0
-            noPresence = 0
-            if month == None or today.month == int(month):
-                for i in listBusdayFromNow:
-                    if getPresence(mongoClient, user['user_id'], str(i)):
-                        presence += 1
-                    else:
-                        noPresence += 1
-            else:
-                for i in listBusday:
-                    if getPresence(mongoClient, user['user_id'], str(i)):
-                        presence += 1
-                    else:
-                        noPresence += 1
-
-            presenceWeekend = 0
-            for i in listWeekend.holidays:
-                if getPresence(mongoClient, user['user_id'], str(i)):
-                    presenceWeekend += 1
-            busDaysFromNow = len(listBusdayFromNow)
+            latePresence = len([data for data in list_presence if max_time_presence < parse_datetime(data['startDate']).time()])
+            permit = len([data for data in list_presence if data['message'] in ['CUTI', 'SAKIT', 'IZIN']])
+            totalWfh = len([data for data in list_presence if data['location'] == 'WFH'])
+            totalWfo = len([data for data in list_presence if data['location'] == 'WFO'])
+            totalPerjadin = len([data for data in list_presence if data['location'] == 'PERJADIN'])
+            presence = len([data for data in list_presence if parse_datetime(data['startDate']).date() in listBusday])
+            presenceWeekend = len([data for data in list_presence if parse_datetime(data['startDate']).date() in listWeekend.holidays])
+            
             busDays = len(listBusday)
             weekEnd = len(listWeekend.holidays)
+            noPresence = busDays - presence
 
-            permit = countPermit(mongoClient, user['user_id'], str(start), str(end))
-            latePresence = countLatePresence(mongoClient, user['user_id'], str(start), str(end))
-            totalWfh = countLocationPresence(mongoClient, user['user_id'], "WFH", str(start), str(end))
-            totalWfo = countLocationPresence(mongoClient, user['user_id'], "WFO", str(start), str(end))
-            totalPerjadin = countLocationPresence(mongoClient, user['user_id'], "PERJADIN", str(start), str(end))
             precentagePresence = round(float(presence-permit)/float(busDays)*100, 2)
             precentageLatePresence = round(float(latePresence)/float(busDays)*100, 2)
             precentagePermit = round(float(permit)/float(busDays) *100, 2)
@@ -166,7 +163,7 @@ def dashboardReportUser():
                 start = dt.datetime(year=int(year), month=int(month), day=1).date()
             else:
                 start = dt.datetime(year=int(year), month=today.month, day=1).date()
-            end = last_day_of_month(start)+timedelta(days=1)
+            end = last_day_of_month(start)
 
             totalOfficeHourUserYear = countOfficeHourUserYear(mongoClient, user['user_id'], today.year)
             totalOfficeHourUserMonthly = countOfficeHourUserMonthly(mongoClient, user['user_id'], str(start), str(end))

@@ -46,7 +46,7 @@ JAEGER_HOST = os.environ.get("JAEGER_HOST")
 JAEGER_PORT = os.environ.get("JAEGER_PORT")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 CSRF_USE_SESSIONS = False
 ALLOWED_HOSTS = ['*']
 
@@ -210,8 +210,8 @@ OAUTH2_PROVIDER = {
 }
 
 SESSION_PREFIX = "session"
-REDIS_HOST = 'localhost'
-REDIS_PORT = '6379'
+REDIS_HOST = os.environ.get("REDIS_HOST")
+REDIS_PORT = os.environ.get("REDIS_PORT")
 REDIS_DB = 0
 LOGIN_SESSION = 4
 

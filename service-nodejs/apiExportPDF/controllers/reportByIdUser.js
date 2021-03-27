@@ -1,6 +1,6 @@
 const { errors, APIError } = require('../utils/exceptions')
 const { generateReport, reportForm , holidayType } = require('../utils/generateReport')
-const { getListWeekend, getUserDetail } = require('../utils/functions')
+const { getListWeekend, getUserDetail, getKeyRedis } = require('../utils/functions')
 const { listAttendance, listHolidayDate } = require('../utils/listOtherReport')
 const { tracer } = require('../utils/tracer')
 const axios = require('axios')
@@ -65,15 +65,27 @@ module.exports = async (req, res) => {
             }
         ]
 
-        // Get logbook, list_weekend, attendance, holiday, detailUser
-        const [logBook, list_weekend, attendance, holiday, detailUser] = await Promise.all([
-            LogBook.aggregate(rules).sort(sort),
+        const getDataRedis = await getKeyRedis(userId, 'logbooks')
+        let logBook
+        const dateNow = new Date()
+        const firstDayOfMonthNow = new Date(dateNow.getFullYear(), dateNow.getMonth(), 1)
+        const parseQueryEndDate = new Date(end_date)
+        const firstDayOfMonthQueryEndDate = new Date(parseQueryEndDate.getFullYear(), parseQueryEndDate.getMonth(), 1)
+
+        if (getDataRedis && firstDayOfMonthQueryEndDate < firstDayOfMonthNow) {
+            logBook = await getDataRedis.filter(data => new Date(start_date) <= new Date(data.dateTask) && new Date(data.dateTask) <= new Date(dueDate))   
+        } else {
+            logBook = await LogBook.aggregate(rules).sort(sort)
+        }
+
+        // Get list_weekend, attendance, holiday, detailUser
+        const [list_weekend, attendance, holiday, detailUser] = await Promise.all([
             getListWeekend(start_date, dueDate),
             listAttendance(userId, start_date, dueDate),
             listHolidayDate(start_date, dueDate),
             getUserDetail(userId),
         ])
-        
+
         logBook.push(...attendance, ...list_weekend, ...holiday)
         logBook.sort(function (a, b) {
             return new Date(a.dateTask) - new Date(b.dateTask)
