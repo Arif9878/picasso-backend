@@ -14,4 +14,5 @@ Flask-OpenTracing==1.1.0
 jaeger-client==4.4.0
 sentry-sdk[flask]==0.19.5
 pyjwt==1.0.0
+redis==3.5.3
 pytz

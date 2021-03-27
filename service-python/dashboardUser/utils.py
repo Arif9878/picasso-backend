@@ -8,6 +8,13 @@ weekmask_names = 'Sat Sun'
 
 local = pytz.timezone("Asia/Jakarta")
 
+max_time_presence = datetime.strptime('07:30:59', '%H:%M:%S').time()
+
+def keys_redis(user_id, key): return '%s-%s' % (user_id, key)
+
+def parse_datetime(date):
+    return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
+
 def last_day_of_month(date_value):
     return date_value.replace(day = monthrange(date_value.year, date_value.month)[1])
 
