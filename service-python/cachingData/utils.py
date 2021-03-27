@@ -28,7 +28,7 @@ def getListLogbook(mongo_client):
           }
       }
     ]
-    itm = list(dbMongo.logbooks.aggregate(agr))
+    itm = list(dbMongo.logbooks.aggregate(agr, allowDiskUse=True))
     return itm
 
 def getListAttendance(mongo_client):
@@ -50,7 +50,7 @@ def getListAttendance(mongo_client):
           }
       }
     ]
-    itm = list(dbMongo.attendances.aggregate(agr))
+    itm = list(dbMongo.attendances.aggregate(agr, allowDiskUse=True))
     return itm
 
 def putToS3(s3, bucket, key, data):

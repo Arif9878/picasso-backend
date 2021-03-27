@@ -84,18 +84,17 @@ def dashboardAttendanceUser():
             if month: 
                 start = dt.datetime(year=int(year), month=int(month), day=1).date()
             else:
-                start = dt.datetime(year=int(year), month=today.month, day=1).date()
+                month = today.month
+                start = dt.datetime(year=int(year), month=int(month), day=1).date()
             end = last_day_of_month(start)
             dateRange = np.arange(np.datetime64(start), np.datetime64(end), dtype='datetime64[D]')
-            dateRangeFromNow = np.arange(np.datetime64(start), np.datetime64(today+timedelta(days=1)), dtype='datetime64[D]')
-            listBusdayFromNow = np.busdaycalendar(holidays=dateRangeFromNow, weekmask=busmask_names)
             listBusday = np.busdaycalendar(holidays=dateRange, weekmask=busmask_names)
             listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
             listHoliday = getListHoliday(mongoClient, np, start.year, start.month)
 
             get_data_redis = redis_client.get(keys_redis(user['user_id'], 'attendances'))
 
-            parse_query_date = dt.datetime.strptime(year+'-'+month, '%Y-%m').date()
+            parse_query_date = dt.datetime.strptime(str(year)+'-'+str(month), '%Y-%m').date()
 
             if get_data_redis and parse_query_date < dt.datetime.today().replace(day=1).date():
                 start_date = dt.datetime.strptime(str(start)+' 00:00:00', '%Y-%m-%d %H:%M:%S')
@@ -105,7 +104,6 @@ def dashboardAttendanceUser():
                 list_presence = getPresence(mongoClient, user['user_id'], str(start), str(end))
 
             # Delete working days if there are holidays
-            listBusdayFromNow = np.array(list(filter(lambda x: x not in listHoliday, listBusdayFromNow.holidays)))
             listBusday = np.array(list(filter(lambda x: x not in listHoliday, listBusday.holidays)))
 
             latePresence = len([data for data in list_presence if max_time_presence < parse_datetime(data['startDate']).time()])
@@ -118,7 +116,14 @@ def dashboardAttendanceUser():
             
             busDays = len(listBusday)
             weekEnd = len(listWeekend.holidays)
-            noPresence = busDays - presence
+            #check no precene from today
+            if parse_query_date >= dt.datetime.today().replace(day=1).date():
+                dateRangeFromNow = np.arange(np.datetime64(start), np.datetime64(today+timedelta(days=1)), dtype='datetime64[D]')
+                listBusdayFromNow = np.busdaycalendar(holidays=dateRangeFromNow, weekmask=busmask_names)
+                listBusdayFromNow = np.array(list(filter(lambda x: x not in listHoliday, listBusdayFromNow.holidays)))
+                noPresence = len(listBusdayFromNow) - presence
+            else:
+                noPresence = busDays - presence
 
             precentagePresence = round(float(presence-permit)/float(busDays)*100, 2)
             precentageLatePresence = round(float(latePresence)/float(busDays)*100, 2)
