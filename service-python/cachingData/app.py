@@ -71,5 +71,6 @@ sched.add_job(dumpToS3, 'interval', hours=3)
 sched.add_job(cacheToRedis, 'interval', hours=3, minutes=2)
 sched.start()
 
-if __name__ == "__main__":
-    app.run()
+port = os.environ.get('CACHING_DATA_PORT', 80)
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=int(port))
