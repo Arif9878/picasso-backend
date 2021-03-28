@@ -1,8 +1,13 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"sync/atomic"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -38,6 +43,12 @@ func newRouter(config *ConfigDB) (router *mux.Router) {
 	return
 }
 
+var (
+	listenAddr string
+	healthy    int32
+	port       string
+)
+
 func main() {
 
 	configuration, err := Initialize()
@@ -54,13 +65,36 @@ func main() {
 	// Run HTTP server
 	router := newRouter(configuration)
 
-	var port string
 	port = ":" + utils.GetEnv("SATUANKERJA_PORT")
 	if len(port) < 2 {
 		port = ":80"
 	}
 
-	if err := http.ListenAndServe(port, auth.AuthMiddleware(router)); err != nil {
-		log.Fatal(err)
+	flag.StringVar(&listenAddr, "listen-addr", port, "server listen address")
+	flag.Parse()
+
+	logger := log.New(os.Stdout, "http: ", log.LstdFlags)
+	logger.Println("Server is starting...")
+
+	nextRequestID := func() string {
+		return fmt.Sprintf("%d", time.Now().UnixNano())
 	}
+
+	server := &http.Server{
+		Addr:         listenAddr,
+		Handler:      auth.Tracing(nextRequestID)(auth.Logging(logger)(auth.AuthMiddleware(router))),
+		ErrorLog:     logger,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  15 * time.Second,
+	}
+
+	logger.Println("Server is ready to handle requests at", listenAddr)
+	atomic.StoreInt32(&healthy, 1)
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		logger.Fatalf("Could not listen on %s: %v\n", listenAddr, err)
+	}
+
+	// <-done
+	logger.Println("Server stopped")
 }

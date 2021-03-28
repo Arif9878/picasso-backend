@@ -2,9 +2,16 @@ package db
 
 import (
 	"log"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+)
+
+const (
+	maxOpenConns    = 60
+	connMaxLifetime = 120
+	maxIdleConns    = 30
 )
 
 type Database struct {
@@ -18,7 +25,9 @@ func Init(url string) *gorm.DB {
 	if err != nil {
 		log.Println("db err: ", err)
 	}
-	db.DB().SetMaxIdleConns(10)
+	db.DB().SetMaxOpenConns(maxOpenConns)
+	db.DB().SetConnMaxLifetime(connMaxLifetime * time.Second)
+	db.DB().SetMaxIdleConns(maxIdleConns)
 	DB = db
 	return DB
 }
