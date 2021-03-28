@@ -34,9 +34,14 @@ postgreURI = 'postgresql+psycopg2://{dbuser}:{dbpass}@{dbhost}:{dbport}/{dbname}
     dbname=os.environ.get('DB_NAME_AUTH')
 )
 
+
 app.config.update(
+    SQLALCHEMY_ENGINE_OPTIONS={"pool_pre_ping": True},
     SQLALCHEMY_DATABASE_URI=postgreURI,
-    SQLALCHEMY_TRACK_MODIFICATIONS=False
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SQLALCHEMY_POOL_SIZE=10,
+    SQLALCHEMY_MAX_OVERFLOW=20,
+    SQLALCHEMY_POOL_RECYCLE=1800
 )
 
 db = SQLAlchemy(app)
@@ -67,8 +72,8 @@ def cacheToRedis():
         redis_client.set(set_key_redis(user.id, 'attendances'), json.dumps(attendances))
 
 sched = BackgroundScheduler(daemon=True)
-sched.add_job(dumpToS3, 'interval', hours=1)
-sched.add_job(cacheToRedis, 'interval', hours=1, minutes=5)
+sched.add_job(dumpToS3, 'interval', hours=2)
+sched.add_job(cacheToRedis, 'interval', hours=2, minutes=10)
 sched.start()
 
 port = os.environ.get('CACHING_DATA_PORT', 80)

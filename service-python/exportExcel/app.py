@@ -46,8 +46,12 @@ postgreURI = 'postgresql+psycopg2://{dbuser}:{dbpass}@{dbhost}:{dbport}/{dbname}
 )
 
 app.config.update(
+    SQLALCHEMY_ENGINE_OPTIONS={"pool_pre_ping": True},
     SQLALCHEMY_DATABASE_URI=postgreURI,
-    SQLALCHEMY_TRACK_MODIFICATIONS=False
+    SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    SQLALCHEMY_POOL_SIZE=10,
+    SQLALCHEMY_MAX_OVERFLOW=20,
+    SQLALCHEMY_POOL_RECYCLE=1800
 )
 
 db = SQLAlchemy(app)
