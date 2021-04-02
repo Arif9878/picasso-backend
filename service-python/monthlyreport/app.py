@@ -1,5 +1,5 @@
 import os, numpy as np, json, sentry_sdk, datetime
-
+from datetime import timedelta
 from os.path import join, dirname, exists
 from dotenv import load_dotenv
 from flask import Flask, request
@@ -9,7 +9,7 @@ from flask_opentracing import FlaskTracing
 from sentry_sdk.integrations.flask import FlaskIntegration
 
 from holiday_query import getListHoliday
-from utils import getCountHours, getCountLogbook, getListDateLogbook, convertFunc, queryAccount, config_jaeger
+from utils import busmask_names, weekmask_names, getCountHours, getCountLogbook, getListDateLogbook, convertFunc, queryAccount, config_jaeger
 
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../.env')):
@@ -58,8 +58,6 @@ db = SQLAlchemy(app)
 jaeger_tracer = config_jaeger(jaeger_host, jaeger_port).initialize_tracer()
 tracing = FlaskTracing(jaeger_tracer)
 
-busmask_names = 'Mon Tue Wed Thu Fri'
-
 @app.route('/api/monthly-report/')
 @tracing.trace('path', 'method', 'META', 'path_info', 'content_type')
 def listUserByUnit():
@@ -77,7 +75,7 @@ def listUserByUnit():
         start_date = datetime.datetime.strptime(start_date+'-0:0:0', '%Y-%m-%d-%H:%M:%S')
         end_date = datetime.datetime.strptime(end_date+'-23:59:59', '%Y-%m-%d-%H:%M:%S')
 
-        dateRange = np.arange(np.datetime64(start_date), np.datetime64(end_date), dtype='datetime64[D]')
+        dateRange = np.arange(np.datetime64(start_date), np.datetime64(end_date+timedelta(days=1)), dtype='datetime64[D]')
         listBusday = np.busdaycalendar(holidays=dateRange, weekmask=busmask_names)
         listHoliday = getListHoliday(mongoClient, np, start_date.year, end_date.month)
 
@@ -92,9 +90,16 @@ def listUserByUnit():
             dataFillingLogbook = 0
             if start_date and end_date:
                 listDateLogbook = getListDateLogbook(mongoClient, i.id, np, start_date, end_date)
-                listDayNoLogbook = np.array(list(filter(lambda x: x not in listDateLogbook, listBusday)))
+                listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
+
+                # Delete date logbook if there are weekend and holiday
+                listDateLogbook = list(np.array(list(filter(lambda x: x not in np.concatenate((listWeekend.holidays, listHoliday)), listDateLogbook))))
+                
+                # Logbook list empty days
+                listDayNoLogbook = list(np.array(list(filter(lambda x: x not in listDateLogbook, listBusday))))
                 dataFillingLogbook = round((len(listDateLogbook)/len(listBusday))*100, 2)
-                listDayNoLogbook = list(np.datetime_as_string(listDayNoLogbook, unit='D'))
+                if len(listDayNoLogbook) > 0:
+                    listDayNoLogbook = list(np.datetime_as_string(listDayNoLogbook, unit='D'))
             
             totalReport = getCountLogbook(mongoClient, i.id, start_date, end_date)
             totalHours = getCountHours(mongoClient, i.id, start_date, end_date)

@@ -2,6 +2,9 @@ import pytz
 local = pytz.timezone ("Asia/Jakarta")
 from jaeger_client import Config
 
+busmask_names = 'Mon Tue Wed Thu Fri'
+weekmask_names = 'Sat Sun'
+
 def getCountHours(mongoClient, idUser, start_date, end_date):
     dbMongo = mongoClient.attendance
     agr = [
