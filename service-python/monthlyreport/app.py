@@ -15,6 +15,7 @@ from utils import (
         getCountHours,
         getCountLogbook,
         getListDateLogbook,
+        getListPermit,
         convertFunc,
         queryAccount,
         config_jaeger,
@@ -102,17 +103,29 @@ def listUserByUnit():
             listDayNoLogbook = []
             dataFillingLogbook = 0
             if start_date and end_date:
-                get_data_redis = redis_client.get(keys_redis(i.id, 'logbooks'))
+                get_data_logbook_redis = redis_client.get(keys_redis(i.id, 'logbooks'))
+                get_data_attendance_redis = redis_client.get(keys_redis(i.id, 'attendances'))
 
                 # Get list date logbook from redis
-                if get_data_redis and end_date.date() < datetime.datetime.today().replace(day=1).date():
+                if get_data_logbook_redis and end_date.date() < datetime.datetime.today().replace(day=1).date():
                     # filter date logbook by query
-                    listDateLogbook = np.array([parse_datetime(data['dateTask']).strftime('%Y-%m-%d') for data in json.loads(get_data_redis) if start_date <= parse_datetime(data['dateTask']) <= end_date], dtype='datetime64')
+                    listDateLogbook = np.array([parse_datetime(data['dateTask']).strftime('%Y-%m-%d') for data in json.loads(get_data_logbook_redis) if start_date <= parse_datetime(data['dateTask']) <= end_date], dtype='datetime64')
                     # Remove duplicate date logbook
-                    listDateLogbook = [i for j, i in enumerate(listDateLogbook) if i not in listDateLogbook[:j]] 
+                    listDateLogbook = [i for j, i in enumerate(listDateLogbook) if i not in listDateLogbook[:j]]  
                 else:
                     # Get list date logbook from database
                     listDateLogbook = getListDateLogbook(mongoClient, i.id, np, start_date, end_date)
+
+                if get_data_attendance_redis and end_date.date() < datetime.datetime.today().replace(day=1).date():
+                    # Get list date permit from redis
+                    listPermit = np.array([data for data in json.loads(get_data_attendance_redis) if start_date <= parse_datetime(data['startDate']) <= end_date and data['message'] in ['CUTI', 'SAKIT', 'IZIN']], dtype='datetime64')
+                else:
+                    # Get list date permit from database
+                    listPermit = getListPermit(mongoClient, i.id, np, start_date, end_date)
+
+                # Join array date logbook and array date permit
+                listDateLogbook = np.concatenate((listDateLogbook, listPermit))
+
                 listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
                 
                 # Delete date logbook if there are weekend and holiday

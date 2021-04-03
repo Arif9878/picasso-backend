@@ -134,6 +134,47 @@ def getListDateLogbook(mongoClient, idUser, numpy, start_date, end_date):
         itm = numpy.array([])
     return itm
 
+def getListPermit(mongoClient, idUser, numpy, start_date, end_date):
+    dbMongo = mongoClient.attendance
+    agr = [
+        {
+            '$match': {
+                'createdBy._id': str(idUser), 
+                'message': {
+                    '$in': [
+                        'CUTI', 'SAKIT', 'IZIN'
+                    ]
+                }
+            }
+        }, {
+            '$group': {
+                '_id': {
+                    '$dateToString': {
+                        'format': '%Y-%m-%d', 
+                        'date': '$startDate', 
+                        'timezone': 'Asia/Jakarta'
+                    }
+                }
+            }
+        }
+    ]
+
+    if start_date:
+        agr.insert(0, {
+            '$match': {
+                'startDate': {
+                    '$gte': local.localize(start_date, is_dst=None),
+                    '$lt': local.localize(end_date, is_dst=None)
+                }
+            }
+        })
+
+    itm = list(dbMongo.attendances.aggregate(agr))
+    itm = numpy.array([x['_id'] for x in itm], dtype='datetime64')
+    if len(itm) < 0:
+        itm = numpy.array([])
+    return itm
+
 def convertFunc(list_data, totalReport, totalHours, dataFillingLogbook, listDayNoLogbook):
     dict = { 
             "id":str(list_data[0]),
