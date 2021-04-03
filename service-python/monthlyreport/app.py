@@ -106,12 +106,13 @@ def listUserByUnit():
                 get_data_logbook_redis = redis_client.get(keys_redis(i.id, 'logbooks'))
                 get_data_attendance_redis = redis_client.get(keys_redis(i.id, 'attendances'))
 
+                # Get list date weekend
+                listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
+
                 # Get list date logbook from redis
                 if get_data_logbook_redis and end_date.date() < datetime.datetime.today().replace(day=1).date():
                     # filter date logbook by query
                     listDateLogbook = np.array([parse_datetime(data['dateTask']).strftime('%Y-%m-%d') for data in json.loads(get_data_logbook_redis) if start_date <= parse_datetime(data['dateTask']) <= end_date], dtype='datetime64')
-                    # Remove duplicate date logbook
-                    listDateLogbook = [i for j, i in enumerate(listDateLogbook) if i not in listDateLogbook[:j]]  
                 else:
                     # Get list date logbook from database
                     listDateLogbook = getListDateLogbook(mongoClient, i.id, np, start_date, end_date)
@@ -126,7 +127,8 @@ def listUserByUnit():
                 # Join array date logbook and array date permit
                 listDateLogbook = np.concatenate((listDateLogbook, listPermit))
 
-                listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
+                # Remove duplicate date logbook
+                listDateLogbook = [i for j, i in enumerate(listDateLogbook) if i not in listDateLogbook[:j]]  
                 
                 # Delete date logbook if there are weekend and holiday
                 listDateLogbook = list(np.array(list(filter(lambda x: x not in np.concatenate((listWeekend.holidays, listHoliday)), listDateLogbook))))
