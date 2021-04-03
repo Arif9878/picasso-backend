@@ -1,9 +1,15 @@
 import pytz
+from datetime import datetime
 local = pytz.timezone ("Asia/Jakarta")
 from jaeger_client import Config
 
 busmask_names = 'Mon Tue Wed Thu Fri'
 weekmask_names = 'Sat Sun'
+
+def keys_redis(user_id, key): return '%s-%s' % (user_id, key)
+
+def parse_datetime(date):
+    return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
 
 def getCountHours(mongoClient, idUser, start_date, end_date):
     dbMongo = mongoClient.attendance
