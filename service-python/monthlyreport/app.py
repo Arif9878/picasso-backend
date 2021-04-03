@@ -1,5 +1,5 @@
-import os, json, sentry_sdk
-
+import os, numpy as np, json, datetime, redis, sentry_sdk
+from datetime import timedelta
 from os.path import join, dirname, exists
 from dotenv import load_dotenv
 from flask import Flask, request
@@ -8,7 +8,21 @@ from pymongo import MongoClient
 from flask_opentracing import FlaskTracing
 from sentry_sdk.integrations.flask import FlaskIntegration
 
-from utils import getCountHours, getCountLogbook, convertFunc, queryAccount, config_jaeger
+from holiday_query import getListHoliday
+from utils import (
+        busmask_names,
+        weekmask_names,
+        getCountHours,
+        getCountLogbook,
+        getListDateLogbook,
+        convertFunc,
+        queryAccount,
+        config_jaeger,
+        keys_redis,
+        parse_datetime
+    )
+
+redis_client = redis.Redis(host=os.environ.get('REDIS_HOST'), port=os.environ.get('REDIS_PORT'), db=0)
 
 dotenv_path = ''
 if exists(join(dirname(__file__), '../../.env')):
@@ -69,13 +83,50 @@ def listUserByUnit():
         query = queryAccount(search='%'+search+'%', divisi=divisi)
     result = db.session.execute(query)
     response = []
+
+    if start_date and end_date:
+        start_date = datetime.datetime.strptime(start_date+'-0:0:0', '%Y-%m-%d-%H:%M:%S')
+        end_date = datetime.datetime.strptime(end_date+'-23:59:59', '%Y-%m-%d-%H:%M:%S')
+
+        dateRange = np.arange(np.datetime64(start_date), np.datetime64(end_date+timedelta(days=1)), dtype='datetime64[D]')
+        listBusday = np.busdaycalendar(holidays=dateRange, weekmask=busmask_names)
+        listHoliday = getListHoliday(mongoClient, np, start_date.year, end_date.month)
+
+        # Delete working days if there are holidays
+        listBusday = np.array(list(filter(lambda x: x not in listHoliday, listBusday.holidays)))
+
     if result.returns_rows == False:
         return response
     else:
         for i in result:
+            listDayNoLogbook = []
+            dataFillingLogbook = 0
+            if start_date and end_date:
+                get_data_redis = redis_client.get(keys_redis(i.id, 'logbooks'))
+
+                # Get list date logbook from redis
+                if get_data_redis and end_date.date() < datetime.datetime.today().replace(day=1).date():
+                    # filter date logbook by query
+                    listDateLogbook = np.array([parse_datetime(data['dateTask']).strftime('%Y-%m-%d') for data in json.loads(get_data_redis) if start_date <= parse_datetime(data['dateTask']) <= end_date], dtype='datetime64')
+                    # Remove duplicate date logbook
+                    listDateLogbook = [i for j, i in enumerate(listDateLogbook) if i not in listDateLogbook[:j]] 
+                else:
+                    # Get list date logbook from database
+                    listDateLogbook = getListDateLogbook(mongoClient, i.id, np, start_date, end_date)
+                listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
+                
+                # Delete date logbook if there are weekend and holiday
+                listDateLogbook = list(np.array(list(filter(lambda x: x not in np.concatenate((listWeekend.holidays, listHoliday)), listDateLogbook))))
+
+                # Logbook list empty days
+                listDayNoLogbook = list(np.array(list(filter(lambda x: x not in listDateLogbook, listBusday))))
+                dataFillingLogbook = round((len(listDateLogbook)/len(listBusday))*100, 2)
+                if len(listDayNoLogbook) > 0:
+                    listDayNoLogbook = list(np.datetime_as_string(listDayNoLogbook, unit='D'))
+            
             totalReport = getCountLogbook(mongoClient, i.id, start_date, end_date)
             totalHours = getCountHours(mongoClient, i.id, start_date, end_date)
-            response.append(convertFunc(i, totalReport, totalHours))
+            response.append(convertFunc(i, totalReport, totalHours, dataFillingLogbook, listDayNoLogbook))
     return json.dumps(response)
 
 port = os.environ.get('MONTHLY_REPORT_PORT', 80)

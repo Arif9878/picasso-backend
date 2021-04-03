@@ -1,6 +1,15 @@
-import datetime, math, pytz
+import pytz
+from datetime import datetime
 local = pytz.timezone ("Asia/Jakarta")
 from jaeger_client import Config
+
+busmask_names = 'Mon Tue Wed Thu Fri'
+weekmask_names = 'Sat Sun'
+
+def keys_redis(user_id, key): return '%s-%s' % (user_id, key)
+
+def parse_datetime(date):
+    return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
 
 def getCountHours(mongoClient, idUser, start_date, end_date):
     dbMongo = mongoClient.attendance
@@ -28,8 +37,6 @@ def getCountHours(mongoClient, idUser, start_date, end_date):
     ]
 
     if start_date:
-        start_date = datetime.datetime.strptime(start_date+'-0:0:0', '%Y-%m-%d-%H:%M:%S')
-        end_date = datetime.datetime.strptime(end_date+'-23:59:59', '%Y-%m-%d-%H:%M:%S')
         agr.insert(0, {
             '$match': {
                 'startDate': {
@@ -66,8 +73,6 @@ def getCountLogbook(mongoClient, idUser, start_date, end_date):
     ]
 
     if start_date:
-        start_date = datetime.datetime.strptime(start_date+'-0:0:0', '%Y-%m-%d-%H:%M:%S')
-        end_date = datetime.datetime.strptime(end_date+'-23:59:59', '%Y-%m-%d-%H:%M:%S')
         agr.insert(0, {
             '$match': {
                 'dateTask': {
@@ -84,8 +89,53 @@ def getCountLogbook(mongoClient, idUser, start_date, end_date):
       count = itm[0]['count']
     return count
 
-def convertFunc(list_data, totalReport, totalHours):
-    dic = { 
+def getListDateLogbook(mongoClient, idUser, numpy, start_date, end_date):
+    dbMongo = mongoClient.logbook
+    agr = [
+        {
+            '$match': {
+                "createdBy._id": str(idUser)
+            }
+        }, {
+        '$group': {
+            '_id': {
+                    '$dateToString': {
+                        'format': '%Y-%m-%d', 
+                        'date': '$dateTask', 
+                        'timezone': 'Asia/Jakarta'
+                    }
+                }
+            }
+        }, {
+            '$project': {
+                '_id': 1
+            }
+        }, {
+            '$sort': {
+                '_id': 1
+            }
+        }
+    ]
+
+    if start_date:
+        agr.insert(0, {
+            '$match': {
+                'dateTask': {
+                    '$gte': local.localize(start_date, is_dst=None),
+                    '$lt': local.localize(end_date, is_dst=None)
+                }
+            }
+        })
+
+
+    itm = list(dbMongo.logbooks.aggregate(agr))
+    itm = numpy.array([x['_id'] for x in itm], dtype='datetime64')
+    if len(itm) < 0:
+        itm = numpy.array([])
+    return itm
+
+def convertFunc(list_data, totalReport, totalHours, dataFillingLogbook, listDayNoLogbook):
+    dict = { 
             "id":str(list_data[0]),
             "email":list_data[1],
             "username":list_data[2],
@@ -95,9 +145,11 @@ def convertFunc(list_data, totalReport, totalHours):
             "jabatan":list_data[6],
             "fullname":list_data[7],
             "total_report": totalReport,
-            "total_hours": totalHours
+            "total_hours": totalHours,
+            "precentage_logbook_data_filling": dataFillingLogbook,
+            "logbook_list_empty_days": listDayNoLogbook
           }
-    return dic
+    return dict
 
 def queryAccount(search='%', divisi=None, is_active=True):
     query = """
