@@ -128,7 +128,7 @@ def listUserByUnit():
 
             if get_data_attendance_redis and end_date.date() < datetime.datetime.today().replace(day=1).date():
                 # Get list date permit from redis
-                listPermit = np.array([data for data in json.loads(get_data_attendance_redis) if start_date <= parse_datetime(data['startDate']) <= end_date and data['message'] in ['CUTI', 'SAKIT', 'IZIN']], dtype='datetime64')
+                listPermit = np.array([parse_datetime(data['startDate']).strftime('%Y-%m-%d') for data in json.loads(get_data_attendance_redis) if start_date <= parse_datetime(data['startDate']) <= end_date and data['message'] in ['CUTI', 'SAKIT', 'IZIN']], dtype='datetime64')
             else:
                 # Get list date permit from database
                 listPermit = getListPermit(mongoClient, user['id'], np, start_date, end_date)
