@@ -11,3 +11,4 @@ python-dotenv==0.10.3
 gunicorn==19.9.0
 boto3==1.17.18
 redis==3.5.3
+marshmallow==3.11.1

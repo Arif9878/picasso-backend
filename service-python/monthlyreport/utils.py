@@ -2,9 +2,19 @@ import pytz
 from datetime import datetime
 local = pytz.timezone ("Asia/Jakarta")
 from jaeger_client import Config
+from marshmallow import Schema, fields
 
 busmask_names = 'Mon Tue Wed Thu Fri'
 weekmask_names = 'Sat Sun'
+class UserResults(Schema):
+    id = fields.Str(dump_only=True)
+    email = fields.Str(required=True)
+    username = fields.Str(dump_only=True)
+    id_divisi = fields.Str(dump_only=True)
+    divisi = fields.Str(dump_only=True)
+    id_jabatan = fields.Str(dump_only=True)
+    jabatan = fields.Str(dump_only=True)
+    fullname = fields.Str(dump_only=True)
 
 def keys_redis(user_id, key): return '%s-%s' % (user_id, key)
 
@@ -174,23 +184,6 @@ def getListPermit(mongoClient, idUser, numpy, start_date, end_date):
     if len(itm) < 0:
         itm = numpy.array([])
     return itm
-
-def convertFunc(list_data, totalReport, totalHours, dataFillingLogbook, listDayNoLogbook):
-    dict = { 
-            "id":str(list_data[0]),
-            "email":list_data[1],
-            "username":list_data[2],
-            "id_divisi":list_data[3],
-            "divisi":list_data[4],
-            "id_jabatan":list_data[5],
-            "jabatan":list_data[6],
-            "fullname":list_data[7],
-            "total_report": totalReport,
-            "total_hours": totalHours,
-            "precentage_logbook_data_filling": dataFillingLogbook,
-            "logbook_list_empty_days": listDayNoLogbook
-          }
-    return dict
 
 def queryAccount(search='%', divisi=None, is_active=True):
     query = """
