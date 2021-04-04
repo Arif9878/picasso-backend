@@ -16,4 +16,5 @@ Flask-OpenTracing==1.1.0
 jaeger-client==4.4.0
 sentry-sdk[flask]==0.19.5
 redis==3.5.3
+marshmallow==3.11.1
 pytz
