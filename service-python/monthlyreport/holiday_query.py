@@ -1,32 +1,17 @@
-def getListHoliday(mongoClient, numpy, year, month):
+from utils import local
+
+def getListHoliday(mongoClient, numpy, start_date, end_date):
     dbMongo = mongoClient.holidaydate
     agr = [
         {
             '$project': {
                 '_id': 0, 
-                'year': {
-                    '$year': {
-                        'date': '$holiday_date', 
-                        'timezone': 'Asia/Jakarta'
-                    }
-                }, 
-                'month': {
-                    '$month': {
-                        'date': '$holiday_date', 
-                        'timezone': 'Asia/Jakarta'
-                    }
-                }, 
                 'holiday_date': {
                     '$dateToString': {
                         'format': '%Y-%m-%d', 
                         'date': '$holiday_date'
                     }
                 }
-            }
-        }, {
-            '$match': {
-                'year': year,
-                'month': month
             }
         }, {
             '$sort': {
@@ -38,6 +23,16 @@ def getListHoliday(mongoClient, numpy, year, month):
             }
         }
     ]
+    if start_date:
+        agr.insert(0, {
+            '$match': {
+                'holiday_date': {
+                    '$gte': local.localize(start_date, is_dst=None),
+                    '$lt': local.localize(end_date, is_dst=None)
+                }
+            }
+        })
+
     itm = list(dbMongo.holidaydate.aggregate(agr))
     listHoliday = numpy.array([x['holiday_date'] for x in itm], dtype='datetime64')
     if len(listHoliday) < 0:
