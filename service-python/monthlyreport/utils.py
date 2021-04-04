@@ -18,6 +18,9 @@ class UserResults(Schema):
 
 def keys_redis(user_id, key): return '%s-%s' % (user_id, key)
 
+def is_blank(s):
+    return bool(s is None or s.strip() == '')
+    
 def parse_datetime(date):
     return datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
 
