@@ -91,7 +91,7 @@ def listUserByUnit():
 
         dateRange = np.arange(np.datetime64(start_date), np.datetime64(end_date+timedelta(days=1)), dtype='datetime64[D]')
         listBusday = np.busdaycalendar(holidays=dateRange, weekmask=busmask_names)
-        listHoliday = getListHoliday(mongoClient, np, start_date.year, end_date.month)
+        listHoliday = getListHoliday(mongoClient, np, start_date, end_date)
 
         # Delete working days if there are holidays
         listBusday = np.array(list(filter(lambda x: x not in listHoliday, listBusday.holidays)))
