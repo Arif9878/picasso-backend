@@ -86,7 +86,7 @@ def listUserByUnit():
     
     get_users_redis = redis_client.get('users')
 
-    if get_users_redis and search is None:
+    if get_users_redis and search is None or search != '':
         users = json.loads(get_users_redis)
         result = [data for data in users if data['id_divisi'] == divisi]
     else:
