@@ -1,3 +1,15 @@
+from marshmallow import Schema, fields
+
+class UserResults(Schema):
+    id = fields.Str(dump_only=True)
+    email = fields.Str(required=True)
+    username = fields.Str(dump_only=True)
+    id_divisi = fields.Str(dump_only=True)
+    divisi = fields.Str(dump_only=True)
+    id_jabatan = fields.Str(dump_only=True)
+    jabatan = fields.Str(dump_only=True)
+    fullname = fields.Str(dump_only=True)
+
 def getListLogbook(mongo_client):
     dbMongo = mongo_client.logbook
     agr = [
@@ -64,7 +76,13 @@ def queryAccount(is_active=True):
     query = """
         SELECT
             accounts_account.id,
-            accounts_account.is_active
+            accounts_account.email,
+            accounts_account.username,
+            accounts_account.id_divisi,
+            accounts_account.divisi,
+            accounts_account.id_jabatan,
+            accounts_account.jabatan,
+            CONCAT(first_name,' ',last_name) AS fullname
         FROM
             accounts_account
         WHERE

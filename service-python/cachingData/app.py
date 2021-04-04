@@ -3,7 +3,7 @@ from os.path import join, dirname, exists
 from dotenv import load_dotenv
 from pymongo import MongoClient
 from flask_sqlalchemy import SQLAlchemy
-from utils import getListLogbook, getListAttendance, putToS3, getFromS3, queryAccount
+from utils import getListLogbook, getListAttendance, putToS3, getFromS3, queryAccount, UserResults
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
 
@@ -63,17 +63,31 @@ def dumpToS3():
 def cacheToRedis():
     json_logbooks = getFromS3(s3, os.environ.get('AWS_S3_BUCKET'), os.environ.get('DUMP_DATA_LOGBOOKS'))
     json_attendances = getFromS3(s3, os.environ.get('AWS_S3_BUCKET'), os.environ.get('DUMP_DATA_ATTENDANCES'))
-    query_user = queryAccount()
-    result_users = db.session.execute(query_user)
-    for user in result_users:
-        logbooks = [data for data in json.loads(json_logbooks) if data['createdById']==str(user.id)]
-        attendances = [data for data in json.loads(json_attendances) if data['createdById']==str(user.id)]
-        redis_client.set(set_key_redis(user.id, 'logbooks'), json.dumps(logbooks))
-        redis_client.set(set_key_redis(user.id, 'attendances'), json.dumps(attendances))
+    get_accounts_redis = redis_client.get('accounts')
+    if get_accounts_redis:
+        result = json.loads(get_accounts_redis)
+    else:
+        query_user = queryAccount()
+        users = db.session.execute(query_user)
+        result_schema = UserResults()
+        result = result_schema.dump(users, many=True)
+    for user in result:
+        logbooks = [data for data in json.loads(json_logbooks) if data['createdById']==str(user['id'])]
+        attendances = [data for data in json.loads(json_attendances) if data['createdById']==str(user['id'])]
+        redis_client.set(set_key_redis(user['id'], 'logbooks'), json.dumps(logbooks))
+        redis_client.set(set_key_redis(user['id'], 'attendances'), json.dumps(attendances))
+
+def cacheUser():
+    query_user = queryAccount()        
+    users = db.session.execute(query_user)
+    result_schema = UserResults()
+    result = result_schema.dump(users, many=True)
+    redis_client.set('users', json.dumps(result))
 
 sched = BackgroundScheduler(daemon=True)
 sched.add_job(dumpToS3, 'interval', hours=2)
 sched.add_job(cacheToRedis, 'interval', hours=2, minutes=10)
+sched.add_job(cacheUser, 'interval', hours=12)
 sched.start()
 
 port = os.environ.get('CACHING_DATA_PORT', 80)
