@@ -53,9 +53,7 @@ services:
     build:
       context: ./service-python/cachingData
     command: /usr/local/bin/gunicorn wsgi:app -w 2 -b :80
-    cpus: 0.3
-    mem_limit: 250m
-    memswap_limit: 150m
+    mem_limit: 512m
     restart: always
     networks:
       - cachingdata

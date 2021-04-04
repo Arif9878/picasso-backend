@@ -63,17 +63,17 @@ def dumpToS3():
 def cacheToRedis():
     json_logbooks = getFromS3(s3, os.environ.get('AWS_S3_BUCKET'), os.environ.get('DUMP_DATA_LOGBOOKS'))
     json_attendances = getFromS3(s3, os.environ.get('AWS_S3_BUCKET'), os.environ.get('DUMP_DATA_ATTENDANCES'))
-    get_accounts_redis = redis_client.get('accounts')
-    if get_accounts_redis:
-        result = json.loads(get_accounts_redis)
+    get_users_redis = redis_client.get('users')
+    if get_users_redis:
+        result = json.loads(get_users_redis)
     else:
         query_user = queryAccount()
         users = db.session.execute(query_user)
         result_schema = UserResults()
         result = result_schema.dump(users, many=True)
     for user in result:
-        logbooks = [data for data in json.loads(json_logbooks) if data['createdById']==str(user['id'])]
-        attendances = [data for data in json.loads(json_attendances) if data['createdById']==str(user['id'])]
+        logbooks = [data for data in json.loads(json_logbooks) if data['createdById']==user['id']]
+        attendances = [data for data in json.loads(json_attendances) if data['createdById']==user['id']]
         redis_client.set(set_key_redis(user['id'], 'logbooks'), json.dumps(logbooks))
         redis_client.set(set_key_redis(user['id'], 'attendances'), json.dumps(attendances))
 
