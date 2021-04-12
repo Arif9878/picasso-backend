@@ -4,6 +4,17 @@ const nats = require('nats').connect({
     'servers': servers_nats
 })
 
+const URL = require("url").URL;
+
+const stringIsAValidUrl = (s) => {
+  try {
+    new URL(s);
+    return true;
+  } catch (err) {
+    return false;
+  }
+};
+
 function encode(input) {
     const keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
     let output = ""
@@ -60,5 +71,6 @@ function getTupoksiJabatanDetail(Id) {
 module.exports = {
     encode,
     imageResize,
-    getTupoksiJabatanDetail
+    getTupoksiJabatanDetail,
+    stringIsAValidUrl
 }
