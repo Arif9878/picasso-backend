@@ -2,7 +2,7 @@ const { errors, APIError } = require('../utils/exceptions')
 const { onUpdated, filePath } = require('../utils/session')
 const { validationResult } = require('express-validator')
 const { postFile, updateFile, updateBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize, getTupoksiJabatanDetail } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail, stringIsAValidUrl } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 
@@ -11,24 +11,21 @@ const LogBook = require('../models/LogBook')
 
 module.exports = async (req, res) => { // eslint-disable-line
     const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
-    const span = tracer.startSpan(req.originalUrl, {
-        childOf: parentSpan,
-    })
+    const span = tracer.startSpan(req.originalUrl, { childOf: parentSpan })
     try {
         const session = req.user
         const errorsValidate = validationResult(req)
-        if (!errorsValidate.isEmpty()) {
-            return res.status(422).json({ code: 422, errors: errorsValidate.array() })
-        }
+        if (!errorsValidate.isEmpty()) return res.status(422).json({ code: 422, errors: errorsValidate.array() })
+
         const {
             _id
         } = req.params
         const resultLogBook = await LogBook.findById({
             _id: _id
         }).lean()
+
         let evidenceResponse = resultLogBook.evidenceTask
         let blobResponse = resultLogBook.blobTask
-        let documentResponse = resultLogBook.documentTask
 
         const {
             dateTask = null,
@@ -38,13 +35,29 @@ module.exports = async (req, res) => { // eslint-disable-line
             nameTask = null,
             difficultyTask = null,
             organizerTask = null,
-            isMainTask = null,
+            documentTask = null,
             workPlace = null,
-            otherInformation = null,
-            isDocumentLink = false
+            otherInformation = null
         } = req.body
-        const isTask = String(isMainTask) === 'true'
-        const isLink = String(isDocumentLink) === 'true'
+
+        // check tupoksi jabatan and document link url
+        if (tupoksiJabatanId !== process.env.TUPOKSI_DILUAR_TUGAS && !documentTask) throw new APIError(errors.documentNotFound)
+
+        // check valid url
+        if (documentTask && !stringIsAValidUrl(documentTask)) throw new APIError(errors.urlLinkInvalid)
+
+        // get tupoksi jabatan
+        let tupoksiJabatanName = null
+        if (tupoksiJabatanId) {
+            const detail = await getTupoksiJabatanDetail(tupoksiJabatanId)
+            if (detail) {
+                tupoksiJabatanName = detail.Value.name_tupoksi
+            } else {
+                return res.status(500).send(errors.tupoksiNotFound)
+            }
+        }
+
+        // update image evidence
         let dataBlobEvidence = null
         try {
             if (req.files.evidenceTask) {
@@ -62,41 +75,10 @@ module.exports = async (req, res) => { // eslint-disable-line
         } catch(err) {
             //
         }
-        if (isLink) {
-            if (req.body.documentTask.length < 0) throw new APIError(errors.serverError)
-            let pathURL = req.body.documentTask
-            if (req.body.documentTask === 'null') {
-                pathURL = null
-            }
-            documentResponse = {
-                filePath: null,
-                fileURL: pathURL
-            }
-        } else {
-            try {
-                if (req.files.documentTask) {
-                    const miniBuffer = await imageResize(req.files.documentTask.data)
-                    if (resultLogBook.documentTask && resultLogBook.documentTask.filePath === null || resultLogBook.documentTask.filePath.length === 0) {
-                        documentResponse = await postFile(dateTask, 'document', req.files.documentTask.name, miniBuffer)
-                    } else {
-                        documentResponse = await updateFile(dateTask, resultLogBook.documentTask.filePath, 'document', req.files.documentTask.name, miniBuffer)
-                    }
-                }
-            } catch(err) {
-                //
-            }
-        }
 
-        // get tupoksi jabatan
-        let tupoksiJabatanName = null
-        if (tupoksiJabatanId) {
-            const detail = await getTupoksiJabatanDetail(tupoksiJabatanId)
-            if (detail) {
-                tupoksiJabatanName = detail.Value.name_tupoksi
-            } else {
-                return res.status(500).send(errors.tupoksiNotFound)
-            }
-        }
+        // update document link
+        console.log(documentTask)
+        const documentResponse = { filePath: '', fileURL: documentTask }
 
         const data = {
             dateTask,
@@ -105,8 +87,6 @@ module.exports = async (req, res) => { // eslint-disable-line
             projectId,
             projectName,
             nameTask,
-            isDocumentLink: isLink,
-            isMainTask: isTask,
             difficultyTask,
             evidenceTask: filePath(evidenceResponse),
             documentTask: filePath(documentResponse),

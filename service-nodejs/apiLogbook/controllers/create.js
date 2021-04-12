@@ -2,7 +2,7 @@ const { errors, APIError } = require('../utils/exceptions')
 const { validationResult } = require('express-validator')
 const { onCreated, filePath } = require('../utils/session')
 const { postFile, postBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize, getTupoksiJabatanDetail } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail, stringIsAValidUrl } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 // Import Model
@@ -10,15 +10,11 @@ const LogBook = require('../models/LogBook')
 
 module.exports = async (req, res) => { // eslint-disable-line
     const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
-    const span = tracer.startSpan(req.originalUrl, {
-        childOf: parentSpan,
-    })
+    const span = tracer.startSpan(req.originalUrl, { childOf: parentSpan })
     try {
         const session = req.user
         const errorsValidate = validationResult(req)
-        if (!errorsValidate.isEmpty()) {
-            return res.status(422).json({ code: 422, errors: errorsValidate.array() })
-        }
+        if (!errorsValidate.isEmpty()) return res.status(422).json({ code: 422, errors: errorsValidate.array() })
 
         const {
             dateTask = null,
@@ -28,10 +24,9 @@ module.exports = async (req, res) => { // eslint-disable-line
             nameTask = null,
             difficultyTask = null,
             organizerTask = null,
-            isMainTask = null,
+            documentTask = null,
             workPlace = null,
-            otherInformation = null,
-            isDocumentLink = null
+            otherInformation = null
         } = req.body
 
         if (!req.files || Object.keys(req.files).length === 0) throw new APIError(errors.validationError)
@@ -43,6 +38,13 @@ module.exports = async (req, res) => { // eslint-disable-line
             postBlobsFile(dateTask, 'gzip', dataBlobEvidence)
         ])
         if (!evidenceResponse.filePath) throw new APIError(errors.evidenceError)
+
+        // check tupoksi jabatan and document link url
+        if (tupoksiJabatanId !== process.env.TUPOKSI_DILUAR_TUGAS && !documentTask) throw new APIError(errors.documentNotFound)
+
+        // check valid url
+        if (documentTask && !stringIsAValidUrl(documentTask)) throw new APIError(errors.urlLinkInvalid)
+
         // get tupoksi jabatan
         let tupoksiJabatanName = null
         if (tupoksiJabatanId) {
@@ -55,21 +57,9 @@ module.exports = async (req, res) => { // eslint-disable-line
         }
         
         let documentResponse = {}
-        const isTask = String(isMainTask) === 'true'
-        const isLink = String(isDocumentLink) === 'true'
-        if (isLink) {
-            if (req.body.documentTask.length < 0) throw new APIError(errors.validationError)
-            let pathURL = req.body.documentTask
-            if (req.body.documentTask === 'null') {
-                pathURL = null
-            }
-            documentResponse = {
-                filePath: '',
-                fileURL: pathURL
-            }
-        } else {
-            const miniBuffer = await imageResize(req.files.documentTask.data)
-            documentResponse = await postFile(dateTask, 'document', req.files.documentTask.name, miniBuffer)
+        documentResponse = {
+            filePath: '',
+            fileURL: documentTask
         }
 
         const data = {
@@ -79,8 +69,6 @@ module.exports = async (req, res) => { // eslint-disable-line
           projectId,
           projectName,
           nameTask,
-          isDocumentLink: isLink,
-          isMainTask: isTask,
           difficultyTask,
           evidenceTask: filePath(evidenceResponse),
           documentTask: filePath(documentResponse),

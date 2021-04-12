@@ -77,12 +77,12 @@ const LogBook = new Schema({
     isDocumentLink: {
         type: Boolean,
         required: false,
-        default: true
+        default: false
     },
     isMainTask: {
         type: Boolean,
         required: false,
-        default: true
+        default: false
     },
     workPlace: {
         type: String,
