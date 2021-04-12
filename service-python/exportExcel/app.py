@@ -77,6 +77,8 @@ def exportExcelByDivisi():
     memory = io.BytesIO()
     output, nameFile = exportExcelFormatHorizontal(mongoClient, memory, listDate, result)
     output.seek(0)
+    # close connection database
+    result.close()
     return send_file(output, attachment_filename="%s.xlsx" % nameFile, as_attachment=True)
 
 @app.route('/api/export-excel/category/')
@@ -95,10 +97,13 @@ def exportExcelByCategory():
     if manager_category:
         query = queryAccount(manager_category='%'+manager_category+'%')
     result = db.session.execute(query)
+
     listDate = list(monthlist_short(dates))
     memory = io.BytesIO()
     output = exportExcelFormatVertical(mongoClient, memory, listDate, result)
     output.seek(0)
+    # close connection database
+    result.close()
     return send_file(output, attachment_filename="%s.xlsx" % manager_category, as_attachment=True)
 
 port = os.environ.get('EXPORT_EXCEL_PORT', 80)
