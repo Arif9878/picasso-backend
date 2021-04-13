@@ -46,14 +46,13 @@ JAEGER_HOST = os.environ.get("JAEGER_HOST")
 JAEGER_PORT = os.environ.get("JAEGER_PORT")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = os.environ.get("DEBUG")
 CSRF_USE_SESSIONS = False
 ALLOWED_HOSTS = ['*']
 
 # Application definition
 
 INSTALLED_APPS = [
-    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -121,6 +120,7 @@ DATABASES = {
         'PASSWORD': DB_PASSWORD_AUTH,
         'HOST': DATABASE_HOST,
         'PORT': DATABASE_PORT,
+        'CONN_MAX_AGE' : 30,
     }
 }
 

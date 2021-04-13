@@ -77,6 +77,8 @@ def exportExcelByDivisi():
     memory = io.BytesIO()
     output, nameFile = exportExcelFormatHorizontal(mongoClient, memory, listDate, result)
     output.seek(0)
+    # close connection database
+    result.close()
     return send_file(output, attachment_filename="%s.xlsx" % nameFile, as_attachment=True)
 
 @app.route('/api/export-excel/category/')
@@ -99,6 +101,8 @@ def exportExcelByCategory():
     memory = io.BytesIO()
     output = exportExcelFormatVertical(mongoClient, memory, listDate, result)
     output.seek(0)
+    # close connection database
+    result.close()
     return send_file(output, attachment_filename="%s.xlsx" % manager_category, as_attachment=True)
 
 port = os.environ.get('EXPORT_EXCEL_PORT', 80)

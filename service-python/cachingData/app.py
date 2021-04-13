@@ -71,6 +71,8 @@ def cacheToRedis():
         users = db.session.execute(query_user)
         result_schema = UserResults()
         result = result_schema.dump(users, many=True)
+        # close connection database
+        users.close()
     for user in result:
         logbooks = [data for data in json.loads(json_logbooks) if data['createdById']==user['id']]
         attendances = [data for data in json.loads(json_attendances) if data['createdById']==user['id']]
@@ -82,6 +84,8 @@ def cacheUser():
     users = db.session.execute(query_user)
     result_schema = UserResults()
     result = result_schema.dump(users, many=True)
+    # close connection database
+    users.close()
     redis_client.set('users', json.dumps(result))
 
 sched = BackgroundScheduler(daemon=True)
