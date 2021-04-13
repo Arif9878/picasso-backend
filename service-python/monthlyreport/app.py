@@ -97,7 +97,8 @@ def listUserByUnit():
         else:
             result_schema = UserResults()
             result = result_schema.dump(users, many=True)
-
+            # close connection database
+            users.close()
     if start_date and end_date:
         start_date = datetime.datetime.strptime(start_date+'-0:0:0', '%Y-%m-%d-%H:%M:%S')
         end_date = datetime.datetime.strptime(end_date+'-23:59:59', '%Y-%m-%d-%H:%M:%S')
