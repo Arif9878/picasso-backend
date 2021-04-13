@@ -10,7 +10,7 @@ import (
 
 const (
 	maxOpenConns    = 60
-	connMaxLifetime = 120
+	connMaxLifetime = 100
 	maxIdleConns    = 30
 )
 
