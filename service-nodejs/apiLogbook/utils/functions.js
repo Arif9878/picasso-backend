@@ -4,6 +4,21 @@ const nats = require('nats').connect({
     'servers': servers_nats
 })
 
+const redis = require('redis')
+const redisClient = redis.createClient({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+})
+
+function getKeyRedis(userId, key) {
+    return new Promise(resolve => {
+        redisClient.get(userId+'-'+key, function(err, data) {
+            if (err) throw new APIError(errors.serverError)
+            resolve(JSON.parse(data))
+        })
+    })
+}
+
 function encode(input) {
     const keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
     let output = ""
@@ -60,5 +75,6 @@ function getTupoksiJabatanDetail(Id) {
 module.exports = {
     encode,
     imageResize,
+    getKeyRedis,
     getTupoksiJabatanDetail
 }
