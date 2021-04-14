@@ -128,7 +128,7 @@ DATABASES = {
         'PASSWORD': DB_PASSWORD_AUTH,
         'HOST': DATABASE_HOST,
         'PORT': DATABASE_PORT,
-        'CONN_MAX_AGE' : 30,  
+        'CONN_MAX_AGE' : 30, 
     }
 }
 
