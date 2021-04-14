@@ -29,7 +29,7 @@ apiEndpoints:
 
   oauth2_login:
     host: '*'
-    paths: /social/google-oauth2/*
+    paths: /social/*
     methods: ["POST","OPTIONS"]
 
   satuankerja:

@@ -33,7 +33,15 @@ const errors = {
     },
     tupoksiNotFound: {
         code: 422,
-        message: "Tupoksi Jabatan tidak ada",
+        message: "No job duties and functions",
+    },
+    documentNotFound: {
+        code: 422,
+        message: "Attachments cannot be empty",
+    },
+    urlLinkInvalid: {
+        code: 422,
+        message: "URL link is not properly formatted",
     },
 }
 

@@ -97,6 +97,7 @@ def exportExcelByCategory():
     if manager_category:
         query = queryAccount(manager_category='%'+manager_category+'%')
     result = db.session.execute(query)
+
     listDate = list(monthlist_short(dates))
     memory = io.BytesIO()
     output = exportExcelFormatVertical(mongoClient, memory, listDate, result)
