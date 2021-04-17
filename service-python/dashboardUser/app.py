@@ -106,7 +106,7 @@ def dashboardAttendanceUser():
             # Delete working days if there are holidays
             listBusday = np.array(list(filter(lambda x: x not in listHoliday, listBusday.holidays)))
 
-            latePresence = len([data for data in list_presence if max_time_presence < parse_datetime(data['startDate']).time()])
+            latePresence = len([data for data in list_presence if parse_datetime(data['startDate']).date() not in listWeekend.holidays and max_time_presence < parse_datetime(data['startDate']).time()])
             permit = len([data for data in list_presence if data['message'] in ['CUTI', 'SAKIT', 'IZIN']])
             totalWfh = len([data for data in list_presence if data['location'] == 'WFH'])
             totalWfo = len([data for data in list_presence if data['location'] == 'WFO'])
