@@ -5,6 +5,7 @@ tests/unit/coverage/
 tests/unit/image-files/
 service-python/authserver/files/static-collected/
 service-python/**/migrations/*
+service-python/**/__pycache__/*
 service-nodejs/**/build/
 service-golang/event/
 service-python/executeFunction/

@@ -173,6 +173,7 @@ policies:
   - oauth2
   - proxy
   - rate-limit
+  - keycloak-protect
   - jwt
   - jaeger
 
@@ -182,9 +183,6 @@ pipelines:
       - authentication
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -198,9 +196,6 @@ pipelines:
       - oauth2_login
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -214,9 +209,6 @@ pipelines:
       - user
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -234,9 +226,6 @@ pipelines:
       - dashboarduser
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -254,9 +243,6 @@ pipelines:
       - menu
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -274,9 +260,6 @@ pipelines:
       - menutype
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -294,9 +277,6 @@ pipelines:
       - satuankerja
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -314,9 +294,6 @@ pipelines:
       - jabatan
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -334,9 +311,6 @@ pipelines:
       - tupoksijabatan
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -354,9 +328,6 @@ pipelines:
       - logbook
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -375,9 +346,6 @@ pipelines:
       - exportpdf
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -396,9 +364,6 @@ pipelines:
       - monthlyreport
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -416,9 +381,6 @@ pipelines:
       - exportexcel
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -436,9 +398,6 @@ pipelines:
       - project
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -456,9 +415,6 @@ pipelines:
       - attendance
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -476,9 +432,6 @@ pipelines:
       - devicetoken
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -496,9 +449,6 @@ pipelines:
       - notificationservice
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -516,9 +466,6 @@ pipelines:
       - notificationmessage
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -536,9 +483,6 @@ pipelines:
       - dayoff
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -555,9 +499,6 @@ pipelines:
       - holidaydate
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -575,9 +516,6 @@ pipelines:
       - settings
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -595,9 +533,6 @@ pipelines:
       - healthcheck
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
