@@ -1,4 +1,19 @@
 const moment = require("moment")
+const redis = require('redis')
+const redisClient = redis.createClient({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+})
+
+function getKeyRedis(key) {
+    return new Promise(resolve => {
+        redisClient.get(key, function(err, data) {
+            if (err) throw new APIError(errors.serverError)
+            resolve(JSON.parse(data))
+        })
+    })
+}
+
 
 function calculateHours(startDate, endDate) {
     const start_date = moment(startDate, 'YYYY-MM-DD HH:mm:ss')
@@ -9,5 +24,6 @@ function calculateHours(startDate, endDate) {
 }
 
 module.exports = {
-    calculateHours
+    calculateHours,
+    getKeyRedis
 }

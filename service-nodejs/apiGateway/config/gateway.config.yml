@@ -322,7 +322,6 @@ pipelines:
           - action:
               serviceEndpoint: tupoksijabatan
               changeOrigin: true
-
   logbook:
     apiEndpoints:
       - logbook
@@ -340,7 +339,6 @@ pipelines:
           - action:
               serviceEndpoint: logbook
               changeOrigin: true
-              timeout: 600000
   exportpdf:
     apiEndpoints:
       - exportpdf
@@ -358,7 +356,6 @@ pipelines:
           - action:
               serviceEndpoint: exportpdf
               changeOrigin: true
-              timeout: 600000
   monthlyreport:
     apiEndpoints:
       - monthlyreport
@@ -540,3 +537,16 @@ pipelines:
           - action:
               serviceEndpoint: exportpdf
               changeOrigin: true
+logbook_oauth:
+  apiEndpoints:
+    - logbook
+  policies:
+    - jaeger:
+    - keycloak-protect:
+    - cors:
+        - action:
+            allowedHeaders: '*'
+    - proxy:
+        - action:
+            serviceEndpoint: logbook
+            changeOrigin: true
