@@ -36,27 +36,22 @@ module.exports = {
                         Authorization: req.headers.authorization,
                     },
                 };
-            
                 // send a request to the userinfo endpoint on keycloak
                 request(options, (error, response, body) => {
                     if (error) throw new Error(error);
-                    console.log(body)
+
                     // if the request status isn't "OK", the token is invalid
                     if (response.statusCode !== 200) {
-                        res.status(401).json({
-                            error: `unauthorized`,
-                        });
+                        res.status(401).send("Unauthorized");
                     }
                     // the token is valid pass request onto your next function
                     else {
-                        next();
+                      next();
                     }
                 });
             } else {
                 // there is no token, don't process request further
-                res.status(401).json({
-                    error: `unauthorized`,
-                });
+                res.status(401).send("Unauthorized");
             }
         }
       },

@@ -6,10 +6,11 @@ const {
     validationResult
 } = require('express-validator')
 const {
+    onClientApp,
     onCreatedClientApp
 } = require('../utils/session')
 const { tracer } = require('../utils/tracer')
-const { getKeyRedis } = require('../utils/functions')
+const { getKeyRedis, getUserDetail } = require('../utils/functions')
 
 const opentracing = require('opentracing')
 const moment = require('moment')
@@ -19,19 +20,27 @@ const Attendance = require('../models/Attendance')
 
 module.exports = async (req, res) => { // eslint-disable-line
     const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
-    const span = tracer.startSpan(req.originalUrl, {
-        childOf: parentSpan,
-    })
+    const span = tracer.startSpan(req.originalUrl, { childOf: parentSpan })
     try {
-        // get from redis
-        const getDataRedisUser = await getKeyRedis('users')
-        const dataUser = await getDataRedisUser.map((val) => { 
-            if (val.email === req.body.createdBy) return val
+        if (!req.body.createdBy) throw new APIError({
+            code: 401,
+            message: 'Token not found',
         })
 
-        if (!dataUser[0]) throw new APIError(errors.tokenNotFound)
+        // get from redis
+        const getDataRedisUser = await getKeyRedis('users')
+        const resp = await getDataRedisUser.map((val) => { 
+            if (val.id === req.body.createdBy) return val
+        })
+        let user = resp[0]
 
-        const session = dataUser[0]
+        // get from message broker
+        if (!user) {
+            const resp = await getUserDetail(req.body.createdBy)
+            user = JSON.parse(resp.user)
+        }
+
+        const session_client = req.client_app
 
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
@@ -59,7 +68,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const rules = [{
             $match: {
-                'createdBy.email': session.email,
+                'createdBy.email': user.email,
                 startDate: {
                     $gte: new Date(`${start} 00:00:00`),
                     $lt: new Date(`${end} 23:59:59`)
@@ -78,7 +87,8 @@ module.exports = async (req, res) => { // eslint-disable-line
             location,
             message,
             note,
-            ...onCreatedClientApp(session)
+            ...onCreatedClientApp(user),
+            ...onClientApp(session_client)
         }
 
         const results = await Attendance.create(data)

@@ -20,10 +20,6 @@ func main() {
 		Timeout:        3 * time.Second,
 		Url:            natsUri,
 	}
-	type Bird struct {
-		Species     string
-		Description string
-	}
 
 	conn, _ := opts.Connect()
 	//defer conn.Close()

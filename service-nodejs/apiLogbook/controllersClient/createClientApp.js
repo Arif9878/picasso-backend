@@ -1,8 +1,8 @@
 const { errors, APIError } = require('../utils/exceptions')
 const { validationResult } = require('express-validator')
-const { onCreatedClientApp, filePath } = require('../utils/session')
+const { onCreatedClientApp, onClientApp, filePath } = require('../utils/session')
 const { postFile, postBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize, getTupoksiJabatanDetail, stringIsAValidUrl, getKeyRedis} = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail, stringIsAValidUrl, getKeyRedis, getUserDetail} = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 // Import Model
@@ -12,15 +12,23 @@ module.exports = async (req, res) => { // eslint-disable-line
     const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
     const span = tracer.startSpan(req.originalUrl, { childOf: parentSpan })
     try {
+        if (!req.body.createdBy) throw new APIError(errors.tokenNotFound)
+
         // get from redis
         const getDataRedisUser = await getKeyRedis('users')
-        const dataUser = await getDataRedisUser.map((val) => { 
-            if (val.email === req.body.createdBy) return val
+        const resp = await getDataRedisUser.map((val) => { 
+            if (val.id === req.body.createdBy) return val
         })
+        let user = resp[0]
 
-        if (!dataUser[0]) throw new APIError(errors.tokenNotFound)
+        // get from message broker
+        if (!user) {
+            const resp = await getUserDetail(req.body.createdBy)
+            user = JSON.parse(resp.user)
+        }
 
-        const session = dataUser[0]
+        const session_client = req.client_app
+
         const errorsValidate = validationResult(req)
         if (!errorsValidate.isEmpty()) return res.status(422).json({ code: 422, errors: errorsValidate.array() })
 
@@ -84,7 +92,8 @@ module.exports = async (req, res) => { // eslint-disable-line
           workPlace,
           organizerTask,
           otherInformation,
-          ...onCreatedClientApp(session)
+          ...onCreatedClientApp(user),
+          ...onClientApp(session_client)
         }
 
         const results = await LogBook.create(data)
@@ -97,6 +106,7 @@ module.exports = async (req, res) => { // eslint-disable-line
         tracer.inject(span, "http_headers", req.headers)
         span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
     } catch (error) {
+        console.log(error)
         const { code, message, data } = error
 
         span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)

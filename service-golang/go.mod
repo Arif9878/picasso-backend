@@ -9,7 +9,6 @@ require (
 	github.com/bdwilliams/go-jsonify v0.0.0-20141020182238-48749139e742
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/getsentry/sentry-go v0.9.0
-	github.com/go-redis/redis/v8 v8.8.2 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/jinzhu/gorm v1.9.12
 	github.com/joho/godotenv v1.3.0

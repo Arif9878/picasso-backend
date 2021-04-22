@@ -34,6 +34,14 @@ module.exports = {
         },
         modifiedBy: session || null,
     }),
+    onClientApp : (session) => ({
+        createdByClient: {
+            _id : session ? session.sub : null,
+            email: session ? session.email : null,
+            name: session ? session.name : null,
+        },
+        modifiedBy: session || null,
+    }),
     filePath: (file) => ({
         filePath: file ? file.filePath : null,
         fileURL: file ? file.fileURL : null

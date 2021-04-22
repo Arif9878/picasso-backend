@@ -83,10 +83,20 @@ function getTupoksiJabatanDetail(Id) {
     })
 }
 
+function getUserDetail(Id) {
+    return new Promise(resolve => {
+        nats.request('userDetail',String(Id), function(resp) {
+            resolve(JSON.parse(resp))
+            nats.unsubscribe(this._sid)
+        })
+    })
+}
+
 module.exports = {
     encode,
     imageResize,
-    getKeyRedis,
     getTupoksiJabatanDetail,
-    stringIsAValidUrl
+    stringIsAValidUrl,
+    getUserDetail,
+    getKeyRedis
 }
