@@ -6,7 +6,7 @@ from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes)
 from rest_framework.authentication import BasicAuthentication
 from .models import Account
-from .serializers import AccountSerializer
+from .serializers import AccountSerializer, AccountClientAppSerializer
 from rest_framework.response import Response
 from authServer.keycloak import get_keycloak_user_id, set_user_password
 from authServer.paginations import CustomPagination
@@ -82,5 +82,5 @@ def client_user_list(request):
     paginator.page_query_param = page_query_param
     queryset = Account.objects.all()
     paginate = paginator.paginate_queryset(queryset=queryset, request=request)
-    serializer = AccountSerializer(paginate, many=True)
+    serializer = AccountClientAppSerializer(paginate, many=True)
     return paginator.get_paginated_response(serializer.data)
