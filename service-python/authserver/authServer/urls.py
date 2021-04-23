@@ -32,6 +32,7 @@ urlpatterns = [
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('api/user/info', detail_user),
     path('api/user/change-password/<slug:user_id>', change_password),
+    # path('api/client/user/app/', client_user_list),
     path('api/token/refresh', refresh_jwt_token),
     path('api/social/google-oauth2/', oauth2_signin),
     path('api/social/keycloak-oauth/', oauth_keycloak_signin),

@@ -90,17 +90,29 @@ apiEndpoints:
     host: '*'
     paths: /healthcheck/*
     methods: ["GET","OPTIONS"]
+  # client_app_user:
+  #   host: '*'
+  #   paths: /client/user/*
+  #   methods: ["GET","OPTIONS"]
   client_app_logbook:
     host: '*'
     paths: /client/logbook/*
-    methods: ["POST", "OPTIONS"]
+    methods: ["GET", "POST", "OPTIONS"]
+  client_app_holidaydate:
+    host: '*'
+    paths: /client/holiday-date/*
+    methods: ["GET", "OPTIONS"]
   client_app_attendance:
     host: '*'
     paths: /client/attendance/*
-    methods: ["POST", "OPTIONS"]
+    methods: ["GET", "POST", "OPTIONS"]
+  client_app_project:
+    host: '*'
+    paths: /client/project/*
+    methods: ["GET", "OPTIONS"]
 
 serviceEndpoints:
-  authentication:
+  user_service:
     url: '${AUTHENTICATION_PY_SERVICE_URI}/api/'
   satuankerja:
     url: '${SATUANKERJA_GO_SERVICE_URI}/api/'
@@ -159,7 +171,7 @@ pipelines:
               allowedHeaders: '*'
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true
   oauth2_login:
     apiEndpoints:
@@ -171,7 +183,7 @@ pipelines:
               allowedHeaders: '*'
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true
   user:
     apiEndpoints:
@@ -187,7 +199,7 @@ pipelines:
               checkCredentialExistence: false
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true
   dashboarduser:
     apiEndpoints:
@@ -219,7 +231,7 @@ pipelines:
               checkCredentialExistence: false
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true
   menutype:
     apiEndpoints:
@@ -235,7 +247,7 @@ pipelines:
               checkCredentialExistence: false
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true             
   satuankerja:
     apiEndpoints:
@@ -517,3 +529,42 @@ pipelines:
           - action:
               serviceEndpoint: attendance
               changeOrigin: true
+  client_app_holidaydate:
+    apiEndpoints:
+      - client_app_holidaydate
+    policies:
+      - jaeger:
+      - keycloak-protect:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: holidaydate
+              changeOrigin: true
+  client_app_project:
+    apiEndpoints:
+      - client_app_project
+    policies:
+      - jaeger:
+      - keycloak-protect:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: project
+              changeOrigin: true
+  # client_app_user:
+  #   apiEndpoints:
+  #     - client_app_user
+  #   policies:
+  #     - jaeger:
+  #     - keycloak-protect:
+  #     - cors:
+  #         - action:
+  #             allowedHeaders: '*'
+  #     - proxy:
+  #         - action:
+  #             serviceEndpoint: user_service
+  #             changeOrigin: true
