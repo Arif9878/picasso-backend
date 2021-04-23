@@ -90,10 +90,10 @@ apiEndpoints:
     host: '*'
     paths: /healthcheck/*
     methods: ["GET","OPTIONS"]
-  # client_app_user:
-  #   host: '*'
-  #   paths: /client/user/*
-  #   methods: ["GET","OPTIONS"]
+  client_app_user:
+    host: '*'
+    paths: /client/user/*
+    methods: ["GET","OPTIONS"]
   client_app_logbook:
     host: '*'
     paths: /client/logbook/*
@@ -555,16 +555,16 @@ pipelines:
           - action:
               serviceEndpoint: project
               changeOrigin: true
-  # client_app_user:
-  #   apiEndpoints:
-  #     - client_app_user
-  #   policies:
-  #     - jaeger:
-  #     - keycloak-protect:
-  #     - cors:
-  #         - action:
-  #             allowedHeaders: '*'
-  #     - proxy:
-  #         - action:
-  #             serviceEndpoint: user_service
-  #             changeOrigin: true
+  client_app_user:
+    apiEndpoints:
+      - client_app_user
+    policies:
+      - jaeger:
+      - keycloak-protect:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: user_service
+              changeOrigin: true
