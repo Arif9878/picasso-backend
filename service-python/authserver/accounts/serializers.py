@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 from django.db.models import Q
 from .models import Account
 from .utils import create_token
-
+from authServer.keycloak import add_new_user_keycloak
 class AccountSerializer(serializers.ModelSerializer):
     fullname = serializers.SerializerMethodField('get_full_name_')
     is_staff = serializers.SerializerMethodField('get_status_')
@@ -14,8 +14,8 @@ class AccountSerializer(serializers.ModelSerializer):
         """
         Create and return a new `Snippet` instance, given the validated data.
         """
+        add_new_user_keycloak(validated_data)
         return Account.objects.create(**validated_data)
-
     class Meta:
         model = Account
         fields = (
