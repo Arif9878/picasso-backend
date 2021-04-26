@@ -61,7 +61,6 @@ def update_user_keycloak(data):
 # Update User Password
 def set_user_password(keycloak_user_id, password):
     response = keycloak_admin.set_user_password(user_id=keycloak_user_id, password=password, temporary=False)
-    print(response)
     return response
    
 # Send Verify Email
