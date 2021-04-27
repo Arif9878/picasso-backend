@@ -31,7 +31,7 @@
     "moment": "^2.27.0",
     "pdfmake": "^0.1.66",
     "connect-redis": "4.0.0",
-    "redis": "^2.8.0",
+    "redis": "^3.1.1",
     "sharp": "^0.26.2",
     "connect-timeout": "^1.9.0",
     "express-validator": "^6.6.0",
