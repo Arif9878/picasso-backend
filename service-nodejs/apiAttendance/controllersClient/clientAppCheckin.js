@@ -94,7 +94,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const results = await Attendance.create(data)
 
-        await res.status(201).send({
+        res.status(201).send({
             message: 'Input data successfull',
             data: results,
         })
