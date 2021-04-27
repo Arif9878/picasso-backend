@@ -55,9 +55,6 @@ module.exports = async (req, res) => { // eslint-disable-line
         ])
         if (!evidenceResponse.filePath) throw new APIError(errors.evidenceError)
 
-        // check tupoksi jabatan and document link url
-        if (tupoksiJabatanId !== process.env.TUPOKSI_DILUAR_TUGAS && !documentTask) throw new APIError(errors.documentNotFound)
-
         // check valid url
         if (documentTask && !stringIsAValidUrl(documentTask)) throw new APIError(errors.urlLinkInvalid)
 
