@@ -2,9 +2,9 @@ const mongoose = require('mongoose')
 const { errors, APIError } = require('../utils/exceptions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
-const Attendance = require('../models/Attendance')
-const moment = require('moment')
-moment.locale('id')
+
+// Import Model
+const Project = require('../models/Project')
 
 // eslint-disable-next-line
 module.exports = async (req, res) => {
@@ -14,62 +14,24 @@ module.exports = async (req, res) => {
   })
   try {
     // Get request params
+
     let sort = {
-      startDate: 1,
+      createdAt: - 1,
     }
     const page = parseInt(req.query.page) || 1
     const pageSize = parseInt(req.query.pageSize) || 10
     const skip = (page - 1) * pageSize
-    const {
-      search,
-      date,
-      sort: _sort
-    } = req.query
-    let start, end
+    const search = req.query.search
+    const _sort = req.query.sort
 
     const rules = [
       {
         '$project': {
-          'startDate': 1,
-          'endDate': 1,
-          'officeHours': 1,
-          'location': 1,
-          'message': 1,
-          'note': 1,
-          'fullname': '$createdBy.fullname',
-          'email': '$createdBy.email',
-          'username': '$createdBy.username',
-          'divisi': '$createdBy.divisi',
-          'jabatan': '$createdBy.jabatan'
+          'projectName': 1,
+          'projectDescription': 1
         }
       }
     ]
-
-    start = moment().format("YYYY/MM/DD")
-    end = moment().format("YYYY/MM/DD")
-
-    if (date) {
-      start = moment(date).format("YYYY/MM/DD")
-      end = moment(date).format("YYYY/MM/DD")
-
-      rules.push({
-        '$match': {
-          'startDate': {
-            $gte: new Date(`${start} 00:00:00`),
-            $lt: new Date(`${end} 23:59:59`)
-          }
-        },
-      })
-    } else {
-      rules.push({
-        $match: {
-          startDate: {
-            $gte: new Date(`${start} 00:00:00`),
-            $lt: new Date(`${end} 23:59:59`)
-          }
-        },
-      })
-    }
 
     if (_sort) {
       const __sort = _sort.split(',')
@@ -83,15 +45,17 @@ module.exports = async (req, res) => {
 
       rules.push({
         '$match': {
-          'location': {
+          'projectName': {
             '$regex': terms,
           },
         },
       })
+
     }
 
     // Get page count
-    const filtered = await Attendance.aggregate([
+    const count = await Project.countDocuments(rules)
+    const filtered = await Project.aggregate([
       ...rules,
       {
         '$group': { _id: null, rows: { '$sum': 1 } },
@@ -106,17 +70,18 @@ module.exports = async (req, res) => {
     const totalPage = Math.ceil((filtered.length > 0 ? filtered[0].rows : 0) / pageSize)
 
     // Get results
-    const results = await Attendance
+    const results = await Project
       .aggregate(rules)
       .sort(sort)
       .skip(skip)
       .limit(pageSize)
 
     res.status(200).json({
+      filtered: filtered.length > 0 ? filtered[0].rows : 0,
       pageSize,
       results,
       _meta: {
-        totalCount: filtered.length > 0 ? filtered[0].rows : 0,
+        totalCount: count,
         totalPage: totalPage,
         currentPage: page,
         perPage: pageSize
@@ -125,14 +90,17 @@ module.exports = async (req, res) => {
     tracer.inject(span, "http_headers", req.headers)
     span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
   } catch (error) {
-      const { code, message, data } = error
-
-      span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
-      if (code && message) {
-          res.status(code).send({ code, message, data })
-      } else {
-          res.status(500).send(errors.serverError)
-      }
+    const { code, message, data } = error
+    span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
+    if (code && message) {
+        res.status(code).send({
+            code,
+            message,
+            data,
+        })
+    } else {
+        res.status(404).send(errors.notFound)
+    }
   }
   span.finish()
 }

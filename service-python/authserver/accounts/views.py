@@ -3,12 +3,13 @@ from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
 from rest_framework.decorators import (
-    api_view, permission_classes)
+    api_view, permission_classes, authentication_classes)
+from rest_framework.authentication import BasicAuthentication
 from .models import Account
-from .serializers import AccountSerializer, AccountLoginSerializer
+from .serializers import AccountSerializer, AccountClientAppSerializer
 from rest_framework.response import Response
 from authServer.keycloak import get_keycloak_user_id, set_user_password
-
+from authServer.paginations import CustomPagination
 class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
@@ -29,7 +30,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         blank = ""
         if struktural is not None and struktural is not blank:
             self.queryset = self.queryset.filter(
-            (Q(divisi="Struktural")))
+            (Q(divisi="ASN")))
         # else:
         #     self.queryset = self.queryset.filter(~Q(divisi="Struktural"))
         if search is not None and search is not blank:
@@ -68,3 +69,18 @@ def change_password(request, user_id):
     except:
         resp = { 'message': 'Ganti password gagal' }
         return Response(resp, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@authentication_classes([BasicAuthentication])
+@permission_classes([permissions.AllowAny])
+def client_user_list(request):
+    page_query_param = 'page'
+    page_size = request.query_params.get('page_size', None)
+    paginator = CustomPagination()
+    if page_size is not None:
+        paginator.page_size = page_size
+    paginator.page_query_param = page_query_param
+    queryset = Account.objects.all()
+    paginate = paginator.paginate_queryset(queryset=queryset, request=request)
+    serializer = AccountClientAppSerializer(paginate, many=True)
+    return paginator.get_paginated_response(serializer.data)

@@ -99,7 +99,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const results = await LogBook.findByIdAndUpdate(_id, data)
 
-        await res.status(201).send({
+        res.status(201).send({
             message: 'Update data successfull',
             data: results,
         })

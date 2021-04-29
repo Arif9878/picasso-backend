@@ -6,12 +6,13 @@ const {
     validationResult
 } = require('express-validator')
 const {
-    onUpdated
+    onUpdatedClientApp
 } = require('../utils/session')
 const {
     calculateHours
 } = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
+const { getKeyRedis, getUserDetail } = require('../utils/functions')
 const opentracing = require('opentracing')
 const moment = require('moment')
 moment.locale('id')
@@ -25,7 +26,24 @@ module.exports = async (req, res) => { // eslint-disable-line
         childOf: parentSpan,
     })
     try {
-        const session = req.user
+        if (!req.body.createdBy) throw new APIError({
+            code: 401,
+            message: 'Token not found',
+        })
+
+        // get from redis
+        const getDataRedisUser = await getKeyRedis('users')
+        const resp = await getDataRedisUser.map((val) => { 
+            if (val.id === req.body.createdBy) return val
+        })
+        let user = resp[0]
+
+        // get from message broker
+        if (!user) {
+            const resp = await getUserDetail(req.body.createdBy)
+            user = JSON.parse(resp.user)
+        }
+
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
             res.status(422).json({
@@ -50,7 +68,7 @@ module.exports = async (req, res) => { // eslint-disable-line
 
         const rulesCheckin = [{
             $match: {
-                'createdBy.email': session.email,
+                'createdBy.email': user.email,
                 startDate: {
                     $gte: new Date(`${start} 00:00:00`),
                     $lt: new Date(`${end} 23:59:59`)
@@ -85,7 +103,7 @@ module.exports = async (req, res) => { // eslint-disable-line
         const data = {
             endDate: date,
             officeHours: calculateHours(checkUserCheckin[0].startDate, new Date(date)),
-            ...onUpdated(session)
+            ...onUpdatedClientApp(user)
         }
 
         const results = await Attendance.findByIdAndUpdate(checkUserCheckin[0]._id, data)

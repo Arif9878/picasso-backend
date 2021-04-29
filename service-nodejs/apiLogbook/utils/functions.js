@@ -10,9 +10,9 @@ const redisClient = redis.createClient({
     port: process.env.REDIS_PORT
 })
 
-function getKeyRedis(userId, key) {
+function getKeyRedis(key) {
     return new Promise(resolve => {
-        redisClient.get(userId+'-'+key, function(err, data) {
+        redisClient.get(key, function(err, data) {
             if (err) throw new APIError(errors.serverError)
             resolve(JSON.parse(data))
         })
@@ -83,10 +83,20 @@ function getTupoksiJabatanDetail(Id) {
     })
 }
 
+function getUserDetail(Id) {
+    return new Promise(resolve => {
+        nats.request('userDetail',String(Id), function(resp) {
+            resolve(JSON.parse(resp))
+            nats.unsubscribe(this._sid)
+        })
+    })
+}
+
 module.exports = {
     encode,
     imageResize,
-    getKeyRedis,
     getTupoksiJabatanDetail,
-    stringIsAValidUrl
+    stringIsAValidUrl,
+    getUserDetail,
+    getKeyRedis
 }

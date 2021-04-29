@@ -1,8 +1,8 @@
 const { errors, APIError } = require('../utils/exceptions')
 const { validationResult } = require('express-validator')
-const { onCreated, filePath } = require('../utils/session')
+const { onCreatedClientApp, onClientApp, filePath } = require('../utils/session')
 const { postFile, postBlobsFile } = require('../utils/requestFile')
-const { encode, imageResize, getTupoksiJabatanDetail, stringIsAValidUrl } = require('../utils/functions')
+const { encode, imageResize, getTupoksiJabatanDetail, stringIsAValidUrl, getKeyRedis, getUserDetail} = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
 const opentracing = require('opentracing')
 // Import Model
@@ -12,7 +12,23 @@ module.exports = async (req, res) => { // eslint-disable-line
     const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
     const span = tracer.startSpan(req.originalUrl, { childOf: parentSpan })
     try {
-        const session = req.user
+        if (!req.body.createdBy) throw new APIError(errors.tokenNotFound)
+
+        // get from redis
+        const getDataRedisUser = await getKeyRedis('users')
+        const resp = await getDataRedisUser.map((val) => { 
+            if (val.id === req.body.createdBy) return val
+        })
+        let user = resp[0]
+
+        // get from message broker
+        if (!user) {
+            const resp = await getUserDetail(req.body.createdBy)
+            user = JSON.parse(resp.user)
+        }
+
+        const session_client = req.client_app
+
         const errorsValidate = validationResult(req)
         if (!errorsValidate.isEmpty()) return res.status(422).json({ code: 422, errors: errorsValidate.array() })
 
@@ -38,12 +54,6 @@ module.exports = async (req, res) => { // eslint-disable-line
             postBlobsFile(dateTask, 'gzip', dataBlobEvidence)
         ])
         if (!evidenceResponse.filePath) throw new APIError(errors.evidenceError)
-
-        // check tupoksi jabatan and document link url
-        const outOfDuty = process.env.TUPOKSI_DILUAR_TUGAS
-        if (tupoksiJabatanId) {
-            if (tupoksiJabatanId !== outOfDuty && !documentTask) throw new APIError(errors.documentNotFound)
-        }
 
         // check valid url
         if (documentTask && !stringIsAValidUrl(documentTask)) throw new APIError(errors.urlLinkInvalid)
@@ -79,7 +89,8 @@ module.exports = async (req, res) => { // eslint-disable-line
           workPlace,
           organizerTask,
           otherInformation,
-          ...onCreated(session)
+          ...onCreatedClientApp(user),
+          ...onClientApp(session_client)
         }
 
         const results = await LogBook.create(data)
@@ -92,6 +103,7 @@ module.exports = async (req, res) => { // eslint-disable-line
         tracer.inject(span, "http_headers", req.headers)
         span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
     } catch (error) {
+        console.log(error)
         const { code, message, data } = error
 
         span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
