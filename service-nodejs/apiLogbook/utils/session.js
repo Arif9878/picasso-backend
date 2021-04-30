@@ -23,6 +23,25 @@ module.exports = {
         },
         modifiedBy: session || null,
     }),
+    onCreatedClientApp : (session) => ({
+        createdAt: new Date(moment().format()),
+        createdBy: {
+            _id : session ? session.id : null,
+            email: session ? session.email : null,
+            username: session ? session.username : null,
+            divisi: session ? session.divisi : null,
+            jabatan: session ? session.jabatan : null,
+        },
+        modifiedBy: session || null,
+    }),
+    onClientApp : (session) => ({
+        createdByClient: {
+            _id : session ? session.sub : null,
+            email: session ? session.email : null,
+            name: session ? session.name : null,
+        },
+        modifiedBy: session || null,
+    }),
     filePath: (file) => ({
         filePath: file ? file.filePath : null,
         fileURL: file ? file.fileURL : null

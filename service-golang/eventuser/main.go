@@ -20,6 +20,7 @@ func main() {
 		Timeout:        3 * time.Second,
 		Url:            natsUri,
 	}
+
 	conn, _ := opts.Connect()
 	//defer conn.Close()
 	fmt.Println("Subscriber connected to NATS server")
