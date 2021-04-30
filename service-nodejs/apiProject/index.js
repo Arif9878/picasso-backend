@@ -24,8 +24,6 @@ try {
     Error('Error trying to run file')
 }
 
-const authenticate = require('./controllers/authenticate')
-
 const app = express()
 const db = require("./utils/database").mongoURI
 
@@ -49,11 +47,6 @@ connectWithRetry()
 
 mongoose.Promise = global.Promise
 
-// app.use(tracer)
-
-// Authentications
-app.use(authenticate)
-
 // Import models
 app.set('models', mongoose.models)
 
@@ -63,9 +56,11 @@ app.use(Raven.requestHandler())
 
 // Import modules
 const route = require('./routes')
+const routesClientApp = require('./routesClientApp')
 
 // Routes
-app.use('/api/project', route)
+app.use('/api/project', require('./controllers/authenticate'), route)
+app.use('/api/client', routesClientApp)
 
 // The error handler middleware
 app.use(Raven.errorHandler())

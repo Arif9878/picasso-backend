@@ -10,17 +10,21 @@ db:
 plugins:
   express-gateway-plugin-jaeger:
     package: './plugin/jaeger.js'
+    jaegerParams:
+      serviceName: 'api-gateway'
+      collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
 
-# plugins:
-  # express-gateway-plugin-example:
-  #   param1: 'param from system.config'
+  keycloak-connect:
+    package: './plugin/keycloack.js'
+    kcConfigParams:
+      realm: ${KEYCLOAK_REALM_NAME}
+      authServerUrl: ${KEYCLOAK_URL}
 
 crypto:
   cipherKey: sensitiveKey
   algorithm: aes256
   saltRounds: 10
 
-# OAuth2 Settings
 session:
   # storeProvider: connect-redis
   storeOptions:

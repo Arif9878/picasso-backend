@@ -1,4 +1,32 @@
 const moment = require("moment")
+const servers_nats = [process.env.NATS_URI]
+const nats = require('nats').connect({
+    'servers': servers_nats
+})
+
+const redis = require('redis')
+const redisClient = redis.createClient({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT
+})
+
+function getKeyRedis(key) {
+    return new Promise(resolve => {
+        redisClient.get(key, function(err, data) {
+            if (err) throw new APIError(errors.serverError)
+            resolve(JSON.parse(data))
+        })
+    })
+}
+
+function getUserDetail(Id) {
+    return new Promise(resolve => {
+        nats.request('userDetail',String(Id), function(resp) {
+            resolve(JSON.parse(resp))
+            nats.unsubscribe(this._sid)
+        })
+    })
+}
 
 function calculateHours(startDate, endDate) {
     const start_date = moment(startDate, 'YYYY-MM-DD HH:mm:ss')
@@ -9,5 +37,7 @@ function calculateHours(startDate, endDate) {
 }
 
 module.exports = {
-    calculateHours
+    calculateHours,
+    getUserDetail,
+    getKeyRedis
 }

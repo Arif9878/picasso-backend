@@ -78,4 +78,21 @@ module.exports = {
         required: false,
         default: null,
     },
+    createdByClient: {
+        _id: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        email: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        name: {
+            type: String,
+            required: false,
+            default: null,
+        },
+    },
 }

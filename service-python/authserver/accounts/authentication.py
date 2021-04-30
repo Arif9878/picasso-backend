@@ -57,10 +57,12 @@ class SafeJWTAuthentication(BaseAuthentication):
 
         except jwt.ExpiredSignatureError:
             raise exceptions.AuthenticationFailed('access_token expired')
+        except jwt.InvalidAlgorithmError:
+            raise exceptions.AuthenticationFailed('Token prefix missing')
         except IndexError:
             raise exceptions.AuthenticationFailed('Token prefix missing')
 
-        user = get_user_model().objects.filter(id=payload['user_id']).first()
+        user = User.objects.filter(id=payload['user_id']).first()
         if user is None:
             raise exceptions.AuthenticationFailed('User not found')
 
