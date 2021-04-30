@@ -1,4 +1,5 @@
 from rest_framework import status, viewsets, permissions
+from django.contrib.auth.hashers import check_password
 from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
@@ -54,17 +55,40 @@ class AccountViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
-def change_password(request, user_id):
+def change_password_admin(request, user_id):
+    if request.user.is_admin:
+        try:
+            user = Account.objects.get(id=user_id)
+            password = request.data.get('password')
+            if user_id and password:
+                keycloak_user_id = get_keycloak_user_id(user.email)
+                if keycloak_user_id:
+                    set_user_password(keycloak_user_id, password)
+                user.set_password(password)
+                user.save()
+                resp = { 'message': 'Ganti password berhasil' }
+                return Response(resp, status=status.HTTP_201_CREATED)
+        except:
+            resp = { 'message': 'Ganti password gagal' }
+            return Response(resp, status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def change_password(request):
+    resp = { 'message': 'Ganti password gagal' }
     try:
-        user = Account.objects.get(id=user_id)
-        password = request.data.get('password')
-        if user_id and password:
+        user = Account.objects.get(email=request.user)
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        if user and check_password(old_password, user.password):
             keycloak_user_id = get_keycloak_user_id(user.email)
-            set_user_password(keycloak_user_id, password)
-            user.set_password(password)
+            if keycloak_user_id:
+                set_user_password(keycloak_user_id, new_password)
+            user.set_password(new_password)
             user.save()
             resp = { 'message': 'Ganti password berhasil' }
             return Response(resp, status=status.HTTP_201_CREATED)
+        return Response(resp, status=status.HTTP_400_BAD_REQUEST)
     except:
-        resp = { 'message': 'Ganti password gagal' }
         return Response(resp, status=status.HTTP_400_BAD_REQUEST)
