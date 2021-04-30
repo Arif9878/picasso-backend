@@ -87,7 +87,7 @@ def dashboardAttendanceUser():
                 month = today.month
                 start = dt.datetime(year=int(year), month=int(month), day=1).date()
             end = last_day_of_month(start)
-            dateRange = np.arange(np.datetime64(start), np.datetime64(end), dtype='datetime64[D]')
+            dateRange = np.arange(np.datetime64(start), np.datetime64(end+timedelta(days=1)), dtype='datetime64[D]')
             listBusday = np.busdaycalendar(holidays=dateRange, weekmask=busmask_names)
             listWeekend = np.busdaycalendar(holidays=dateRange, weekmask=weekmask_names)
             listHoliday = getListHoliday(mongoClient, np, start.year, start.month)
