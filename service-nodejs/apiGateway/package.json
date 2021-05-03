@@ -24,7 +24,6 @@
     "connect-redis": "^4.0.3",
     "dotenv": "^8.2.0",
     "express-gateway": "^1.16.3",
-    "express-gateway-plugin-example": "^1.0.1",
     "express-session": "^1.17.0",
     "connect-timeout": "^1.9.0",
     "fsevents": "^2.1.2",
