@@ -9,6 +9,7 @@ from authServer.keycloak import add_new_user_keycloak
 class AccountSerializer(serializers.ModelSerializer):
     fullname = serializers.SerializerMethodField('get_full_name_')
     is_staff = serializers.SerializerMethodField('get_status_')
+    age = serializers.SerializerMethodField('get_years_birthday_')
 
     def create(self, validated_data):
         """
@@ -27,6 +28,13 @@ class AccountSerializer(serializers.ModelSerializer):
             'last_name',
             'birth_place',
             'birth_date',
+            'last_education',
+            'marital_status',
+            'number_children',
+            'religion',
+            'blood_type',
+            'gender',
+            'age',
             'telephone',
             'is_staff',
             'photo',
@@ -49,6 +57,9 @@ class AccountSerializer(serializers.ModelSerializer):
 
     def get_status_(self, obj):
         return obj.is_staff()
+
+    def get_years_birthday_(self, obj):
+        return obj.get_years_birthday()
 
 class AccountLoginSerializer(serializers.HyperlinkedModelSerializer):
     user_obj = None

@@ -14,6 +14,8 @@ from django.contrib.auth.models import (
 	BaseUserManager, AbstractBaseUser
 )
 
+from .utils import LIST_GENDER, LIST_EDUCATION, LIST_RELIGION, LIST_BLOOD_TYPE
+
 from django.contrib.auth.models import PermissionsMixin
 
 import os, re, uuid
@@ -71,11 +73,12 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	id_jabatan = models.CharField(verbose_name='ID Jabatan', max_length=40, null=True, blank=True)
 	jabatan = models.CharField(verbose_name='Jabatan', max_length=64, null=True, blank=True)
 
+	last_education = models.CharField(verbose_name='Pendidikan Terakhir', choices=LIST_EDUCATION, max_length=4, null=True, blank=True)
 	marital_status = models.CharField(verbose_name='Status Pernikahan', max_length=50, null=True, blank=True)
-	number_children = models.CharField(verbose_name='Jumlah Anak', max_length=50, null=True, blank=True)
-	religion = models.CharField(verbose_name='Agama', max_length=50, null=True, blank=True)
-	blood_type = models.CharField(verbose_name='Golongan Darah', max_length=50, null=True, blank=True)
-	gender = models.CharField(verbose_name='Jenis Kelamin', max_length=50, null=True, blank=True)
+	number_children = models.IntegerField(verbose_name='Jumlah Anak', null=True, blank=True)
+	religion = models.CharField(verbose_name='Agama', choices=LIST_RELIGION, max_length=50, null=True, blank=True)
+	blood_type = models.CharField(verbose_name='Golongan Darah', choices=LIST_BLOOD_TYPE, max_length=4, null=True, blank=True)
+	gender = models.CharField(verbose_name='Jenis Kelamin', choices=LIST_GENDER, max_length=10, null=True, blank=True)
 
 	id_province = models.CharField(verbose_name="ID Provinsi", max_length=40, null=True, blank=True)
 	province = models.CharField(verbose_name="Provinsi", max_length=80, null=True, blank=True)
@@ -136,7 +139,7 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	def get_years_birthday(self):
 		years = "-"
 		if self.birth_date:
-			rdelta = relativedelta(date.today(), self.birthDate)
+			rdelta = relativedelta(date.today(), self.birth_date)
 			years = rdelta.years
 			return years
 		return years
@@ -144,7 +147,7 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	def get_month_birthday(self):
 		months = "-"
 		if self.birth_date:
-			rdelta = relativedelta(date.today(), self.birthDate)
+			rdelta = relativedelta(date.today(), self.birth_date)
 			months = rdelta.months
 			return months
 		return months
@@ -152,7 +155,7 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	def get_day_birthday(self):
 		days = "-"
 		if self.birth_date:
-			rdelta = relativedelta(date.today(), self.birthDate)
+			rdelta = relativedelta(date.today(), self.birth_date)
 			days = rdelta.days
 			return days
 		return days
