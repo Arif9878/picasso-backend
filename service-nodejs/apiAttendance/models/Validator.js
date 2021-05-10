@@ -4,8 +4,7 @@ const {
 
 const formCheckin = () => [
     body('date', 'Tanggal tidak boleh kosong').notEmpty(),
-    body('location', 'Lokasi tidak boleh kosong').notEmpty(),
-    body('mood', 'Suasana hati tidak boleh kosong').isIn(['worst', 'sad', 'neutral', 'good', 'excellent'])
+    body('location', 'Lokasi tidak boleh kosong').notEmpty()
 ]
 
 const formCheckout = () => [
