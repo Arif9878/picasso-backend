@@ -10,10 +10,12 @@ module.exports = async (req, res) => {
 
   try {
     // Get request params
-    const session = req.user
+    const  {
+        createdBy
+    } = req.query
 
     // get from redis
-    const getDataRedis = await getKeyRedis(session.user_id+'-logbooks')
+    const getDataRedis = await getKeyRedis(createdBy+'-logbooks')
 
     // delete key created by
     const logBook = await getDataRedis.map(({createdById, ...rest}) => rest) || []

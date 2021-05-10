@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from accounts.views import AccountViewSet, change_password_admin, change_password
+from accounts.views import AccountViewSet, change_password_admin, change_password, client_user_list
 from menu.views import MenuViewSet, MenuTypeViewSet
 from accounts.views_social import oauth2_signin, oauth_keycloak_signin, detail_user
 from accounts.views_login import login_view, login_admin_view, refresh_token_view
@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/user/info', detail_user),
     path('api/user/change-password/<slug:user_id>', change_password_admin),
     path('api/user/change-password/', change_password),
+    path('api/client/user/app/', client_user_list),
     path('api/token/refresh', refresh_jwt_token),
     path('api/social/google-oauth2/', oauth2_signin),
     path('api/social/keycloak-oauth/', oauth_keycloak_signin),

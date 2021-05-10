@@ -6,12 +6,12 @@ const {
     validationResult
 } = require('express-validator')
 const {
-    onUpdated
+    onClientApp,
+    onCreatedClientApp
 } = require('../utils/session')
-const {
-    calculateHours
-} = require('../utils/functions')
 const { tracer } = require('../utils/tracer')
+const { getKeyRedis, getUserDetail } = require('../utils/functions')
+
 const opentracing = require('opentracing')
 const moment = require('moment')
 moment.locale('id')
@@ -21,11 +21,28 @@ const Attendance = require('../models/Attendance')
 
 module.exports = async (req, res) => { // eslint-disable-line
     const parentSpan = tracer.extract(opentracing.FORMAT_HTTP_HEADERS, req.headers)
-    const span = tracer.startSpan(req.originalUrl, {
-        childOf: parentSpan,
-    })
+    const span = tracer.startSpan(req.originalUrl, { childOf: parentSpan })
     try {
-        const session = req.user
+        if (!req.body.createdBy) throw new APIError({
+            code: 401,
+            message: 'Token not found',
+        })
+
+        // get from redis
+        const getDataRedisUser = await getKeyRedis('users')
+        const resp = await getDataRedisUser.map((val) => { 
+            if (val.id === req.body.createdBy) return val
+        })
+        let user = resp[0]
+
+        // get from message broker
+        if (!user) {
+            const resp = await getUserDetail(req.body.createdBy)
+            user = JSON.parse(resp.user)
+        }
+
+        const session_client = req.client_app
+
         const errors = validationResult(req)
         if (!errors.isEmpty()) {
             res.status(422).json({
@@ -36,62 +53,49 @@ module.exports = async (req, res) => { // eslint-disable-line
         }
         const {
             date = null,
+            location = null,
+            message = null,
+            note = null
         } = req.body
 
         const start = moment().format("YYYY/MM/DD")
 
         const end = moment().format("YYYY/MM/DD")
 
-        let minCheckout = moment().set({
-            "hour": 16,
-            "minute": 0,
-            "second": 0
-        }).format()
+        if (moment().isSame(date, 'day') === false) throw new APIError({
+            code: 422,
+            message: 'Tanggal checkin tidak sesuai dengan hari ini.',
+        })
 
-        const rulesCheckin = [{
+        const rules = [{
             $match: {
-                'createdBy.email': session.email,
+                'createdBy.email': user.email,
                 startDate: {
                     $gte: new Date(`${start} 00:00:00`),
                     $lt: new Date(`${end} 23:59:59`)
                 }
             },
         }]
+        const checkUser = await Attendance.aggregate(rules)
 
-        const checkUserCheckin = await Attendance.aggregate(rulesCheckin)
-
-        day = moment(date).format('dddd')
-        arrayWeekend = ['Sabtu', 'Minggu']
-        isWeekend = arrayWeekend.includes(day)
-        if (!isWeekend && new Date(date) <= new Date(minCheckout)) throw new APIError({
+        if (checkUser.length >= 1) throw new APIError({
             code: 422,
-            message: 'Baru bisa checkout jam 4 sore ya :)',
+            message: 'Sudah melakukan checkin',
         })
 
-        if (checkUserCheckin.length <= 0) {
-            throw new APIError({
-                code: 422,
-                message: 'Belum melakukan checkin',
-            })
-        } else {
-            if (checkUserCheckin[0].endDate !== null) {
-                throw new APIError({
-                    code: 422,
-                    message: 'Sudah melakukan checkout'
-                })
-            }
-        }
-
         const data = {
-            endDate: date,
-            officeHours: calculateHours(checkUserCheckin[0].startDate, new Date(date)),
-            ...onUpdated(session)
+            startDate: date,
+            location,
+            message,
+            note,
+            ...onCreatedClientApp(user),
+            ...onClientApp(session_client)
         }
 
-        const results = await Attendance.findByIdAndUpdate(checkUserCheckin[0]._id, data)
+        const results = await Attendance.create(data)
 
         res.status(201).send({
-            message: 'Update data successfull',
+            message: 'Input data successfull',
             data: results,
         })
 
@@ -99,8 +103,8 @@ module.exports = async (req, res) => { // eslint-disable-line
         span.setTag(opentracing.Tags.HTTP_STATUS_CODE, 200)
     } catch (error) {
         const { code, message, data } = error
-
         span.setTag(opentracing.Tags.HTTP_STATUS_CODE,code)
+
         if (code && message) {
             res.status(code).send({ code, message, data })
         } else {

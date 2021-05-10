@@ -29,8 +29,6 @@ try {
 
 const db = require("./utils/database").mongoURI
 
-const authenticate = require('./controllers/authenticate')
-
 const app = express()
 
 // default options
@@ -63,9 +61,6 @@ connectWithRetry()
 
 mongoose.Promise = global.Promise
 
-// Authentications
-app.use(authenticate)
-
 // Configure raven setup
 Raven.config(process.env.SENTRY_DSN_NODEJS).install()
 app.use(Raven.requestHandler())
@@ -75,9 +70,11 @@ app.set('models', mongoose.models)
 
 // Import modules
 const route = require('./routes')
+const routesClientApp = require('./routesClientApp')
 
 //routes
-app.use('/api/logbook', route)
+app.use('/api/logbook', require('./controllers/authenticate'), route)
+app.use('/api/client', require('./controllersClient/clientToken'), routesClientApp)
 
 // The error handler middleware
 app.use(Raven.errorHandler())
