@@ -33,6 +33,11 @@ const Attendance = new Schema({
         required: false,
         default: null
     },
+    mood: {
+        type: String,
+        required: false,
+        default: null
+    },
     ...attributes
 })
 

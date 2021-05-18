@@ -9,6 +9,7 @@ const {
     onCreated
 } = require('../utils/session')
 const { tracer } = require('../utils/tracer')
+const { arrayMood } = require('../utils/functions')
 const opentracing = require('opentracing')
 const moment = require('moment')
 moment.locale('id')
@@ -34,8 +35,14 @@ module.exports = async (req, res) => { // eslint-disable-line
             date = null,
             location = null,
             message = null,
-            note = null
+            note = null,
+            mood = null
         } = req.body
+
+        if (mood && !arrayMood.includes(mood)) throw new APIError({
+            code: 422,
+            message: 'Mood tidak tersedia.',
+        })
 
         const start = moment().format("YYYY/MM/DD")
 
@@ -67,6 +74,7 @@ module.exports = async (req, res) => { // eslint-disable-line
             location,
             message,
             note,
+            mood,
             ...onCreated(session)
         }
 
