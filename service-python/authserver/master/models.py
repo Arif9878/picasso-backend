@@ -69,34 +69,6 @@ class Settings(models.Model):
 		verbose_name='Setting'
 		verbose_name_plural='Setting'
 
-class Agama(models.Model):
-	agama = models.CharField("Agama", max_length=100, unique=True, db_index=True)
-	keterangan = models.CharField("Keterangan", blank=True, null=True, max_length=255)
-
-	sv = pg_search.SearchVectorField(null=True, blank=True) 
-	def __unicode__(self):
-		return self.agama
-
-	class Meta:
-		indexes = [GinIndex(fields=['sv'])]	
-		verbose_name='Agama'
-		verbose_name_plural='Agama'
-
-
-class JenisKelamin(models.Model):
-	jenis_kelamin = models.CharField("Jenis Kelamin", max_length=100, db_index=True)
-	keterangan = models.CharField("Keterangan", blank=True, null=True, max_length=255)
-	sv = pg_search.SearchVectorField(null=True, blank=True) 
-	
-	def __unicode__(self):
-		return self.jenis_kelamin
-
-	class Meta:
-		indexes = [GinIndex(fields=['sv'])]
-		verbose_name='Jenis Kelamin'
-		verbose_name_plural='Jenis Kelamin'
-
-
 @deconstructible
 class PathAndRename(object):
 
