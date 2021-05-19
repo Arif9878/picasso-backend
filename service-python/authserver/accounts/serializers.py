@@ -28,7 +28,6 @@ class AccountSerializer(serializers.ModelSerializer):
             'last_name',
             'birth_place',
             'birth_date',
-            'last_education',
             'marital_status',
             'number_children',
             'religion',

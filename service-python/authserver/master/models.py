@@ -9,11 +9,10 @@ from django.dispatch.dispatcher import receiver
 from django.conf import settings
 from datetime import datetime
 from django.db import models
-from uuid import uuid4
 
-import os
-
+import uuid
 from accounts.utils import STATUS, get_status_color
+from authServer.storage_backends import get_path_file
 
 # Create your models here.
 class MetaAtribut(models.Model):
@@ -26,8 +25,6 @@ class MetaAtribut(models.Model):
 	rejected_at = models.DateTimeField(editable=False, blank=True, null=True)
 
 	updated_at = models.DateTimeField(auto_now=True)
-
-	# sv = pg_search.SearchVectorField(null=True, blank=True) 
 	
 	def get_color_status(self):
 		return get_status_color(self)
@@ -48,7 +45,7 @@ class MetaAtribut(models.Model):
 
 class JenisNomorIdentitas(models.Model):
 	jenis_nomor_identitas = models.CharField(max_length=30, verbose_name='Jenis Nomor Identitas')
-	keterangan = models.CharField(max_length=255, blank=True, null=True)
+	note = models.CharField(max_length=255, blank=True, null=True)
 
 	sv = pg_search.SearchVectorField(null=True, blank=True) 
 	def __unicode__(self):
@@ -59,31 +56,6 @@ class JenisNomorIdentitas(models.Model):
 		ordering = ['id']
 		verbose_name = 'Jenis Nomor Identitas'
 		verbose_name_plural = 'Jenis Nomor Identitas'
-
-class Settings(models.Model):
-	parameter = models.CharField("Nama Parameter", max_length=100)
-	value = models.CharField("Nilai", max_length=100)
-	url = models.URLField("Url", max_length=200, null=True,blank=True)
-
-	class Meta:
-		verbose_name='Setting'
-		verbose_name_plural='Setting'
-
-@deconstructible
-class PathAndRename(object):
-
-	def __init__(self, sub_path):
-		self.path = sub_path
-
-	def __call__(self, instance, filename):
-		ext = filename.split('.')[-1]
-		# set filename as random string
-		filename = '{}.{}'.format(uuid4().hex, ext)
-		# return the whole path to the file
-		return os.path.join(self.path, filename)
-
-path_and_rename = PathAndRename("berkas/")
-
 class FileField(models.FileField):
 	def save_form_data(self, instance, data):
 		if data is not None: 
@@ -92,23 +64,24 @@ class FileField(models.FileField):
 				file.delete(save=False)
 		super(FileField, self).save_form_data(instance, data)
 
-class Berkas(MetaAtribut):
-	nama_berkas = models.CharField("Nama Berkas", max_length=100, blank=True, null=True, db_index=True)
-	berkas = FileField(upload_to=path_and_rename, max_length=255)
-	no_berkas = models.CharField("Nomor Berkas", max_length=30, blank=True, null=True, help_text="Masukkan Nomor Surat / Berkas jika ada.", db_index=True)
+class Files(MetaAtribut):
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+	file_name = models.CharField("Nama Berkas", max_length=100, blank=True, null=True, db_index=True)
+	file_number = models.CharField("Nomor Berkas", max_length=30, blank=True, null=True, help_text="Masukkan Nomor Surat / Berkas jika ada.", db_index=True)
+	file = FileField(upload_to=get_path_file)
 
-	keterangan = models.CharField("Keterangan", blank=True, null=True, max_length=255)
+	note = models.CharField("Catatan", blank=True, null=True, max_length=255)
 	sv = pg_search.SearchVectorField(null=True, blank=True)
 	 
 	def get_file_url(self):
-		if self.berkas:
-			return settings.MEDIA_URL+str(self.berkas)
+		if self.file:
+			return settings.MEDIA_URL+str(self.file)
 		return "#"
 
 	def __unicode__(self):
-		return str(self.nama_berkas)
+		return str(self.file_name)
 
 	class Meta:
 		indexes = [GinIndex(fields=['sv'])]
-		verbose_name='Berkas'
-		verbose_name_plural='Berkas'
+		verbose_name='Files'
+		verbose_name_plural='Files'

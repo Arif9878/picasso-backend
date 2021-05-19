@@ -5,7 +5,9 @@ from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.indexes import GinIndex
 import django.contrib.postgres.search as pg_search
 
-from master.models import JenisNomorIdentitas, MetaAtribut
+from authServer.storage_backends import ProfileMediaStorage, get_path_file
+
+from master.models import JenisNomorIdentitas, MetaAtribut, Files
 from menu.models import MenuType
 
 from datetime import datetime, date
@@ -56,7 +58,6 @@ class AccountManager(BaseUserManager):
 		user.save(using=self._db)
 		return user
 
-
 class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	email = models.EmailField(unique=True, blank=True, null=True)
@@ -73,7 +74,6 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	id_jabatan = models.CharField(verbose_name='ID Jabatan', max_length=40, null=True, blank=True)
 	jabatan = models.CharField(verbose_name='Jabatan', max_length=64, null=True, blank=True)
 
-	last_education = models.CharField(verbose_name='Pendidikan Terakhir', choices=LIST_EDUCATION, max_length=4, null=True, blank=True)
 	marital_status = models.CharField(verbose_name='Status Pernikahan', max_length=50, null=True, blank=True)
 	number_children = models.IntegerField(verbose_name='Jumlah Anak', null=True, blank=True)
 	religion = models.CharField(verbose_name='Agama', choices=LIST_RELIGION, max_length=50, null=True, blank=True)
@@ -100,7 +100,7 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	lt = models.CharField(max_length=50, verbose_name='lt', blank=True, null=True)
 	lg = models.CharField(max_length=50, verbose_name='lg', blank=True, null=True)
 
-	photo = models.CharField(verbose_name="Foto", max_length=150, null=True, blank=True)
+	photo = models.ImageField(upload_to=get_path_file, storage=ProfileMediaStorage(), verbose_name="Foto", null=True, blank=True)
 	sv = pg_search.SearchVectorField(null=True, blank=True)
 
 	menu = models.ForeignKey(MenuType, on_delete=models.CASCADE, blank=True, null=True)
@@ -122,8 +122,7 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 		id_districts = ''
 		id_sub_district= ''
 		id_village = ''
-		if self.desa:
-			return self.desa.get_complete_location_dictionary()
+
 		return dict(
 			province=province,
 			districts=districts,
@@ -206,10 +205,58 @@ class NomorIdentitasPengguna(models.Model):
 		verbose_name = 'Nomor Identitas Pengguna'
 		verbose_name_plural = 'Nomor Identitas Pengguna'
 
-class AccountHistoryAction(models.Model):
-	action = models.CharField(max_length=100)
+class AccountEducation(MetaAtribut):
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='User')
-	information = models.CharField(max_length=255, blank=True, null=True)
+	educational_level = models.CharField(verbose_name='Jenjang Pendidikan', choices=LIST_EDUCATION, max_length=4, null=True, blank=True)
+	name_educational_institution = models.CharField(verbose_name="Nama Institusi Pendidikan", max_length=80, null=True, blank=True)
+	majors = models.CharField(verbose_name="Jurusan", max_length=80, null=True, blank=True)
+	education_degree = models.CharField(verbose_name="Gelar Pendidikan", max_length=20, null=True, blank=True)
+	graduation_year = models.IntegerField(verbose_name="Tahun Lulus", null=True, blank=True)
+	file = models.ForeignKey(Files, on_delete=models.CASCADE, verbose_name='Files')
+
+	def __unicode__(self):
+		return u'%s' % str(self.name_educational_institution)
+	class Meta:
+		verbose_name = 'Pendidikan Pengguna'
+		verbose_name_plural = 'Pendidikan Pengguna'
+
+class AccountEmergencyContact(MetaAtribut):
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+	user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='User')
+	emergency_contact_name = models.CharField(verbose_name="Nama kontak darurat", max_length=20, null=True, blank=True)
+	relationship_emergency_contacts = models.CharField(verbose_name="Hubungan dengan kontak darurat", max_length=20, null=True, blank=True)
+	emergency_contact_number = models.CharField(verbose_name="Nomor kontak darurat", max_length=20, null=True, blank=True)
+
+	def __unicode__(self):
+		return u'%s' % self.emergency_contact_name
+	class Meta:
+		verbose_name = 'Kontak Darurat Pengguna'
+		verbose_name_plural = 'Kontak Darurat Pengguna'
+
+class AccountOtherInformation(Account):
+	npwp = models.CharField(verbose_name="NPWP", max_length=20, null=True, blank=True)
+	bank_account_number = models.CharField(verbose_name="Nomor Rekening Bank", max_length=20, null=True, blank=True)
+	bank_branch = models.CharField(verbose_name="Cabang Bank", max_length=100, null=True, blank=True)
+	hobby = models.CharField(verbose_name="Hobi", max_length=100, null=True, blank=True)
+	other_skills_possessed = models.CharField(verbose_name="Cabang Bank", max_length=100, null=True, blank=True)
+	future_goals = models.CharField(verbose_name="Cita-cita", max_length=100, null=True, blank=True)
+	life_motto = models.CharField(verbose_name="Motto hidup", max_length=100, null=True, blank=True)
+	favorite_food = models.CharField(verbose_name="Makanan favorit", max_length=100, null=True, blank=True)
+	favorite_drink = models.CharField(verbose_name="Minuman favorit", max_length=100, null=True, blank=True)
+	instagram = models.CharField(verbose_name="Instagram", max_length=60, null=True, blank=True)
+	facebook = models.CharField(verbose_name="Facebook", max_length=60, null=True, blank=True)
+	linkedin = models.CharField(verbose_name="Linkedin", max_length=60, null=True, blank=True)
+
+	def __unicode__(self):
+		return u'%s' % self.npwp
+	class Meta:
+		verbose_name = 'Informasi lain Pengguna'
+		verbose_name_plural = 'Informasi lain Pengguna'
+
+class AccountFiles(MetaAtribut):
+	user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='User')
+	file = models.ForeignKey(Files, on_delete=models.CASCADE, verbose_name='Files')
 
 	created_at = models.DateTimeField(editable=False)
 	updated_at = models.DateTimeField(auto_now=True)
@@ -219,11 +266,11 @@ class AccountHistoryAction(models.Model):
 		if not self.id:
 			self.created_at = datetime.now()
 		self.updated_at = datetime.now()
-		return super(AccountHistoryAction, self).save(*args, **kwargs)
+		return super(AccountFiles, self).save(*args, **kwargs)
 
 	def __unicode__(self):
-		return u'%s' % (self.action)
+		return u'%s' % str(self.user.email)
 
 	class Meta:
-		verbose_name = 'Riwayat Aksi Pengguna'
-		verbose_name_plural = 'Riwayat Aksi Pengguna'
+		verbose_name = 'Berkas Pengguna'
+		verbose_name_plural = 'Berkas Pengguna'
