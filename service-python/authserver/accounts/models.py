@@ -106,6 +106,7 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	menu = models.ForeignKey(MenuType, on_delete=models.CASCADE, blank=True, null=True)
 
 	is_active = models.BooleanField(default=True)
+	is_show_education_degree = models.BooleanField(default=False)
 	is_admin = models.BooleanField(default=False)
 
 	objects = AccountManager()
@@ -167,17 +168,20 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 
 	def get_full_name(self):
 		# The user is identified by their nama
+		fullname = ''
 		if self.first_name:
-			return self.first_name +' '+ self.last_name
-		else:
-			return ''
+			fullname = self.first_name +' '+ self.last_name
+			if self.is_show_education_degree and self.account_educations.last():
+				return fullname +' '+ self.account_educations.last().get_education_degree()
+			return fullname
+		return fullname
 
 	def get_alamat(self):
 		a = "-"
 		if self.address:
 			a = self.address
 		if self.desa:
-			a = a+" "+self.desa.alamat_lengkap()
+			a = a+' '+self.get_complete_location_dictionary()
 		return a
 
 	def __str__(self):
@@ -191,12 +195,12 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 
 class NomorIdentitasPengguna(models.Model):
 	number = models.CharField(max_length=100, unique=True, db_index=True)
-	user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='User')
+	account = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='Account')
 	type_identity = models.ForeignKey(JenisNomorIdentitas, on_delete=models.CASCADE, verbose_name='Jenis Nomor Identitas')
 
 	def set_as_username(self):
-		self.user.username = re.sub('[^0-9a-zA-Z]+', '', self.nomor)
-		self.user.save()
+		self.account.username = re.sub('[^0-9a-zA-Z]+', '', self.nomor)
+		self.account.save()
 
 	def __unicode__(self):
 		return u'%s' % (self.nomor)
@@ -207,23 +211,35 @@ class NomorIdentitasPengguna(models.Model):
 
 class AccountEducation(MetaAtribut):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-	user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='User')
+	account = models.ForeignKey(Account, related_name='account_educations', on_delete=models.CASCADE, verbose_name='Account')
 	educational_level = models.CharField(verbose_name='Jenjang Pendidikan', choices=LIST_EDUCATION, max_length=4, null=True, blank=True)
 	name_educational_institution = models.CharField(verbose_name="Nama Institusi Pendidikan", max_length=80, null=True, blank=True)
 	majors = models.CharField(verbose_name="Jurusan", max_length=80, null=True, blank=True)
 	education_degree = models.CharField(verbose_name="Gelar Pendidikan", max_length=20, null=True, blank=True)
 	graduation_year = models.IntegerField(verbose_name="Tahun Lulus", null=True, blank=True)
-	file = models.ForeignKey(Files, on_delete=models.CASCADE, verbose_name='Files')
+	file = models.ForeignKey(Files, on_delete=models.CASCADE, verbose_name='Files', null=True, blank=True)
+
+	def get_file(self):
+		if self.file:
+			return self.file.get_file_url()
+		return '#'
+
+	def get_education_degree(self):
+		if self.education_degree:
+			return self.education_degree
+		return ''
 
 	def __unicode__(self):
 		return u'%s' % str(self.name_educational_institution)
+
 	class Meta:
+		ordering = ['graduation_year']
 		verbose_name = 'Pendidikan Pengguna'
 		verbose_name_plural = 'Pendidikan Pengguna'
 
 class AccountEmergencyContact(MetaAtribut):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-	user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='User')
+	account = models.ForeignKey(Account, related_name='account_emergency_contacts', on_delete=models.CASCADE, verbose_name='Account')
 	emergency_contact_name = models.CharField(verbose_name="Nama kontak darurat", max_length=20, null=True, blank=True)
 	relationship_emergency_contacts = models.CharField(verbose_name="Hubungan dengan kontak darurat", max_length=20, null=True, blank=True)
 	emergency_contact_number = models.CharField(verbose_name="Nomor kontak darurat", max_length=20, null=True, blank=True)
@@ -234,7 +250,12 @@ class AccountEmergencyContact(MetaAtribut):
 		verbose_name = 'Kontak Darurat Pengguna'
 		verbose_name_plural = 'Kontak Darurat Pengguna'
 
-class AccountOtherInformation(Account):
+class AccountOtherInformation(models.Model):
+	account = models.OneToOneField(
+        Account,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
 	npwp = models.CharField(verbose_name="NPWP", max_length=20, null=True, blank=True)
 	bank_account_number = models.CharField(verbose_name="Nomor Rekening Bank", max_length=20, null=True, blank=True)
 	bank_branch = models.CharField(verbose_name="Cabang Bank", max_length=100, null=True, blank=True)
@@ -249,24 +270,16 @@ class AccountOtherInformation(Account):
 	linkedin = models.CharField(verbose_name="Linkedin", max_length=60, null=True, blank=True)
 
 	def __unicode__(self):
-		return u'%s' % self.npwp
+		return u'%s' % str(self.npwp)
+
 	class Meta:
-		verbose_name = 'Informasi lain Pengguna'
-		verbose_name_plural = 'Informasi lain Pengguna'
+		verbose_name = 'Informasi Lain Pengguna'
+		verbose_name_plural = 'Informasi Lain Pengguna'
 
 class AccountFiles(MetaAtribut):
-	user = models.ForeignKey(Account, on_delete=models.CASCADE, verbose_name='User')
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+	account = models.ForeignKey(Account, related_name='account_files', on_delete=models.CASCADE, verbose_name='Account')
 	file = models.ForeignKey(Files, on_delete=models.CASCADE, verbose_name='Files')
-
-	created_at = models.DateTimeField(editable=False)
-	updated_at = models.DateTimeField(auto_now=True)
-
-	def save(self, *args, **kwargs):
-		''' On save, update timestamps '''
-		if not self.id:
-			self.created_at = datetime.now()
-		self.updated_at = datetime.now()
-		return super(AccountFiles, self).save(*args, **kwargs)
 
 	def __unicode__(self):
 		return u'%s' % str(self.user.email)

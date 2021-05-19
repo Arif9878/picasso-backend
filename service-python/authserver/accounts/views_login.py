@@ -1,15 +1,13 @@
 import jwt, datetime
 from django.contrib.auth import get_user_model
 from django.db.models import Q
-from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import exceptions
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, permission_classes
-from django.views.decorators.csrf import get_token, ensure_csrf_cookie, csrf_protect
-from .serializers import AccountLoginSerializer
+from django.views.decorators.csrf import ensure_csrf_cookie
+from accounts.serializers import AccountLoginSerializer
 from .utils import get_client_ip, generate_access_token, generate_refresh_token
-from django.contrib.sessions.models import Session
 from django.conf import settings
     
 @api_view(['POST'])

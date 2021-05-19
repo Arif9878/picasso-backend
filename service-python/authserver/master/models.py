@@ -64,7 +64,7 @@ class FileField(models.FileField):
 				file.delete(save=False)
 		super(FileField, self).save_form_data(instance, data)
 
-class Files(MetaAtribut):
+class Files(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	file_name = models.CharField("Nama Berkas", max_length=100, blank=True, null=True, db_index=True)
 	file_number = models.CharField("Nomor Berkas", max_length=30, blank=True, null=True, help_text="Masukkan Nomor Surat / Berkas jika ada.", db_index=True)
@@ -79,6 +79,8 @@ class Files(MetaAtribut):
 		return "#"
 
 	def __unicode__(self):
+		if self.file:
+			return str(self.file)
 		return str(self.file_name)
 
 	class Meta:

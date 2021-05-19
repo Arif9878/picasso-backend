@@ -253,7 +253,16 @@ STATICFILES_DIRS = (
 STATIC_ROOT = os.path.join(BASE_DIR, 'files/static-collected/')
 CLIENT_SECRETS = os.path.join(BASE_DIR, 'files/client_secrets.py')
 
-MEDIA_URL = os.environ.get('AWS_S3_CLOUDFRONT')+'/'
+# S3 settings.
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_S3_ACCESS_KEY")
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_S3_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_S3_BUCKET")
+AWS_S3_CLOUDFRONT = os.environ.get("AWS_S3_CLOUDFRONT")
+AWS_S3_LOCATION = os.environ.get("AWS_S3_LOCATION_PATH")
+AWS_S3_CUSTOM_DOMAIN = '%s' % AWS_S3_CLOUDFRONT.replace("https://","")
+DEFAULT_FILE_STORAGE = 'authServer.storage_backends.MediaStorage'
+
+MEDIA_URL = '%s/%s/' % (os.environ.get('AWS_S3_CLOUDFRONT'), AWS_S3_LOCATION)
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'files/media/')
 
@@ -301,12 +310,3 @@ sentry_sdk.init(
     os.environ.get("SENTRY_DSN_DJANGO"),
     integrations=[DjangoIntegration()]
 )
-
-# S3 settings.
-
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_S3_ACCESS_KEY")
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_S3_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_S3_BUCKET")
-AWS_S3_CLOUDFRONT = os.environ.get("AWS_S3_CLOUDFRONT")
-AWS_S3_CUSTOM_DOMAIN = '%s' % AWS_S3_CLOUDFRONT.replace("https://","")
-DEFAULT_FILE_STORAGE = 'authServer.storage_backends.MediaStorage'

@@ -1,4 +1,5 @@
 import os, uuid
+from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 
 def path_and_rename(prefix, filename):
@@ -10,9 +11,9 @@ def get_path_file(instance, filename):
     return path_and_rename('', filename)
 
 class MediaStorage(S3Boto3Storage):
-    location = 'media'
+    location = settings.AWS_S3_LOCATION
     file_overwrite = True
 
 class ProfileMediaStorage(S3Boto3Storage):
-    location = 'media/profile'
+    location = '%s/profile' % settings.AWS_S3_LOCATION
     file_overwrite = True

@@ -5,15 +5,19 @@ from django.db.models import Value as V
 from django.db.models.functions import Concat
 from rest_framework.decorators import (
     api_view, permission_classes)
-from .models import Account
-from .serializers import AccountSerializer, AccountLoginSerializer
+from .models import Account, AccountEducation, AccountEmergencyContact, AccountFiles
+from accounts.serializers import (
+        AccountSerializer,
+        AccountEducationSerializer,
+        AccountEmergencyContactSerializer,
+        AccountFilesSerializer
+    )
 from rest_framework.response import Response
 from authServer.keycloak import get_keycloak_user_id, set_user_password
 
 class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
-    # pagination_class = LargeResultsSetPagination
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'post', 'put', 'delete', 'head']
     query = Account.objects.prefetch_related('groups', 'user_permissions')
@@ -52,6 +56,36 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AccountEducationViewSet(viewsets.ModelViewSet):
+    queryset = AccountEducation.objects.all()
+    serializer_class = AccountEducationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head']
+    query = AccountEducation.objects.prefetch_related('account', 'graduation_year')
+
+    def get_queryset(self):
+        return self.queryset
+
+class AccountEmergencyContactViewSet(viewsets.ModelViewSet):
+    queryset = AccountEmergencyContact.objects.all()
+    serializer_class = AccountEmergencyContactSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head']
+    query = AccountEmergencyContact.objects.prefetch_related('account', 'emergency_contact_name', 'emergency_contact_number')
+
+    def get_queryset(self):
+        return self.queryset
+
+class AccountFilesViewSet(viewsets.ModelViewSet):
+    queryset = AccountFiles.objects.all()
+    serializer_class = AccountFilesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head']
+    query = AccountFiles.objects.prefetch_related('account')
+
+    def get_queryset(self):
+        return self.queryset
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
