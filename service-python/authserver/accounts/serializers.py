@@ -7,22 +7,21 @@ from authServer.keycloak import add_new_user_keycloak
 from master.serializers import FilesSerializer
 from master.models import Files
 
-
-class AccountOtherInformationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AccountOtherInformation
-        fields = '__all__'
-
 class AccountSerializer(serializers.ModelSerializer):
     fullname = serializers.SerializerMethodField('get_full_name_')
     is_staff = serializers.SerializerMethodField('get_status_')
     age = serializers.SerializerMethodField('get_years_birthday_')
+    photo = serializers.SerializerMethodField('get_photo_')
 
     def create(self, validated_data):
         """
         Create and return a new `Snippet` instance, given the validated data.
         """
-        add_new_user_keycloak(validated_data)
+        try:
+            add_new_user_keycloak(validated_data)
+        except:
+            pass
+
         return Account.objects.create(**validated_data)
     class Meta:
         model = Account
@@ -36,25 +35,27 @@ class AccountSerializer(serializers.ModelSerializer):
             'birth_place',
             'birth_date',
             'marital_status',
-            'number_children',
             'religion',
             'blood_type',
             'gender',
             'age',
             'telephone',
             'is_staff',
-            'photo',
             'id_divisi',
             'divisi',
             'id_jabatan',
             'address',
             'jabatan',
+            'photo',
             'manager_category',
             'join_date',
             'is_admin',
             'is_active',
             'resign_date',
             'menu',
+            'npwp',
+            'bank_account_number',
+            'bank_branch',
             'reason_resignation'
         )
 
@@ -66,7 +67,16 @@ class AccountSerializer(serializers.ModelSerializer):
 
     def get_years_birthday_(self, obj):
         return obj.get_years_birthday()
-
+    
+    def get_photo_(self, obj):
+        if obj.photo:
+            return str(obj.photo)
+        return '#'
+        
+class AccountOtherInformationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AccountOtherInformation
+        fields = '__all__'
 class AccountLoginSerializer(serializers.HyperlinkedModelSerializer):
     user_obj = None
     token = serializers.CharField(allow_blank=True,read_only=True)

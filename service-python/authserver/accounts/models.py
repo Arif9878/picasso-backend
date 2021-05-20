@@ -75,10 +75,18 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	jabatan = models.CharField(verbose_name='Jabatan', max_length=64, null=True, blank=True)
 
 	marital_status = models.CharField(verbose_name='Status Pernikahan', max_length=50, null=True, blank=True)
-	number_children = models.IntegerField(verbose_name='Jumlah Anak', null=True, blank=True)
 	religion = models.CharField(verbose_name='Agama', choices=LIST_RELIGION, max_length=50, null=True, blank=True)
 	blood_type = models.CharField(verbose_name='Golongan Darah', choices=LIST_BLOOD_TYPE, max_length=4, null=True, blank=True)
 	gender = models.CharField(verbose_name='Jenis Kelamin', choices=LIST_GENDER, max_length=10, null=True, blank=True)
+
+	manager_category = models.CharField(verbose_name="Kategori Pengelola", max_length=150, null=True, blank=True)
+	join_date = models.DateTimeField(verbose_name="Tanggal Bergabung", null=True, blank=True)
+	resign_date = models.DateTimeField(verbose_name="Tanggal Pengunduran Diri", null=True, blank=True)
+	reason_resignation = models.CharField(verbose_name="Alasan Pengunduran Diri", max_length=255, null=True, blank=True)
+
+	npwp = models.CharField(verbose_name="NPWP", max_length=20, null=True, blank=True)
+	bank_account_number = models.CharField(verbose_name="Nomor Rekening Bank", max_length=20, null=True, blank=True)
+	bank_branch = models.CharField(verbose_name="Cabang Bank", max_length=100, null=True, blank=True)
 
 	id_province = models.CharField(verbose_name="ID Provinsi", max_length=40, null=True, blank=True)
 	province = models.CharField(verbose_name="Provinsi", max_length=80, null=True, blank=True)
@@ -88,12 +96,6 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 	sub_district = models.CharField(verbose_name="Kecamatan", max_length=100, null=True, blank=True)
 	id_village = models.CharField(verbose_name="ID Desa", max_length=40, null=True, blank=True)
 	village = models.CharField(verbose_name="Desa", max_length=150, null=True, blank=True)
-
-	manager_category = models.CharField(verbose_name="Kategori Pengelola", max_length=150, null=True, blank=True)
-
-	join_date = models.DateTimeField(verbose_name="Tanggal Bergabung", null=True, blank=True)
-	resign_date = models.DateTimeField(verbose_name="Tanggal Pengunduran Diri", null=True, blank=True)
-	reason_resignation = models.CharField(verbose_name="Alasan Pengunduran Diri", max_length=255, null=True, blank=True)
 
 	address = models.CharField(verbose_name="Alamat", max_length=255, null=True, blank=True)
 
@@ -209,6 +211,29 @@ class NomorIdentitasPengguna(models.Model):
 		verbose_name = 'Nomor Identitas Pengguna'
 		verbose_name_plural = 'Nomor Identitas Pengguna'
 
+class AccountOtherInformation(models.Model):
+	account = models.OneToOneField(
+        Account,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+	hobby = models.CharField(verbose_name="Hobi", max_length=100, null=True, blank=True)
+	other_skills_possessed = models.CharField(verbose_name="Keterampilan Lain Yang Dimiliki", max_length=100, null=True, blank=True)
+	future_goals = models.CharField(verbose_name="Cita-cita", max_length=100, null=True, blank=True)
+	life_motto = models.CharField(verbose_name="Motto hidup", max_length=100, null=True, blank=True)
+	favorite_food = models.CharField(verbose_name="Makanan favorit", max_length=100, null=True, blank=True)
+	favorite_drink = models.CharField(verbose_name="Minuman favorit", max_length=100, null=True, blank=True)
+	instagram = models.CharField(verbose_name="Instagram", max_length=60, null=True, blank=True)
+	facebook = models.CharField(verbose_name="Facebook", max_length=60, null=True, blank=True)
+	linkedin = models.CharField(verbose_name="Linkedin", max_length=60, null=True, blank=True)
+
+	def __unicode__(self):
+		return u'%s' % str(self.npwp)
+
+	class Meta:
+		verbose_name = 'Informasi Lain Pengguna'
+		verbose_name_plural = 'Informasi Lain Pengguna'
+
 class AccountEducation(MetaAtribut):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	account = models.ForeignKey(Account, related_name='account_educations', on_delete=models.CASCADE, verbose_name='Account')
@@ -249,32 +274,6 @@ class AccountEmergencyContact(MetaAtribut):
 	class Meta:
 		verbose_name = 'Kontak Darurat Pengguna'
 		verbose_name_plural = 'Kontak Darurat Pengguna'
-
-class AccountOtherInformation(models.Model):
-	account = models.OneToOneField(
-        Account,
-        on_delete=models.CASCADE,
-        primary_key=True,
-    )
-	npwp = models.CharField(verbose_name="NPWP", max_length=20, null=True, blank=True)
-	bank_account_number = models.CharField(verbose_name="Nomor Rekening Bank", max_length=20, null=True, blank=True)
-	bank_branch = models.CharField(verbose_name="Cabang Bank", max_length=100, null=True, blank=True)
-	hobby = models.CharField(verbose_name="Hobi", max_length=100, null=True, blank=True)
-	other_skills_possessed = models.CharField(verbose_name="Cabang Bank", max_length=100, null=True, blank=True)
-	future_goals = models.CharField(verbose_name="Cita-cita", max_length=100, null=True, blank=True)
-	life_motto = models.CharField(verbose_name="Motto hidup", max_length=100, null=True, blank=True)
-	favorite_food = models.CharField(verbose_name="Makanan favorit", max_length=100, null=True, blank=True)
-	favorite_drink = models.CharField(verbose_name="Minuman favorit", max_length=100, null=True, blank=True)
-	instagram = models.CharField(verbose_name="Instagram", max_length=60, null=True, blank=True)
-	facebook = models.CharField(verbose_name="Facebook", max_length=60, null=True, blank=True)
-	linkedin = models.CharField(verbose_name="Linkedin", max_length=60, null=True, blank=True)
-
-	def __unicode__(self):
-		return u'%s' % str(self.npwp)
-
-	class Meta:
-		verbose_name = 'Informasi Lain Pengguna'
-		verbose_name_plural = 'Informasi Lain Pengguna'
 
 class AccountFiles(MetaAtribut):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
