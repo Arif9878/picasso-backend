@@ -4,6 +4,7 @@ from django.db import models
 from dateutil.relativedelta import relativedelta
 from django.contrib.postgres.indexes import GinIndex
 import django.contrib.postgres.search as pg_search
+from django.conf import settings
 
 from authServer.storage_backends import ProfileMediaStorage, get_path_file
 
@@ -186,6 +187,11 @@ class Account(AbstractBaseUser,PermissionsMixin, MetaAtribut):
 			a = a+' '+self.get_complete_location_dictionary()
 		return a
 
+	def get_photo(self):
+		if self.photo:
+			return settings.MEDIA_URL+'profile/'+str(self.photo)
+		return "#"
+
 	def __str__(self):
 		return u'%s' % (self.email)
 
@@ -278,10 +284,10 @@ class AccountEmergencyContact(MetaAtribut):
 class AccountFiles(MetaAtribut):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	account = models.ForeignKey(Account, related_name='account_files', on_delete=models.CASCADE, verbose_name='Account')
-	file = models.ForeignKey(Files, on_delete=models.CASCADE, verbose_name='Files')
+	file = models.ForeignKey(Files, on_delete=models.CASCADE, verbose_name='Files', null=True, blank=True)
 
 	def __unicode__(self):
-		return u'%s' % str(self.user.email)
+		return u'%s' % str(self.account.email)
 
 	class Meta:
 		verbose_name = 'Berkas Pengguna'

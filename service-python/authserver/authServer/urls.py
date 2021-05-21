@@ -20,7 +20,9 @@ from accounts.views import (
         AccountOtherInformationViewSet,
         AccountEducationViewSet,
         AccountEmergencyContactViewSet,
+        AccountOtherInformationViewSet,
         AccountFilesViewSet,
+        UserProfileUpload,
         change_password_admin,
         change_password
     )
@@ -43,6 +45,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('api/user/info', detail_user),
+    path('api/user/photo/profile/', UserProfileUpload.as_view(), name="user_profile_upload"),
     path('api/user/change-password/<slug:user_id>', change_password_admin),
     path('api/user/change-password/', change_password),
     path('api/token/refresh', refresh_jwt_token),

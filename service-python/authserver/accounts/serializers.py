@@ -70,13 +70,19 @@ class AccountSerializer(serializers.ModelSerializer):
     
     def get_photo_(self, obj):
         if obj.photo:
-            return str(obj.photo)
+            return str(obj.get_photo())
         return '#'
         
 class AccountOtherInformationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AccountOtherInformation
         fields = '__all__'
+
+class AccountProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ('photo',)
+
 class AccountLoginSerializer(serializers.HyperlinkedModelSerializer):
     user_obj = None
     token = serializers.CharField(allow_blank=True,read_only=True)
@@ -111,7 +117,7 @@ class AccountLoginSerializer(serializers.HyperlinkedModelSerializer):
         return data
 
 class AccountEducationSerializer(serializers.ModelSerializer):
-    file = FilesSerializer()
+    file = FilesSerializer(required=False)
 
     def create(self, validated_data):
         """

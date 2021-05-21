@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Files
 
 class FilesSerializer(serializers.ModelSerializer):
-    file = serializers.FileField()
+    file = serializers.FileField(required=False, allow_null=True)
 
     def create(self, validated_data):
         """

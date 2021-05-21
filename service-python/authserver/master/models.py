@@ -1,11 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.utils.deconstruct import deconstructible
 from django.contrib.postgres.indexes import GinIndex
 import django.contrib.postgres.search as pg_search
-from django.db.models.signals import pre_delete
-from django.dispatch.dispatcher import receiver
 from django.conf import settings
 from datetime import datetime
 from django.db import models
@@ -68,10 +65,10 @@ class Files(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 	file_name = models.CharField("Nama Berkas", max_length=100, blank=True, null=True, db_index=True)
 	file_number = models.CharField("Nomor Berkas", max_length=30, blank=True, null=True, help_text="Masukkan Nomor Surat / Berkas jika ada.", db_index=True)
-	file = FileField(upload_to=get_path_file)
+	file = FileField(upload_to=get_path_file, blank=True, null=True)
 
 	note = models.CharField("Catatan", blank=True, null=True, max_length=255)
-	sv = pg_search.SearchVectorField(null=True, blank=True)
+	sv = pg_search.SearchVectorField(blank=True, null=True)
 	 
 	def get_file_url(self):
 		if self.file:

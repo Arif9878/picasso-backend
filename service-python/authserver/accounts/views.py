@@ -6,13 +6,16 @@ from django.db.models.functions import Concat
 from rest_framework.decorators import action
 from rest_framework.decorators import (
     api_view, permission_classes)
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.views import APIView
 from .models import Account, AccountOtherInformation, AccountEducation, AccountEmergencyContact, AccountFiles
 from accounts.serializers import (
         AccountSerializer,
         AccountOtherInformationSerializer,
         AccountEducationSerializer,
         AccountEmergencyContactSerializer,
-        AccountFilesSerializer
+        AccountFilesSerializer,
+        AccountProfileSerializer
     )
 from rest_framework.response import Response
 from authServer.keycloak import get_keycloak_user_id, set_user_password
@@ -58,7 +61,6 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 class AccountOtherInformationViewSet(viewsets.ModelViewSet):
     queryset = AccountOtherInformation.objects.all()
     serializer_class = AccountOtherInformationSerializer
@@ -160,6 +162,30 @@ def change_password_admin(request, user_id):
             resp = { 'message': 'Ganti password gagal' }
             return Response(resp, status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class UserProfileUpload(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, format=None):
+        serializer = AccountProfileSerializer(data=request.data, instance=request.user)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, format=None):
+        account = request.data.get('account')
+        if request.user.is_admin:
+            user = Account.objects.get(id=account)
+            serializer = AccountProfileSerializer(data=request.data, instance=user)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
