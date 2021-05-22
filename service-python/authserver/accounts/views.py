@@ -1,5 +1,6 @@
 from rest_framework import status, viewsets, permissions
 from django.contrib.auth.hashers import check_password
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
@@ -71,6 +72,35 @@ class AccountOtherInformationViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         self.queryset = self.queryset.filter(account=self.request.user).order_by('-account')
         return self.queryset
+
+    # details account information for admin
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAdminUser])
+    def details(self, request,  pk=None):
+        try:
+            account_other_info = AccountOtherInformation.objects.get(pk=pk)
+            serializer = self.get_serializer(account_other_info)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_200_OK)
+
+    # update account information for admin
+    @action(detail=True, methods=['put'], permission_classes=[permissions.IsAdminUser])
+    def updates(self, request, pk=None):
+        if request.user.is_admin:
+            try:
+                account_other_info = AccountOtherInformation.objects.get(account_id=pk)
+                serializer = self.get_serializer(account_other_info, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+            except:
+                account = get_object_or_404(Account, pk=pk)
+                request.data['account'] = account
+                account_other_info = AccountOtherInformation.objects.create(**request.data)
+                serializer = self.get_serializer(account_other_info)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 class AccountEducationViewSet(viewsets.ModelViewSet):
     queryset = AccountEducation.objects.all()
     serializer_class = AccountEducationSerializer
