@@ -4,7 +4,7 @@ const {
 
 const formCheckin = () => [
     body('date', 'Tanggal tidak boleh kosong').notEmpty(),
-    body('location', 'Lokasi tidak boleh kosong').notEmpty(),
+    body('location', 'Lokasi tidak boleh kosong').notEmpty()
 ]
 
 const formCheckout = () => [

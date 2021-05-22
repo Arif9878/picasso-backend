@@ -39,11 +39,38 @@ STATUS = (
 	(3, 'Draft'),
 )
 
-JENIS_KELAMIN = (
+LIST_GENDER = (
 	('Pria', 'Pria'),
 	('Wanita', 'Wanita')
 )
 
+LIST_EDUCATION = (
+	('D3', 'D3'),
+	('D4', 'D4'),
+	('S1', 'S1'),
+	('S2', 'S2'),
+	('S3', 'S3')
+)
+
+LIST_RELIGION = (
+    ('Islam', 'Islam'),
+    ('Kristen Protestan', 'Kristen Protestan'),
+    ('Kristen Katolik', 'Kristen Katolik'),
+    ('Hindu', 'Hindu'),
+    ('Buddha', 'Buddha'),
+    ('Konghucu', 'Konghucu')
+)
+
+LIST_BLOOD_TYPE = (
+    ('O−', 'O−'),
+    ('O+', 'O+'),
+    ('A−', 'A−'),
+    ('A+', 'A+'),
+    ('B−', 'B−'),
+    ('B+', 'B+'),
+    ('AB−', 'AB−'),
+    ('AB+', 'AB+')
+)
 
 def generate_access_token(user):
 

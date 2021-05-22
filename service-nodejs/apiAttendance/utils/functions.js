@@ -36,8 +36,11 @@ function calculateHours(startDate, endDate) {
     return hours.toFixed(2)
 }
 
+const arrayMood = ['worst', 'sad', 'neutral', 'good', 'excellent']
+
 module.exports = {
     calculateHours,
+    arrayMood,
     getUserDetail,
     getKeyRedis
 }

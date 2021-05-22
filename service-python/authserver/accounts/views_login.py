@@ -6,7 +6,7 @@ from rest_framework import exceptions
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import ensure_csrf_cookie
-from .serializers import AccountLoginSerializer
+from accounts.serializers import AccountLoginSerializer
 from .utils import get_client_ip, generate_access_token, generate_refresh_token
 from django.conf import settings
     
