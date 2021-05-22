@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from .models import Account
-from .serializers import AccountSerializer
+from accounts.serializers import AccountSerializer
 from rest_framework.utils import json
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 from .utils import get_client_ip, generate_access_token, generate_refresh_token

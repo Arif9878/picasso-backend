@@ -15,7 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from accounts.views import AccountViewSet, change_password_admin, change_password, client_user_list
+from accounts.views import (
+        AccountViewSet,
+        AccountOtherInformationViewSet,
+        AccountEducationViewSet,
+        AccountEmergencyContactViewSet,
+        AccountOtherInformationViewSet,
+        AccountFilesViewSet,
+        UserProfileUpload,
+        change_password_admin,
+        change_password,
+        client_user_list
+    )
 from menu.views import MenuViewSet, MenuTypeViewSet
 from accounts.views_social import oauth2_signin, oauth_keycloak_signin, detail_user
 from accounts.views_login import login_view, login_admin_view, refresh_token_view
@@ -24,6 +35,10 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r'user', AccountViewSet)
+router.register(r'user/other/information', AccountOtherInformationViewSet)
+router.register(r'user/data/educations', AccountEducationViewSet)
+router.register(r'user/data/emergency-contacts', AccountEmergencyContactViewSet)
+router.register(r'user/data/files', AccountFilesViewSet)
 router.register(r'menu-type', MenuTypeViewSet)
 router.register(r'menu', MenuViewSet)
 
@@ -31,6 +46,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('api/user/info', detail_user),
+    path('api/user/photo/profile/', UserProfileUpload.as_view(), name="user_profile_upload"),
     path('api/user/change-password/<slug:user_id>', change_password_admin),
     path('api/user/change-password/', change_password),
     path('api/client/user/app/', client_user_list),

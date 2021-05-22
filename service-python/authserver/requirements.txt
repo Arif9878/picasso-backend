@@ -28,3 +28,5 @@ python-keycloak==0.24.0
 django_opentracing==1.1.0
 jaeger-client==4.4.0
 sentry_sdk==0.19.5
+boto3==1.17.75
+django-storages==1.11.1

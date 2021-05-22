@@ -3,18 +3,28 @@ from django.contrib.auth.hashers import check_password
 from django.db.models import Q
 from django.db.models import Value as V
 from django.db.models.functions import Concat
+from rest_framework.decorators import action
 from rest_framework.decorators import (
     api_view, permission_classes, authentication_classes)
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.views import APIView
+from .models import Account, AccountOtherInformation, AccountEducation, AccountEmergencyContact, AccountFiles
+from accounts.serializers import (
+        AccountSerializer,
+        AccountOtherInformationSerializer,
+        AccountEducationSerializer,
+        AccountEmergencyContactSerializer,
+        AccountFilesSerializer,
+        AccountProfileSerializer,
+        AccountClientAppSerializer
+    )
 from rest_framework.authentication import BasicAuthentication
-from .models import Account
-from .serializers import AccountSerializer, AccountClientAppSerializer
 from rest_framework.response import Response
 from authServer.keycloak import get_keycloak_user_id, set_user_password
 from authServer.paginations import CustomPagination
 class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
-    # pagination_class = LargeResultsSetPagination
     permission_classes = [permissions.IsAuthenticated]
     http_method_names = ['get', 'post', 'put', 'delete', 'head']
     query = Account.objects.prefetch_related('groups', 'user_permissions')
@@ -53,6 +63,87 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class AccountOtherInformationViewSet(viewsets.ModelViewSet):
+    queryset = AccountOtherInformation.objects.all()
+    serializer_class = AccountOtherInformationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head']
+    query = AccountOtherInformation.objects.prefetch_related('account')
+
+    def get_queryset(self):
+        self.queryset = self.queryset.filter(account=self.request.user).order_by('-account')
+        return self.queryset
+class AccountEducationViewSet(viewsets.ModelViewSet):
+    queryset = AccountEducation.objects.all()
+    serializer_class = AccountEducationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head']
+    query = AccountEducation.objects.prefetch_related('account', 'graduation_year')
+
+    def get_queryset(self):
+        self.queryset = self.queryset.filter(account=self.request.user).order_by('-graduation_year')
+        return self.queryset
+
+    # list account education for admin
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAdminUser])
+    def lists(self, request,  pk=None):
+        account_education = AccountEducation.objects.filter(account_id=pk).order_by('-graduation_year')
+
+        page = self.paginate_queryset(account_education)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(account_education, many=True)
+        return Response(serializer.data)
+
+class AccountEmergencyContactViewSet(viewsets.ModelViewSet):
+    queryset = AccountEmergencyContact.objects.all()
+    serializer_class = AccountEmergencyContactSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head']
+    query = AccountEmergencyContact.objects.prefetch_related('account', 'emergency_contact_name', 'emergency_contact_number')
+
+    def get_queryset(self):
+        self.queryset = self.queryset.filter(account=self.request.user).order_by('-created_at')
+        return self.queryset
+
+    # list account emergency contact for admin
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAdminUser])
+    def lists(self, request,  pk=None):
+        account_emergency_contact = AccountEmergencyContact.objects.filter(account_id=pk).order_by('-created_at')
+
+        page = self.paginate_queryset(account_emergency_contact)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(account_emergency_contact, many=True)
+        return Response(serializer.data)
+
+class AccountFilesViewSet(viewsets.ModelViewSet):
+    queryset = AccountFiles.objects.all()
+    serializer_class = AccountFilesSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head']
+    query = AccountFiles.objects.prefetch_related('account')
+
+    def get_queryset(self):
+        self.queryset = self.queryset.filter(account=self.request.user).order_by('-created_at')
+        return self.queryset
+
+    # list account files contact for admin
+    @action(detail=True, methods=['get'], permission_classes=[permissions.IsAdminUser])
+    def lists(self, request,  pk=None):
+        account_emergency_contact = AccountFiles.objects.filter(account_id=pk).order_by('-created_at')
+
+        page = self.paginate_queryset(account_emergency_contact)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(account_emergency_contact, many=True)
+        return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
@@ -73,6 +164,30 @@ def change_password_admin(request, user_id):
             resp = { 'message': 'Ganti password gagal' }
             return Response(resp, status=status.HTTP_400_BAD_REQUEST)
     return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class UserProfileUpload(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, format=None):
+        serializer = AccountProfileSerializer(data=request.data, instance=request.user)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, format=None):
+        account = request.data.get('account')
+        if request.user.is_admin:
+            user = Account.objects.get(id=account)
+            serializer = AccountProfileSerializer(data=request.data, instance=user)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
