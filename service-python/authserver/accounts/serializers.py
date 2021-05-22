@@ -83,6 +83,38 @@ class AccountProfileSerializer(serializers.ModelSerializer):
         model = Account
         fields = ('photo',)
 
+class AccountClientAppSerializer(serializers.ModelSerializer):
+    fullname = serializers.SerializerMethodField('get_full_name_')
+
+    def create(self, validated_data):
+        """
+        Create and return a new `Snippet` instance, given the validated data.
+        """
+        add_new_user_keycloak(validated_data)
+        return Account.objects.create(**validated_data)
+    class Meta:
+        model = Account
+        fields = (
+            'id',
+            'email',
+            'fullname',
+            'username',
+            'birth_place',
+            'birth_date',
+            'telephone',
+            'photo',
+            'divisi',
+            'address',
+            'jabatan',
+            'manager_category',
+            'join_date',
+            'is_active',
+            'resign_date'
+        )
+
+    def get_full_name_(self, obj):
+        return obj.get_full_name()
+
 class AccountLoginSerializer(serializers.HyperlinkedModelSerializer):
     user_obj = None
     token = serializers.CharField(allow_blank=True,read_only=True)

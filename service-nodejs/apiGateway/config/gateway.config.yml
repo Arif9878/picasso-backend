@@ -6,161 +6,144 @@ apiEndpoints:
     host: '*'
     paths: /auth/*
     methods: ["POST","OPTIONS"]
-
   user:
     host: '*'
     paths: /user/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   dashboarduser:
     host: '*'
     paths: /dashboard/*
     methods: ["GET", "OPTIONS"]
-
   menutype:
     host: '*'
     paths: /menu-type/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   menu:
     host: '*'
     paths: /menu/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   oauth2_login:
     host: '*'
     paths: /social/*
     methods: ["POST","OPTIONS"]
-
   satuankerja:
     host: '*'
     paths: /satuan-kerja/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   jabatan:
     host: '*'
     paths: /jabatan/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   tupoksijabatan:
     host: '*'
     paths: /tupoksi-jabatan/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   logbook:
     host: '*'
     paths: /logbook/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   exportpdf:
     host: '*'
     paths: /export-pdf/*
     methods: ["GET","OPTIONS"]
-  
   monthlyreport:
     host: '*'
     paths: /monthly-report/*
     methods: ["GET","OPTIONS"]
-
   exportexcel:
     host: '*'
     paths: /export-excel/*
     methods: ["GET","OPTIONS"]
-
   project:
     host: '*'
     paths: /project/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   attendance:
     host: '*'
     paths: /attendance/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   devicetoken:
     host: '*'
     paths: /device-token/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   notificationservice:
     host: '*'
     paths: /notification/*
     methods: ["POST","OPTIONS"]
-
   notificationmessage:
     host: '*'
     paths: /notification-message/*
     methods: ["GET","DELETE","OPTIONS"]
-
   dayoff:
     host: '*'
     paths: /day-off/*
     methods: ["GET","POST","DELETE","OPTIONS"]
-
   holidaydate:
     host: '*'
     paths: /holiday-date/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   settings:
     host: '*'
     paths: /settings/*
     methods: ["GET","POST","PUT","DELETE","OPTIONS"]
-
   healthcheck:
     host: '*'
     paths: /healthcheck/*
     methods: ["GET","OPTIONS"]
+  client_app_user:
+    host: '*'
+    paths: /client/user/*
+    methods: ["GET","OPTIONS"]
+  client_app_logbook:
+    host: '*'
+    paths: /client/logbook/*
+    methods: ["GET", "POST", "OPTIONS"]
+  client_app_holidaydate:
+    host: '*'
+    paths: /client/holiday-date/*
+    methods: ["GET", "OPTIONS"]
+  client_app_attendance:
+    host: '*'
+    paths: /client/attendance/*
+    methods: ["GET", "POST", "OPTIONS"]
+  client_app_project:
+    host: '*'
+    paths: /client/project/*
+    methods: ["GET", "OPTIONS"]
 
 serviceEndpoints:
-  authentication:
+  user_service:
     url: '${AUTHENTICATION_PY_SERVICE_URI}/api/'
-
   satuankerja:
     url: '${SATUANKERJA_GO_SERVICE_URI}/api/'
-
   jabatan:
     url: '${JABATAN_GO_SERVICE_URI}/api/'
-
   tupoksijabatan:
     url: '${TUPOKSI_JABATAN_GO_SERVICE_URI}/api/'
-
   logbook:
     url: '${LOGBOOK_NODEJS_SERVICE_URI}/api/'
-
   exportpdf:
     url: '${EXPORT_PDF_NODEJS_SERVICE_URI}/api/'
-
   monthlyreport:
     url: '${MONTHLY_REPORT_PY_SERVICE_URI}/api/'
-
   exportexcel:
     url: '${EXPORT_EXCEL_PY_SERVICE_URI}/api/'
-
   dashboarduser:
     url: '${DASHBOARD_USER_PY_SERVICE_URI}/api/'
-  
   project:
     url: '${PROJECT_NODEJS_SERVICE_URI}/api/'
-
   attendance:
     url: '${ATTENDANCE_NODEJS_SERVICE_URI}/api/'
-
   devicetoken:
     url: '${DEVICE_TOKEN_GO_SERVICE_URI}/api/'
-      
   notificationservice:
     url: '${NOTIFICATION_SERVICE_GO_SERVICE_URI}/api/'
-
   notificationmessage:
     url: '${NOTIFICATION_MESSAGE_GO_SERVICE_URI}/api/'
-
   dayoff:
     url: '${DAY_OFF_GO_SERVICE_URI}/api/'
-
   holidaydate:
     url: '${HOLIDAY_DATE_GO_SERVICE_URI}/api/'
-
   settings:
     url: '${SETTINGS_GO_SERVICE_URI}/api/'
 
@@ -173,6 +156,7 @@ policies:
   - oauth2
   - proxy
   - rate-limit
+  - keycloak-protect
   - jwt
   - jaeger
 
@@ -182,41 +166,30 @@ pipelines:
       - authentication
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true
-
   oauth2_login:
     apiEndpoints:
       - oauth2_login
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true
-
   user:
     apiEndpoints:
       - user
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -226,17 +199,13 @@ pipelines:
               checkCredentialExistence: false
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true
-
   dashboarduser:
     apiEndpoints:
       - dashboarduser
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -247,16 +216,12 @@ pipelines:
       - proxy:
           - action:
               serviceEndpoint: dashboarduser
-              changeOrigin: true
-              
+              changeOrigin: true            
   menu:
     apiEndpoints:
       - menu
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -266,17 +231,13 @@ pipelines:
               checkCredentialExistence: false
       - proxy:
           - action:
-              serviceEndpoint: authentication
+              serviceEndpoint: user_service
               changeOrigin: true
-
   menutype:
     apiEndpoints:
       - menutype
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -286,17 +247,13 @@ pipelines:
               checkCredentialExistence: false
       - proxy:
           - action:
-              serviceEndpoint: authentication
-              changeOrigin: true
-              
+              serviceEndpoint: user_service
+              changeOrigin: true             
   satuankerja:
     apiEndpoints:
       - satuankerja
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -308,15 +265,11 @@ pipelines:
           - action:
               serviceEndpoint: satuankerja
               changeOrigin: true
-
   jabatan:
     apiEndpoints:
       - jabatan
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -328,15 +281,11 @@ pipelines:
           - action:
               serviceEndpoint: jabatan
               changeOrigin: true
-
   tupoksijabatan:
     apiEndpoints:
       - tupoksijabatan
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -348,15 +297,11 @@ pipelines:
           - action:
               serviceEndpoint: tupoksijabatan
               changeOrigin: true
-
   logbook:
     apiEndpoints:
       - logbook
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -369,15 +314,11 @@ pipelines:
           - action:
               serviceEndpoint: logbook
               changeOrigin: true
-              timeout: 600000
   exportpdf:
     apiEndpoints:
       - exportpdf
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -390,15 +331,11 @@ pipelines:
           - action:
               serviceEndpoint: exportpdf
               changeOrigin: true
-              timeout: 600000
   monthlyreport:
     apiEndpoints:
       - monthlyreport
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -410,15 +347,11 @@ pipelines:
           - action:
               serviceEndpoint: monthlyreport
               changeOrigin: true
-
   exportexcel:
     apiEndpoints:
       - exportexcel
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -430,15 +363,11 @@ pipelines:
           - action:
               serviceEndpoint: exportexcel
               changeOrigin: true
-
   project:
     apiEndpoints:
       - project
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -450,15 +379,11 @@ pipelines:
           - action:
               serviceEndpoint: project
               changeOrigin: true
-
   attendance:
     apiEndpoints:
       - attendance
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -470,15 +395,11 @@ pipelines:
           - action:
               serviceEndpoint: attendance
               changeOrigin: true
-
   devicetoken:
     apiEndpoints:
       - devicetoken
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -490,15 +411,11 @@ pipelines:
           - action:
               serviceEndpoint: devicetoken
               changeOrigin: true
-
   notificationservice:
     apiEndpoints:
       - notificationservice
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -510,15 +427,11 @@ pipelines:
           - action:
               serviceEndpoint: notificationservice
               changeOrigin: true
-
   notificationmessage:
     apiEndpoints:
       - notificationmessage
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -530,15 +443,11 @@ pipelines:
           - action:
               serviceEndpoint: notificationmessage
               changeOrigin: true
-
   dayoff:
     apiEndpoints:
       - dayoff
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -555,9 +464,6 @@ pipelines:
       - holidaydate
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -569,15 +475,11 @@ pipelines:
           - action:
               serviceEndpoint: holidaydate
               changeOrigin: true
-
   settings:
     apiEndpoints:
       - settings
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
@@ -589,19 +491,80 @@ pipelines:
           - action:
               serviceEndpoint: settings
               changeOrigin: true
-
   healthcheck:
     apiEndpoints:
       - healthcheck
     policies:
       - jaeger:
-          - action:
-              serviceName: 'api-gateway'
-              collectorEndpoint: ${JAEGER_COLLECTTOR_END_POINT}
       - cors:
           - action:
               allowedHeaders: '*'
       - proxy:
           - action:
               serviceEndpoint: exportpdf
+              changeOrigin: true
+  client_app_logbook:
+    apiEndpoints:
+      - client_app_logbook  
+    policies:
+      - jaeger:
+      - keycloak-protect:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: logbook
+              changeOrigin: true
+  client_app_attendance:
+    apiEndpoints:
+      - client_app_attendance  
+    policies:
+      - jaeger:
+      - keycloak-protect:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: attendance
+              changeOrigin: true
+  client_app_holidaydate:
+    apiEndpoints:
+      - client_app_holidaydate
+    policies:
+      - jaeger:
+      - keycloak-protect:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: holidaydate
+              changeOrigin: true
+  client_app_project:
+    apiEndpoints:
+      - client_app_project
+    policies:
+      - jaeger:
+      - keycloak-protect:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: project
+              changeOrigin: true
+  client_app_user:
+    apiEndpoints:
+      - client_app_user
+    policies:
+      - jaeger:
+      - keycloak-protect:
+      - cors:
+          - action:
+              allowedHeaders: '*'
+      - proxy:
+          - action:
+              serviceEndpoint: user_service
               changeOrigin: true

@@ -24,7 +24,8 @@ from accounts.views import (
         AccountFilesViewSet,
         UserProfileUpload,
         change_password_admin,
-        change_password
+        change_password,
+        client_user_list
     )
 from menu.views import MenuViewSet, MenuTypeViewSet
 from accounts.views_social import oauth2_signin, oauth_keycloak_signin, detail_user
@@ -48,6 +49,7 @@ urlpatterns = [
     path('api/user/photo/profile/', UserProfileUpload.as_view(), name="user_profile_upload"),
     path('api/user/change-password/<slug:user_id>', change_password_admin),
     path('api/user/change-password/', change_password),
+    path('api/client/user/app/', client_user_list),
     path('api/token/refresh', refresh_jwt_token),
     path('api/social/google-oauth2/', oauth2_signin),
     path('api/social/keycloak-oauth/', oauth_keycloak_signin),

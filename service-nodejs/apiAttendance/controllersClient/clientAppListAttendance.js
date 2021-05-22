@@ -36,7 +36,6 @@ module.exports = async (req, res) => {
           'location': 1,
           'message': 1,
           'note': 1,
-          'mood': { '$ifNull': ['$mood', ''] },
           'fullname': '$createdBy.fullname',
           'email': '$createdBy.email',
           'username': '$createdBy.username',

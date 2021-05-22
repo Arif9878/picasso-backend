@@ -26,6 +26,7 @@ func newRouter(config *ConfigDB) (router *mux.Router) {
 		log.Fatal("cannot initialize Jaeger Tracer", err)
 	}
 
+	router.HandleFunc("/api/client/holiday-date/list", config.listHolidayDate).Methods("GET")
 	router.HandleFunc("/api/holiday-date/list", config.listHolidayDate).Methods("GET")
 	router.HandleFunc("/api/holiday-date/create", config.postHolidayDate).Methods("POST")
 	router.HandleFunc("/api/holiday-date/update/{ID}", config.putHolidayDate).Methods("PUT")

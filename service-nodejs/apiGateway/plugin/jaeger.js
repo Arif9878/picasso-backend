@@ -8,11 +8,13 @@ const plugin = {
   version: '1.0.0',
   policies: ['jaeger'],
 
-  init: pluginContext => {
+  init: function (pluginContext) {
+    const jgConfig = pluginContext.settings.jaegerParams
+
     pluginContext.registerPolicy({
       name: 'jaeger',
       schema: {
-        $id: 'http://express-gateway.io/schemas/policies/jaeger.json',
+        $id: 'http://express-gateway.io/schemas/policy/jaeger.json',
         type: 'object',
         properties: {
           serviceName: {
@@ -95,16 +97,16 @@ const plugin = {
             description: 'A comma separated list of name = value tracer level tags, which get added to all reported spans. The value can also refer to an environment variable using the format ${envVarName:default}, where the :default is optional, and identifies a value to be used if the environment variable cannot be found'
           },
         },
-        required: ['serviceName'],
       },
       policy: (actionParams) => {
-        const { serviceName, collectorEndpoint, tags, logger } = actionParams;
+        const { tags, logger } = actionParams;
+
         //set up our tracer
         const config = {
-          serviceName: serviceName,
+          serviceName: jgConfig.serviceName,
           reporter: {
             logSpans: true,
-            collectorEndpoint: collectorEndpoint,
+            collectorEndpoint: jgConfig.collectorEndpoint,
           },
           sampler: {
             type: 'const',

@@ -90,8 +90,8 @@ def cacheUser():
 
 sched = BackgroundScheduler(daemon=True)
 sched.add_job(dumpToS3, 'interval', hours=2)
-sched.add_job(cacheToRedis, 'interval', hours=2, minutes=10)
-sched.add_job(cacheUser, 'interval', hours=12)
+sched.add_job(cacheToRedis, 'interval', hours=1)
+sched.add_job(cacheUser, 'interval', hours=2)
 sched.start()
 
 port = os.environ.get('CACHING_DATA_PORT', 80)
