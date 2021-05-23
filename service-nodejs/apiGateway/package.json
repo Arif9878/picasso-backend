@@ -29,6 +29,6 @@
     "connect-timeout": "^1.9.0",
     "fsevents": "^2.1.2",
     "raven": "^2.6.4",
-    "redis": "^2.8.0"
+    "redis": "^3.1.1"
   }
 }
