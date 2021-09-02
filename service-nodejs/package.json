@@ -52,7 +52,7 @@
     "lodash": "^4.17.15",
     "mocha": "^8.2.0",
     "moment": "^2.27.0",
-    "mongoose": "^5.10.9",
+    "mongoose": "^6.0.4",
     "mongoose-activitylogs": "^2.1.15",
     "nats": "^1.4.12",
     "opentracing": "^0.14.5",
