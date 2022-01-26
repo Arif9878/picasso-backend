@@ -59,7 +59,7 @@
     "pdfmake": "^0.1.66",
     "raven": "^2.6.4",
     "redis": "^2.8.0",
-    "sharp": "^0.25.4",
+    "sharp": "^0.29.3",
     "uuid": "^7.0.2",
     "winston": "^3.2.1",
     "zipkin-context-cls": "^0.11.0",
