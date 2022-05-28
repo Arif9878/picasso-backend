@@ -32,7 +32,7 @@
     "pdfmake": "^0.1.66",
     "connect-redis": "4.0.0",
     "redis": "^2.8.0",
-    "sharp": "^0.26.2",
+    "sharp": "^0.30.5",
     "connect-timeout": "^1.9.0",
     "express-validator": "^6.6.0",
     "jaeger-client": "^3.18.1",
