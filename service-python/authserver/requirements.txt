@@ -1,4 +1,4 @@
-Django==2.2.4
+Django==3.2.14
 django-cors-headers==3.0.2
 django-filter==2.1.0
 django-oauth-toolkit==1.2.0
