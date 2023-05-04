@@ -1,4 +1,4 @@
-Flask==0.12.1
+Flask==2.2.5
 Flask-SQLAlchemy==2.2
 Mako==1.0.6
 packaging==16.8
