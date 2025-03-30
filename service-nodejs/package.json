@@ -27,7 +27,7 @@
   "dependencies": {
     "accesscontrol": "^2.2.1",
     "aws-sdk": "^2.814.0",
-    "axios": "^0.21.1",
+    "axios": "^0.30.0",
     "babel-preset-env": "^1.7.0",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
@@ -59,7 +59,7 @@
     "pdfmake": "^0.1.66",
     "raven": "^2.6.4",
     "redis": "^2.8.0",
-    "sharp": "^0.25.4",
+    "sharp": "^0.33.0",
     "uuid": "^7.0.2",
     "winston": "^3.2.1",
     "zipkin-context-cls": "^0.11.0",
